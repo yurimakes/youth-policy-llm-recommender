@@ -20,6 +20,7 @@ class MatchStatus(str, Enum):
 @dataclass(frozen=True)
 class UserProfile:
     age: int | None = None
+    region_code: str | None = None
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,11 @@ def evaluate_policy(
     statuses.append(age_status)
     if age_reason is not None:
         reasons.append(age_reason)
+
+    region_status, region_reason = _evaluate_region(policy, profile)
+    statuses.append(region_status)
+    if region_reason is not None:
+        reasons.append(region_reason)
 
     if MatchStatus.NO_MATCH in statuses:
         status = MatchStatus.NO_MATCH
@@ -95,3 +101,27 @@ def _age_mismatch_reason(policy: PolicyRecord) -> str:
         age_range = f"{policy.age_max}세 이하"
 
     return f"지원 연령 {age_range}에 해당하지 않습니다."
+
+
+def _evaluate_region(
+    policy: PolicyRecord,
+    profile: UserProfile,
+) -> tuple[MatchStatus, str | None]:
+    if profile.region_code is None or not profile.region_code.strip():
+        return MatchStatus.UNKNOWN, "사용자 지역이 입력되지 않았습니다."
+
+    policy_region_codes = _parse_region_codes(policy.region_code)
+    if not policy_region_codes:
+        return MatchStatus.UNKNOWN, "정책의 지역 조건을 확인할 수 없습니다."
+
+    if profile.region_code.strip() in policy_region_codes:
+        return MatchStatus.MATCH, None
+
+    return MatchStatus.NO_MATCH, "지원 지역에 해당하지 않습니다."
+
+
+def _parse_region_codes(region_code: str | None) -> set[str]:
+    if region_code is None:
+        return set()
+
+    return {code.strip() for code in region_code.split(",") if code.strip()}
