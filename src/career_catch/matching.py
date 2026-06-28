@@ -68,6 +68,11 @@ def evaluate_policy(
     if employment_reason is not None:
         reasons.append(employment_reason)
 
+    income_status, income_reason = _evaluate_income_condition(policy)
+    statuses.append(income_status)
+    if income_reason is not None:
+        reasons.append(income_reason)
+
     if MatchStatus.NO_MATCH in statuses:
         status = MatchStatus.NO_MATCH
     elif MatchStatus.UNKNOWN in statuses:
@@ -150,3 +155,12 @@ def _evaluate_employment_status(
         return MatchStatus.MATCH, None
 
     return MatchStatus.NO_MATCH, "취업 상태 조건에 해당하지 않습니다."
+
+
+def _evaluate_income_condition(policy: PolicyRecord) -> tuple[MatchStatus, str | None]:
+    if policy.income_condition is None or not policy.income_condition.strip():
+        return MatchStatus.UNKNOWN, "정책의 소득 조건을 확인할 수 없습니다."
+    if policy.income_condition.strip() == "무관":
+        return MatchStatus.MATCH, None
+
+    return MatchStatus.UNKNOWN, "소득 조건은 세부 확인이 필요합니다."
