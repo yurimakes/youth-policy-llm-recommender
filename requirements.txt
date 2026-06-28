@@ -1,6 +1,6 @@
-streamlit
-requests
-pandas
-faiss-cpu
-openai
-pytest
+streamlit==1.58.0
+requests==2.34.2
+pandas==2.3.3
+faiss-cpu==1.14.3
+openai==2.44.0
+pytest==9.1.1
