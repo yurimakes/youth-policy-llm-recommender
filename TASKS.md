@@ -2,20 +2,16 @@
 
 ## 1. 현재 상태
 
-이 저장소는 현재 온통청년 API 코드북 구현 단계입니다.
+이 저장소는 현재 온통청년 공식 예시 JSON을 canonical `PolicyRecord` 목록으로 변환하는 최소 파서 구현 후 사용자 검토 단계입니다.
 
 - 저장소 루트: `career-catch-4/`
-- Python 버전: 3.10.11 가상환경에서 패키지 설치 및 import 검증 완료
-- 최소 설정 파일: `requirements.txt`, `.env.example` 생성됨
-- canonical `PolicyRecord` 모델: 구현됨
-- 온통청년 API 코드북: 구현됨
-- 코드북 단위 테스트: 구현 및 통과
-- 실제 API 데이터 수집: 인증키 승인 전이라 아직 시작하지 않음
-- 애플리케이션 구현: 아직 시작하지 않음
-- 데이터 파일, SQLite 데이터베이스, FAISS 산출물: 아직 생성되지 않음
-- 배포: 아직 수행되지 않음
-
-## 2. 확정된 MVP 범위
+- Python 버전: 3.10.11 가상환경 기준
+- 주 데이터 소스: 온통청년 청년정책 API
+- 실제 API 네트워크 호출: 인증키 승인 전이라 아직 수행하지 않음
+- 개인 인증키 검증: 아직 수행하지 않음
+- Streamlit 애플리케이션 UI 구현: 아직 시작하지 않음
+- 실제 API 수집 데이터, SQLite 데이터베이스, FAISS 산출물: 아직 생성하지 않음
+- 배포: 아직 수행하지 않음
 
 MVP는 단일 Streamlit 애플리케이션으로 계획합니다.
 
@@ -29,51 +25,53 @@ MVP는 단일 Streamlit 애플리케이션으로 계획합니다.
 - pytest
 - Streamlit Community Cloud
 
-주 데이터 소스는 온통청년 청년정책 API입니다. raw 데이터, processed 데이터, vector artifacts는 추적 가능하고 재현 가능하게 관리해야 합니다.
+raw 데이터, processed 데이터, vector artifacts는 추적 가능하고 재현 가능하게 관리해야 합니다.
 
-## 3. 현재 작업
+## 2. 현재 작업
 
-**작업:** 온통청년 API 코드북 구현 및 테스트
+**작업:** 온통청년 공식 예시 JSON 파서 구현 및 사용자 검토
 
-**상태:** 구현 및 테스트 완료, 사용자 검토 대기 중입니다.
+**상태:** 구현과 테스트는 완료되었고, 사용자 검토를 기다리고 있습니다.
 
-이번 작업에서는 온통청년 청년정책 API 코드값을 사람이 읽을 수 있는 명칭으로 변환하는 최소 코드북 모듈과 단위 테스트만 구현했습니다. 실제 API 호출, 데이터 파일, SQLite, 필터링, FAISS, OpenAI API, Streamlit UI는 구현하지 않았습니다.
+이번 작업에서는 저장된 공식 예시 JSON `tests/fixtures/ontong_youth_policy_page1.json`의 10개 정책 레코드를 읽어 canonical `PolicyRecord` 목록으로 변환하는 최소 파서를 구현했습니다. 실제 API 호출, SQLite 저장, 조건 필터링, FAISS, OpenAI API, Streamlit UI는 아직 구현하지 않았습니다.
 
-온통청년 공식 예시 JSON에서 특화요건 실제 필드명이 `sbizCd`로 확인되어 CODEBOOKS에는 `sbizCd`를 사용합니다. 문서 표기 `sBizCd`는 별칭으로 호환 처리합니다.
+## 3. 할 일
 
-## 4. 생성된 파일
+- [ ] 인증키 승인 후 실제 API 호출 검증
+- [ ] 실제 API 응답 저장 및 공식 예시와 비교
+- [ ] API 필드 매핑 보완
+- [ ] SQLite 저장
+- [ ] 조건 필터링
+- [ ] FAISS 검색
+- [ ] OpenAI 설명 생성
+- [ ] Streamlit UI
+- [ ] 배포
 
-- `src/career_catch/codebook.py`
-- `tests/test_codebook.py`
+## 4. 완료된 작업
 
-## 5. 검증 상태
+- [x] 프로젝트 목표, MVP 범위 및 기술 스택 확정
+- [x] 프로젝트 문서 AGENTS.md, PROJECT_SPEC.md, README.md, 초기 TASKS.md 작성
+- [x] Git 저장소 초기화, 가상환경 생성 및 초기 개발 설정 파일 구성
+- [x] 개발 환경과 직접 의존성 설치 및 import 검증
+- [x] canonical `PolicyRecord` 모델 구현
+- [x] `PolicyRecord` 단위 테스트 8개 통과
+- [x] 온통청년 API 코드북 구현
+- [x] 공식 예시 JSON fixture 10건 저장
+- [x] 온통청년 공식 예시 JSON 파서 구현
+- [x] 온통청년 파서 테스트 10개 통과
+- [x] 현재 전체 테스트 29개 통과
 
-실제 실행한 테스트 명령:
+## 5. 검증 기록
 
-```bash
-.\.venv\Scripts\python.exe -m pytest tests/test_codebook.py -q
-```
+- Python 3.10.11 가상환경에서 직접 의존성 설치와 핵심 패키지 import 및 버전 확인 완료
+- `.\.venv\Scripts\python.exe -m pytest tests/test_models.py -q`: 8 passed
+- `.\.venv\Scripts\python.exe -m pytest tests/test_codebook.py -q`: 11 passed
+- `.\.venv\Scripts\python.exe -m pytest tests/test_ontong_parser.py -q`: 10 passed
+- `.\.venv\Scripts\python.exe -m pytest -q`: 29 passed
 
-실제 테스트 결과:
+검증은 외부 네트워크나 API 키 없이 수행했습니다. 실제 API 네트워크 호출과 개인 인증키 검증은 아직 수행하지 않았습니다.
 
-```text
-11 passed
-```
-
-테스트는 외부 네트워크나 API 키 없이 실행됩니다.
-
-## 6. 아직 시작하지 않은 작업
-
-- 인증키 승인 후 온통청년 API 수집
-- API 필드 매핑
-- SQLite 저장
-- 필터링 로직
-- FAISS 인덱싱 및 검색
-- OpenAI API 연동
-- Streamlit UI
-- 데이터 파일 생성
-
-## 7. MVP 제외 및 향후 확장 항목
+## 6. MVP 제외 및 향후 확장 항목
 
 다음 항목은 초기 MVP에서 제외하며, 명시적 승인 후 향후 확장으로만 검토합니다.
 
@@ -89,7 +87,7 @@ MVP는 단일 Streamlit 애플리케이션으로 계획합니다.
 - 관리자 대시보드
 - 네이티브 모바일 애플리케이션
 
-## 8. 정책 추천 안전 문구
+## 7. 정책 추천 안전 문구
 
 추천 결과는 최종 신청 자격을 확정하지 않습니다.
 
