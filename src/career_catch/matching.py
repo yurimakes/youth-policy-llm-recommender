@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 
@@ -29,6 +30,19 @@ class MatchResult:
     policy_id: str
     status: MatchStatus
     reasons: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class EvaluatedPolicy:
+    policy: PolicyRecord
+    result: MatchResult
+
+
+@dataclass(frozen=True)
+class PolicyEvaluationBatch:
+    matched: tuple[EvaluatedPolicy, ...]
+    unknown: tuple[EvaluatedPolicy, ...]
+    no_match: tuple[EvaluatedPolicy, ...]
 
 
 def evaluate_policy(
@@ -84,6 +98,31 @@ def evaluate_policy(
         policy_id=policy.policy_id,
         status=status,
         reasons=tuple(reasons),
+    )
+
+
+def evaluate_policies(
+    policies: Iterable[PolicyRecord],
+    profile: UserProfile,
+) -> PolicyEvaluationBatch:
+    matched: list[EvaluatedPolicy] = []
+    unknown: list[EvaluatedPolicy] = []
+    no_match: list[EvaluatedPolicy] = []
+
+    for policy in policies:
+        result = evaluate_policy(policy, profile)
+        evaluated_policy = EvaluatedPolicy(policy=policy, result=result)
+        if result.status is MatchStatus.MATCH:
+            matched.append(evaluated_policy)
+        elif result.status is MatchStatus.UNKNOWN:
+            unknown.append(evaluated_policy)
+        else:
+            no_match.append(evaluated_policy)
+
+    return PolicyEvaluationBatch(
+        matched=tuple(matched),
+        unknown=tuple(unknown),
+        no_match=tuple(no_match),
     )
 
 
