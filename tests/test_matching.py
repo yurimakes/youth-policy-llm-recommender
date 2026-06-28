@@ -23,6 +23,7 @@ VERIFIED_AT = datetime(2026, 6, 29, 0, 0, 0)
 def make_policy(
     *,
     policy_id: str = "policy-1",
+    region_code: str | None = "29140",
     age_min: int | None = 19,
     age_max: int | None = 39,
     application_status: ApplicationStatus = ApplicationStatus.OPEN,
@@ -32,7 +33,7 @@ def make_policy(
         policy_name="Test Policy",
         category=None,
         summary=None,
-        region_code=None,
+        region_code=region_code,
         region_name=None,
         age_min=age_min,
         age_max=age_max,
@@ -55,7 +56,10 @@ def make_policy(
 
 
 def test_open_policy_with_age_in_range_matches_with_no_reasons():
-    result = evaluate_policy(make_policy(policy_id="policy-match"), UserProfile(age=25))
+    result = evaluate_policy(
+        make_policy(policy_id="policy-match"),
+        UserProfile(age=25, region_code="29140"),
+    )
 
     assert result.policy_id == "policy-match"
     assert result.status is MatchStatus.MATCH
@@ -65,7 +69,7 @@ def test_open_policy_with_age_in_range_matches_with_no_reasons():
 def test_closed_policy_immediately_returns_no_match_regardless_of_age():
     result = evaluate_policy(
         make_policy(application_status=ApplicationStatus.CLOSED),
-        UserProfile(age=25),
+        UserProfile(age=25, region_code="99999"),
     )
 
     assert result.status is MatchStatus.NO_MATCH
@@ -91,7 +95,7 @@ def test_non_open_application_status_is_unknown_when_age_matches(
 ):
     result = evaluate_policy(
         make_policy(application_status=application_status),
-        UserProfile(age=25),
+        UserProfile(age=25, region_code="29140"),
     )
 
     assert result.status is MatchStatus.UNKNOWN
@@ -103,12 +107,12 @@ def test_non_open_application_status_is_unknown_when_age_matches(
     [
         (
             make_policy(),
-            UserProfile(age=None),
+            UserProfile(age=None, region_code="29140"),
             "사용자 나이가 입력되지 않았습니다.",
         ),
         (
             make_policy(age_min=None, age_max=None),
-            UserProfile(age=25),
+            UserProfile(age=25, region_code="29140"),
             "정책의 연령 조건을 확인할 수 없습니다.",
         ),
     ],
@@ -122,7 +126,10 @@ def test_unknown_age_conditions(policy, profile, expected_reason):
 
 @pytest.mark.parametrize("age", [18, 40])
 def test_age_outside_two_sided_range_is_no_match(age):
-    result = evaluate_policy(make_policy(age_min=19, age_max=39), UserProfile(age=age))
+    result = evaluate_policy(
+        make_policy(age_min=19, age_max=39),
+        UserProfile(age=age, region_code="29140"),
+    )
 
     assert result.status is MatchStatus.NO_MATCH
     assert result.reasons == ("지원 연령 19~39세에 해당하지 않습니다.",)
@@ -131,7 +138,7 @@ def test_age_outside_two_sided_range_is_no_match(age):
 def test_age_below_minimum_only_policy_is_no_match_with_exact_reason():
     result = evaluate_policy(
         make_policy(age_min=19, age_max=None),
-        UserProfile(age=18),
+        UserProfile(age=18, region_code="29140"),
     )
 
     assert result.status is MatchStatus.NO_MATCH
@@ -141,7 +148,7 @@ def test_age_below_minimum_only_policy_is_no_match_with_exact_reason():
 def test_age_above_maximum_only_policy_is_no_match_with_exact_reason():
     result = evaluate_policy(
         make_policy(age_min=None, age_max=39),
-        UserProfile(age=40),
+        UserProfile(age=40, region_code="29140"),
     )
 
     assert result.status is MatchStatus.NO_MATCH
@@ -155,7 +162,7 @@ def test_upcoming_policy_with_age_mismatch_returns_no_match_and_ordered_reasons(
             age_max=39,
             application_status=ApplicationStatus.UPCOMING,
         ),
-        UserProfile(age=18),
+        UserProfile(age=18, region_code="29140"),
     )
 
     assert result.status is MatchStatus.NO_MATCH
@@ -163,3 +170,106 @@ def test_upcoming_policy_with_age_mismatch_returns_no_match_and_ordered_reasons(
         "아직 신청 기간이 시작되지 않았습니다.",
         "지원 연령 19~39세에 해당하지 않습니다.",
     )
+
+
+@pytest.mark.parametrize("region_code", [None, "   "])
+def test_missing_user_region_is_unknown(region_code):
+    result = evaluate_policy(
+        make_policy(),
+        UserProfile(age=25, region_code=region_code),
+    )
+
+    assert result.status is MatchStatus.UNKNOWN
+    assert result.reasons == ("사용자 지역이 입력되지 않았습니다.",)
+
+
+@pytest.mark.parametrize("region_code", [None, "   "])
+def test_missing_policy_region_is_unknown(region_code):
+    result = evaluate_policy(
+        make_policy(region_code=region_code),
+        UserProfile(age=25, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.UNKNOWN
+    assert result.reasons == ("정책의 지역 조건을 확인할 수 없습니다.",)
+
+
+@pytest.mark.parametrize(
+    "policy_region_code",
+    [
+        "29140",
+        "29110,29140,29155,29170,29200",
+        "29110, 29140, 29155",
+    ],
+)
+def test_user_region_matches_single_or_multiple_policy_regions(policy_region_code):
+    result = evaluate_policy(
+        make_policy(region_code=policy_region_code),
+        UserProfile(age=25, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.MATCH
+    assert result.reasons == ()
+
+
+def test_region_mismatch_is_no_match_with_exact_reason():
+    result = evaluate_policy(
+        make_policy(region_code="29110,29155"),
+        UserProfile(age=25, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == ("지원 지역에 해당하지 않습니다.",)
+
+
+def test_many_policy_region_codes_match_when_user_code_is_included():
+    nationwide_like_codes = ",".join(str(code) for code in range(29000, 29255))
+    result = evaluate_policy(
+        make_policy(region_code=nationwide_like_codes),
+        UserProfile(age=25, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.MATCH
+    assert result.reasons == ()
+
+
+def test_upcoming_policy_with_region_mismatch_returns_no_match_and_ordered_reasons():
+    result = evaluate_policy(
+        make_policy(
+            application_status=ApplicationStatus.UPCOMING,
+            region_code="29110",
+        ),
+        UserProfile(age=25, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == (
+        "아직 신청 기간이 시작되지 않았습니다.",
+        "지원 지역에 해당하지 않습니다.",
+    )
+
+
+def test_age_and_region_mismatch_reasons_are_ordered_after_status():
+    result = evaluate_policy(
+        make_policy(age_min=19, age_max=39, region_code="29110"),
+        UserProfile(age=18, region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == (
+        "지원 연령 19~39세에 해당하지 않습니다.",
+        "지원 지역에 해당하지 않습니다.",
+    )
+
+
+def test_closed_policy_returns_only_closed_reason_regardless_of_region():
+    result = evaluate_policy(
+        make_policy(
+            application_status=ApplicationStatus.CLOSED,
+            region_code="29110",
+        ),
+        UserProfile(age=18, region_code=None),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == ("신청이 마감된 정책입니다.",)
