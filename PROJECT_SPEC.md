@@ -5,7 +5,7 @@
 - Project: **청년 맞춤 정책 추천 및 신청 지원 웹서비스**
 - Program: P-커리어캐치Ⅳ
 - Administrative baseline: `p커리어캐치Ⅳ_최유리_제출본.docx`
-- Development baseline: new implementation beginning in `C:\choiyuri\school\gachon_summer`
+- Development baseline: new implementation beginning in `C:\choiyuri\school\gachon_summer\career-catch-4`
 - Primary language: Korean UI and documentation, English code identifiers
 - Status: MVP specification before implementation
 
@@ -125,8 +125,9 @@ Only after the MVP is verified:
 | Web application | Streamlit |
 | HTTP collection | Requests |
 | Data processing | Pandas |
-| Structured storage | CSV raw/processed artifacts + SQLite processed database |
+| Structured storage | raw API JSON/XML snapshots, processed CSV, and SQLite processed database |
 | Vector search | FAISS |
+| Vector artifacts | FAISS index and policy ID mapping data |
 | Embeddings | OpenAI API, default `text-embedding-3-small` |
 | Explanation generation | OpenAI API, model selected by environment variable |
 | Tests | pytest |
@@ -465,7 +466,7 @@ Rules:
 This is a target structure, not proof that files already exist:
 
 ```text
-gachon_summer/
+career-catch-4/
 ├─ AGENTS.md
 ├─ PROJECT_SPEC.md
 ├─ TASKS.md
