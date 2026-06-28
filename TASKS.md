@@ -2,14 +2,15 @@
 
 ## 1. 현재 상태
 
-이 저장소는 현재 최소 정책 데이터 모델 구현 단계입니다.
+이 저장소는 현재 온통청년 API 코드북 구현 단계입니다.
 
 - 저장소 루트: `career-catch-4/`
 - Python 버전: 3.10.11 가상환경에서 패키지 설치 및 import 검증 완료
 - 최소 설정 파일: `requirements.txt`, `.env.example` 생성됨
 - canonical `PolicyRecord` 모델: 구현됨
-- `PolicyRecord` 단위 테스트: 구현 및 통과
-- API 수집: 아직 시작하지 않음
+- 온통청년 API 코드북: 구현됨
+- 코드북 단위 테스트: 구현 및 통과
+- 실제 API 데이터 수집: 인증키 승인 전이라 아직 시작하지 않음
 - 애플리케이션 구현: 아직 시작하지 않음
 - 데이터 파일, SQLite 데이터베이스, FAISS 산출물: 아직 생성되지 않음
 - 배포: 아직 수행되지 않음
@@ -32,51 +33,38 @@ MVP는 단일 Streamlit 애플리케이션으로 계획합니다.
 
 ## 3. 현재 작업
 
-**작업:** canonical `PolicyRecord` 모델 구현 및 테스트
+**작업:** 온통청년 API 코드북 구현 및 테스트
 
 **상태:** 구현 및 테스트 완료, 사용자 검토 대기 중입니다.
 
-이번 작업에서는 온통청년 API 정제 데이터의 기준이 될 최소 정책 데이터 모델과 단위 테스트만 구현했습니다. API 필드 매핑, SQLite 저장, 필터링 로직, FAISS, OpenAI API, Streamlit UI, 데이터 파일은 구현하지 않았습니다.
+이번 작업에서는 온통청년 청년정책 API 코드값을 사람이 읽을 수 있는 명칭으로 변환하는 최소 코드북 모듈과 단위 테스트만 구현했습니다. 실제 API 호출, 데이터 파일, SQLite, 필터링, FAISS, OpenAI API, Streamlit UI는 구현하지 않았습니다.
+
+온통청년 공식 예시 JSON에서 특화요건 실제 필드명이 `sbizCd`로 확인되어 CODEBOOKS에는 `sbizCd`를 사용합니다. 문서 표기 `sBizCd`는 별칭으로 호환 처리합니다.
 
 ## 4. 생성된 파일
 
-- `src/career_catch/__init__.py`
-- `src/career_catch/models.py`
-- `tests/test_models.py`
+- `src/career_catch/codebook.py`
+- `tests/test_codebook.py`
 
 ## 5. 검증 상태
 
 실제 실행한 테스트 명령:
 
 ```bash
-python -m pytest tests/test_models.py -q
+.\.venv\Scripts\python.exe -m pytest tests/test_codebook.py -q
 ```
 
-실제 결과:
+실제 테스트 결과:
 
 ```text
-No module named pytest
-```
-
-현재 셸의 `python`이 전역 Python을 가리켜 pytest를 찾지 못했습니다. 검증된 가상환경 Python으로 같은 테스트 대상을 다시 실행했습니다.
-
-실제 재실행 명령:
-
-```bash
-.\.venv\Scripts\python.exe -m pytest tests/test_models.py -q
-```
-
-실제 재실행 결과:
-
-```text
-8 passed
+11 passed
 ```
 
 테스트는 외부 네트워크나 API 키 없이 실행됩니다.
 
 ## 6. 아직 시작하지 않은 작업
 
-- 온통청년 API 수집
+- 인증키 승인 후 온통청년 API 수집
 - API 필드 매핑
 - SQLite 저장
 - 필터링 로직
