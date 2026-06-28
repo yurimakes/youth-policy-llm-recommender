@@ -21,6 +21,7 @@ class MatchStatus(str, Enum):
 class UserProfile:
     age: int | None = None
     region_code: str | None = None
+    employment_status: str | None = None
 
 
 @dataclass(frozen=True)
@@ -61,6 +62,11 @@ def evaluate_policy(
     statuses.append(region_status)
     if region_reason is not None:
         reasons.append(region_reason)
+
+    employment_status, employment_reason = _evaluate_employment_status(policy, profile)
+    statuses.append(employment_status)
+    if employment_reason is not None:
+        reasons.append(employment_reason)
 
     if MatchStatus.NO_MATCH in statuses:
         status = MatchStatus.NO_MATCH
@@ -125,3 +131,22 @@ def _parse_region_codes(region_code: str | None) -> set[str]:
         return set()
 
     return {code.strip() for code in region_code.split(",") if code.strip()}
+
+
+def _evaluate_employment_status(
+    policy: PolicyRecord,
+    profile: UserProfile,
+) -> tuple[MatchStatus, str | None]:
+    if profile.employment_status is None or not profile.employment_status.strip():
+        return MatchStatus.UNKNOWN, "사용자 취업 상태가 입력되지 않았습니다."
+    if policy.employment_status is None or not policy.employment_status.strip():
+        return MatchStatus.UNKNOWN, "정책의 취업 상태 조건을 확인할 수 없습니다."
+
+    user_employment_status = profile.employment_status.strip()
+    policy_employment_status = policy.employment_status.strip()
+    if policy_employment_status == "제한없음":
+        return MatchStatus.MATCH, None
+    if user_employment_status == policy_employment_status:
+        return MatchStatus.MATCH, None
+
+    return MatchStatus.NO_MATCH, "취업 상태 조건에 해당하지 않습니다."
