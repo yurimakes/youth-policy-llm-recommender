@@ -25,6 +25,7 @@ def make_policy(
     policy_id: str = "policy-1",
     region_code: str | None = "29140",
     employment_status: str | None = "미취업자",
+    income_condition: str | None = "무관",
     age_min: int | None = 19,
     age_max: int | None = 39,
     application_status: ApplicationStatus = ApplicationStatus.OPEN,
@@ -38,7 +39,7 @@ def make_policy(
         region_name=None,
         age_min=age_min,
         age_max=age_max,
-        income_condition=None,
+        income_condition=income_condition,
         employment_status=employment_status,
         education_status=None,
         application_start=APPLICATION_START,
@@ -394,6 +395,107 @@ def test_closed_policy_returns_only_closed_reason_regardless_of_employment_statu
             employment_status="미취업자",
         ),
         make_profile(employment_status="재직자"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == ("신청이 마감된 정책입니다.",)
+
+
+@pytest.mark.parametrize("income_condition", [None, "   "])
+def test_missing_policy_income_condition_is_unknown(income_condition):
+    result = evaluate_policy(
+        make_policy(income_condition=income_condition),
+        make_profile(),
+    )
+
+    assert result.status is MatchStatus.UNKNOWN
+    assert result.reasons == ("정책의 소득 조건을 확인할 수 없습니다.",)
+
+
+def test_unrestricted_income_condition_matches_after_strip():
+    result = evaluate_policy(
+        make_policy(income_condition=" 무관 "),
+        make_profile(),
+    )
+
+    assert result.status is MatchStatus.MATCH
+    assert result.reasons == ()
+
+
+@pytest.mark.parametrize(
+    "income_condition",
+    [
+        "연소득 / 최대 5000",
+        "기타 / 중위소득 150% 이하",
+        "중위소득 100% 이하",
+        "가구소득 기준",
+    ],
+)
+def test_complex_income_condition_is_unknown_with_exact_reason(income_condition):
+    result = evaluate_policy(
+        make_policy(income_condition=income_condition),
+        make_profile(),
+    )
+
+    assert result.status is MatchStatus.UNKNOWN
+    assert result.reasons == ("소득 조건은 세부 확인이 필요합니다.",)
+
+
+def test_region_mismatch_with_complex_income_is_no_match_with_ordered_reasons():
+    result = evaluate_policy(
+        make_policy(
+            region_code="29110",
+            income_condition="연소득 / 최대 5000",
+        ),
+        make_profile(region_code="29140"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == (
+        "지원 지역에 해당하지 않습니다.",
+        "소득 조건은 세부 확인이 필요합니다.",
+    )
+
+
+def test_employment_mismatch_with_complex_income_is_no_match_with_ordered_reasons():
+    result = evaluate_policy(
+        make_policy(
+            employment_status="미취업자",
+            income_condition="기타 / 중위소득 150% 이하",
+        ),
+        make_profile(employment_status="재직자"),
+    )
+
+    assert result.status is MatchStatus.NO_MATCH
+    assert result.reasons == (
+        "취업 상태 조건에 해당하지 않습니다.",
+        "소득 조건은 세부 확인이 필요합니다.",
+    )
+
+
+def test_upcoming_policy_with_complex_income_is_unknown_with_ordered_reasons():
+    result = evaluate_policy(
+        make_policy(
+            application_status=ApplicationStatus.UPCOMING,
+            income_condition="연소득 / 최대 5000",
+        ),
+        make_profile(),
+    )
+
+    assert result.status is MatchStatus.UNKNOWN
+    assert result.reasons == (
+        "아직 신청 기간이 시작되지 않았습니다.",
+        "소득 조건은 세부 확인이 필요합니다.",
+    )
+
+
+def test_closed_policy_returns_only_closed_reason_regardless_of_income_condition():
+    result = evaluate_policy(
+        make_policy(
+            application_status=ApplicationStatus.CLOSED,
+            income_condition="연소득 / 최대 5000",
+        ),
+        make_profile(),
     )
 
     assert result.status is MatchStatus.NO_MATCH
