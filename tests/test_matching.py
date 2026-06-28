@@ -11,8 +11,19 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.matching import MatchStatus, UserProfile, evaluate_policy
+from career_catch.matching import (
+    MatchStatus,
+    UserProfile,
+    evaluate_policies,
+    evaluate_policy,
+)
 from career_catch.models import ApplicationStatus, PolicyRecord
+from career_catch.sqlite_store import (
+    connect_database,
+    initialize_database,
+    list_policies,
+    upsert_policies,
+)
 
 
 APPLICATION_START = date(2026, 6, 1)
@@ -500,3 +511,103 @@ def test_closed_policy_returns_only_closed_reason_regardless_of_income_condition
 
     assert result.status is MatchStatus.NO_MATCH
     assert result.reasons == ("신청이 마감된 정책입니다.",)
+
+
+def test_evaluate_policies_returns_empty_batch_for_empty_input():
+    batch = evaluate_policies([], make_profile())
+
+    assert batch.matched == ()
+    assert batch.unknown == ()
+    assert batch.no_match == ()
+
+
+def test_evaluate_policies_groups_statuses_and_preserves_group_order():
+    match_a = make_policy(policy_id="policy-1")
+    unknown_a = make_policy(policy_id="policy-2", income_condition="연소득 / 최대 5000")
+    no_match_a = make_policy(policy_id="policy-3", region_code="11110")
+    match_b = make_policy(policy_id="policy-4")
+    unknown_b = make_policy(policy_id="policy-5", income_condition=None)
+    no_match_b = make_policy(policy_id="policy-6", employment_status="재직자")
+    policies = [match_a, unknown_a, no_match_a, match_b, unknown_b, no_match_b]
+
+    batch = evaluate_policies(policies, make_profile())
+
+    assert [item.policy.policy_id for item in batch.matched] == [
+        "policy-1",
+        "policy-4",
+    ]
+    assert [item.policy.policy_id for item in batch.unknown] == [
+        "policy-2",
+        "policy-5",
+    ]
+    assert [item.policy.policy_id for item in batch.no_match] == [
+        "policy-3",
+        "policy-6",
+    ]
+    assert all(item.result.status is MatchStatus.MATCH for item in batch.matched)
+    assert all(item.result.status is MatchStatus.UNKNOWN for item in batch.unknown)
+    assert all(item.result.status is MatchStatus.NO_MATCH for item in batch.no_match)
+
+
+def test_evaluate_policies_preserves_policy_and_single_result_details():
+    policy = make_policy(policy_id="policy-preserved", income_condition="연소득 / 최대 5000")
+    profile = make_profile()
+    single_result = evaluate_policy(policy, profile)
+
+    batch = evaluate_policies([policy], profile)
+    evaluated = batch.unknown[0]
+
+    assert evaluated.policy is policy
+    assert evaluated.result.policy_id == policy.policy_id
+    assert evaluated.result == single_result
+    assert evaluated.result.reasons == single_result.reasons
+
+
+def test_evaluate_policies_accepts_generator_input():
+    policies = (
+        policy
+        for policy in [
+            make_policy(policy_id="policy-match"),
+            make_policy(policy_id="policy-unknown", income_condition="연소득 / 최대 5000"),
+            make_policy(policy_id="policy-no-match", region_code="11110"),
+        ]
+    )
+
+    batch = evaluate_policies(policies, make_profile())
+
+    assert [item.policy.policy_id for item in batch.matched] == ["policy-match"]
+    assert [item.policy.policy_id for item in batch.unknown] == ["policy-unknown"]
+    assert [item.policy.policy_id for item in batch.no_match] == ["policy-no-match"]
+
+
+def test_evaluate_policies_accepts_sqlite_list_policies_results(tmp_path):
+    db_path = tmp_path / "policies.sqlite3"
+    policies = [
+        make_policy(policy_id="policy-a-match"),
+        make_policy(policy_id="policy-b-unknown", income_condition="연소득 / 최대 5000"),
+        make_policy(policy_id="policy-c-no-match", region_code="11110"),
+    ]
+    connection = connect_database(db_path)
+    try:
+        initialize_database(connection)
+        assert upsert_policies(connection, policies) == 3
+
+        stored_policies = list_policies(connection)
+        batch = evaluate_policies(stored_policies, make_profile())
+
+        assert [item.policy.policy_id for item in batch.matched] == [
+            "policy-a-match"
+        ]
+        assert [item.policy.policy_id for item in batch.unknown] == [
+            "policy-b-unknown"
+        ]
+        assert [item.policy.policy_id for item in batch.no_match] == [
+            "policy-c-no-match"
+        ]
+        assert [policy.policy_id for policy in stored_policies] == [
+            "policy-a-match",
+            "policy-b-unknown",
+            "policy-c-no-match",
+        ]
+    finally:
+        connection.close()
