@@ -29,18 +29,17 @@ raw 데이터, processed 데이터, vector artifacts는 추적 가능하고 재�
 
 ## 2. 현재 작업
 
-**작업:** 온통청년 공식 예시 JSON 파서 구현 및 사용자 검토
+**작업:** SQLite 정책 저장 계층 구현 및 사용자 검토
 
-**상태:** 구현과 테스트는 완료되었고, 사용자 검토를 기다리고 있습니다.
+**상태:** 구현과 테스트 완료, 사용자 검토 대기
 
-이번 작업에서는 저장된 공식 예시 JSON `tests/fixtures/ontong_youth_policy_page1.json`의 10개 정책 레코드를 읽어 canonical `PolicyRecord` 목록으로 변환하는 최소 파서를 구현했습니다. 실제 API 호출, SQLite 저장, 조건 필터링, FAISS, OpenAI API, Streamlit UI는 아직 구현하지 않았습니다.
+이번 작업에서는 공식 예시 JSON을 파싱한 `PolicyRecord` 10건을 SQLite에 저장하고 조회하는 최소 저장 계층을 구현했습니다. upsert, 단건 조회, 전체 조회, 행 수 확인, 날짜 및 datetime 타입 복원, `ApplicationStatus` 타입 복원을 구현했습니다. 테스트에서는 pytest `tmp_path`만 사용했으며 저장소 내부에 실제 SQLite DB 파일은 생성하지 않았습니다. 실제 API 네트워크 호출과 API 키는 사용하지 않았습니다.
 
 ## 3. 할 일
 
 - [ ] 인증키 승인 후 실제 API 호출 검증
 - [ ] 실제 API 응답 저장 및 공식 예시와 비교
 - [ ] API 필드 매핑 보완
-- [ ] SQLite 저장
 - [ ] 조건 필터링
 - [ ] FAISS 검색
 - [ ] OpenAI 설명 생성
@@ -59,7 +58,9 @@ raw 데이터, processed 데이터, vector artifacts는 추적 가능하고 재�
 - [x] 공식 예시 JSON fixture 10건 저장
 - [x] 온통청년 공식 예시 JSON 파서 구현
 - [x] 온통청년 파서 테스트 10개 통과
-- [x] 현재 전체 테스트 29개 통과
+- [x] SQLite 정책 저장 계층 구현
+- [x] SQLite 저장 계층 테스트 1개 통과
+- [x] 현재 전체 테스트 30개 통과
 
 ## 5. 검증 기록
 
@@ -67,7 +68,8 @@ raw 데이터, processed 데이터, vector artifacts는 추적 가능하고 재�
 - `.\.venv\Scripts\python.exe -m pytest tests/test_models.py -q`: 8 passed
 - `.\.venv\Scripts\python.exe -m pytest tests/test_codebook.py -q`: 11 passed
 - `.\.venv\Scripts\python.exe -m pytest tests/test_ontong_parser.py -q`: 10 passed
-- `.\.venv\Scripts\python.exe -m pytest -q`: 29 passed
+- `.\.venv\Scripts\python.exe -m pytest tests/test_sqlite_store.py -q`: 1 passed
+- `.\.venv\Scripts\python.exe -m pytest -q`: 30 passed
 
 검증은 외부 네트워크나 API 키 없이 수행했습니다. 실제 API 네트워크 호출과 개인 인증키 검증은 아직 수행하지 않았습니다.
 
