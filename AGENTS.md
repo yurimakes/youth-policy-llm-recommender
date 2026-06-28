@@ -208,6 +208,19 @@ Never commit or print secrets.
 - Separate data collection, normalization, filtering, retrieval, LLM explanation, and UI responsibilities.
 - Avoid unnecessary abstraction and premature optimization.
 - Do not duplicate business rules across UI and backend modules.
+- Every new or modified Python file must start with a short module docstring.
+- The module docstring must briefly record the filename and the file's role.
+- Use a consistent format: filename, blank line, then one sentence describing the role.
+- Do not write unnecessarily long explanations, change history, or comments that repeat the code.
+
+Example:
+
+```python
+"""models.py
+
+정책 데이터 모델과 기본 검증 규칙을 정의합니다.
+"""
+```
 
 ## 14. Testing and verification
 
@@ -235,6 +248,27 @@ For manual application verification:
 ```bash
 python -m streamlit run app.py
 ```
+
+Windows virtual-environment execution rule for Codex:
+
+- In this repository, when Codex runs Python-related commands, do not use bare `python`, `pip`, `pytest`, or `streamlit`.
+- Always use the repository virtual-environment Python explicitly.
+- Default format:
+
+```bash
+.\.venv\Scripts\python.exe -m <module>
+```
+
+- Examples:
+
+```bash
+.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pytest tests/test_models.py -q
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Reason: the command shell used by Codex may not inherit the VS Code terminal's activated virtual environment.
 
 Run the smallest relevant test set during development and the full test suite before declaring a milestone complete. Never claim a test passed unless it was actually executed.
 
