@@ -1,451 +1,697 @@
 # PROJECT_SPEC.md
 
-## 1. Document status
+## 1. 문서 상태
 
-- Project: **청년 맞춤 정책 추천 및 신청 지원 웹서비스**
-- Program: P-커리어캐치Ⅳ
-- Administrative baseline: `p커리어캐치Ⅳ_최유리_제출본.docx`
-- Development baseline: new implementation beginning in `C:\choiyuri\school\gachon_summer\career-catch-4`
-- Primary language: Korean UI and documentation, English code identifiers
-- Status: MVP specification before implementation
+* 프로젝트명: **청년 맞춤 정책 추천 및 신청 지원 웹서비스**
+* 프로그램: P-커리어캐치Ⅳ
+* GitHub 저장소: `CHOIYURI8/youth-policy-llm-recommender`
+* 로컬 저장소 루트: `career-catch-4/`
+* 기준일: 2026-06-29
+* 기본 언어: 한국어 UI·문서, 영어 코드 식별자
+* 현재 단계: 규칙 기반 정책 매칭 및 여러 정책 후보 분류 완료
+* 다음 승인 작업: Streamlit 규칙 기반 데모 UI 구현
 
-The first three daily reports were prepared on the assumption that planning and development activities had been completed. They are not evidence that a working codebase already exists. Actual implementation, tests, data artifacts, and deployment must be created and verified from this repository.
+이 문서는 프로젝트의 제품 요구사항, 구현된 기능, 기술적 결정, 현재 한계와 향후 개발 범위를 정의한다.
 
-## 2. Project summary
+실제 개발 진행 상황은 `PROJECT_STATUS.md`, 작업 완료 여부와 다음 작업은 `TASKS.md`, 외부 공개용 소개와 실행 안내는 `README.md`에서 관리한다.
 
-Government and local-government youth policies are distributed across many platforms, use different terminology, and often contain complex eligibility and application requirements. A young person may need to compare age, residence, income, employment, education, application dates, supporting documents, and regional rules before deciding whether a policy is relevant.
+## 2. 프로젝트 개요
 
-This project will build a web prototype that:
+청년정책은 중앙정부와 지방자치단체, 여러 공공 플랫폼에 분산되어 있으며 정책마다 연령, 거주 지역, 취업 상태, 소득, 신청 기간 등의 조건이 다르다.
 
-1. Collects a user's basic conditions and natural-language need.
-2. Filters official youth-policy data using deterministic rules.
-3. Ranks relevant candidates with semantic search.
-4. Uses a large language model only to explain retrieved official information.
-5. Shows application guidance, uncertainty, official sources, and verification dates.
+사용자는 자신의 상황에 맞는 정책을 찾기 위해 여러 공고문을 직접 비교해야 하며, 복잡하거나 자연어로 작성된 자격 조건 때문에 실제 신청 가능성을 판단하기 어렵다.
 
-The service is an information and recommendation aid, not an eligibility-certification or application-submission system.
+본 프로젝트는 다음 기능을 제공하는 청년정책 추천 웹서비스를 구축하는 것을 목표로 한다.
 
-## 3. Problem statement
+1. 사용자의 기본 조건을 입력받는다.
+2. 공식 청년정책 데이터를 공통 구조로 정규화한다.
+3. 명확한 구조화 조건을 규칙 기반으로 판정한다.
+4. 추천 가능, 추가 확인 필요, 조건 불일치 정책을 구분한다.
+5. 향후 벡터 유사도 검색으로 관심 정책의 우선순위를 정한다.
+6. LLM을 이용해 공식 정책 정보를 이해하기 쉬운 형태로 설명한다.
+7. 공식 출처, 판정 불확실성, 최종 확인 필요 사항을 함께 표시한다.
 
-Current policy-search experiences have several limitations:
+이 서비스는 정책 탐색과 정보 확인을 돕는 보조 도구이며, 법적·행정적 신청 자격을 최종 확정하거나 사용자를 대신해 정책 신청을 수행하지 않는다.
 
-- Policy information is spread across government and local platforms.
-- Eligibility conditions are difficult to compare quickly.
-- Keyword search does not fully reflect a user's situation or intent.
-- Application procedures and required documents are often buried in long notices.
-- Users may mistake generated summaries for official eligibility decisions.
-- Policy dates and details change, creating a freshness and trust problem.
+## 3. 문제 정의
 
-The MVP addresses these problems with a traceable hybrid pipeline that combines structured rule filtering, vector ranking, and grounded explanation.
+현재 청년정책 탐색 과정에는 다음과 같은 문제가 있다.
 
-## 4. Objectives
+* 정책 정보가 여러 공공기관과 플랫폼에 분산되어 있다.
+* 정책마다 자격 조건의 표현 방식이 다르다.
+* 단순 키워드 검색만으로는 사용자 상황을 충분히 반영하기 어렵다.
+* 신청 절차와 필요 서류가 긴 공고문 안에 포함되어 있다.
+* 사용자가 요약 정보나 생성형 AI 답변을 공식 자격 판정으로 오해할 수 있다.
+* 정책의 신청 기간과 세부 조건이 변경될 수 있다.
+* 소득, 가구 상태, 고용보험 예외 등 복잡한 조건은 자동 판정이 어렵다.
 
-### 4.1 Product objectives
+본 프로젝트는 구조화된 조건 필터링, 향후 벡터 검색, 근거 기반 LLM 설명을 결합한 추적 가능한 하이브리드 추천 구조로 이러한 문제를 개선한다.
 
-- Provide personalized youth-policy discovery from official public data.
-- Improve access to policy eligibility, benefits, procedures, and documents.
-- Support natural-language policy exploration without relying on keyword matching alone.
-- Preserve official sources so users can verify every recommendation.
-- Communicate unknown or ambiguous conditions instead of overclaiming eligibility.
+## 4. 프로젝트 목표
 
-### 4.2 Learning and portfolio objectives
+### 4.1 서비스 목표
 
-- Implement a reproducible public-data collection and normalization pipeline.
-- Design a SQLite schema and traceable policy-data model.
-- Implement deterministic filtering and FAISS semantic retrieval.
-- Build a grounded OpenAI API integration.
-- Develop and deploy a usable Streamlit prototype.
-- Evaluate recommendation quality with measurable scenarios and tests.
+* 공식 공공데이터를 활용한 맞춤형 청년정책 탐색 지원
+* 연령, 지역, 취업 상태 등 사용자 조건 기반의 1차 후보 선별
+* 불명확한 조건을 임의로 추측하지 않고 추가 확인 항목으로 표시
+* 공식 출처와 데이터 확인 시점 보존
+* 정책 지원 내용, 신청 절차, 필요 서류의 가독성 향상
+* 자연어 관심 요청을 반영한 정책 유사도 검색
+* 공식 정책 데이터에 근거한 LLM 추천 설명 제공
 
-## 5. Target users
+### 4.2 학습 및 포트폴리오 목표
 
-Primary users are young adults searching for central-government or local-government support related to:
+* 공공데이터 파싱 및 표준화 파이프라인 구현
+* 추적 가능한 정책 데이터 모델 설계
+* SQLite 기반 구조화 데이터 저장소 구현
+* 규칙 기반 추천 후보 필터 구현
+* FAISS 기반 벡터 검색 구현
+* OpenAI API 기반 근거 중심 설명 생성
+* Streamlit 웹서비스 구현 및 배포
+* pytest 기반 단위·연동 테스트 작성
 
-- Employment and job preparation
-- Housing and moving expenses
-- Education and training
-- Finance and asset building
-- Welfare and living support
-- Entrepreneurship or other youth-support categories
+## 5. 대상 사용자
 
-The initial prototype is designed for a general Korean-speaking user. It does not require account creation or storage of a personal profile.
+주요 사용자는 다음 분야의 정책을 찾는 한국어 사용 청년이다.
 
-## 6. MVP scope
+* 취업 및 구직 준비
+* 주거 및 이사 비용
+* 교육 및 직업훈련
+* 자격증 및 시험 응시 지원
+* 금융 및 자산 형성
+* 복지 및 생활 안정
+* 창업 지원
+* 기타 청년 지원사업
 
-### 6.1 Included
+초기 MVP에서는 사용자 계정을 만들지 않으며 개인정보 프로필을 지속적으로 저장하지 않는다.
 
-The MVP includes:
+## 6. MVP 범위
 
-- Primary policy data from the 온통청년 청년정책 API
-- Timestamped preservation of raw API responses
-- Reproducible normalization into canonical policy fields
-- Processed storage in CSV and SQLite
-- User inputs for age, region, income condition, employment status, education status, interests, and optional free-text request
-- Tri-state rule evaluation: `MATCH`, `NO_MATCH`, `UNKNOWN`
-- Hard filtering only where source data is sufficiently reliable
-- FAISS semantic ranking of filtered candidates
-- OpenAI API-generated grounded explanations
-- Top-5 recommendation display by default
-- Official source URL and verification date display
-- Closed-policy exclusion when closure can be determined reliably
-- Clear eligibility disclaimer and uncertainty display
-- pytest-based automated tests
-- Streamlit Community Cloud deployment target
+### 6.1 포함 범위
 
-### 6.2 Excluded from the initial MVP
+초기 MVP에는 다음 기능을 포함한다.
 
-- FastAPI
-- MySQL or PostgreSQL
-- ChromaDB
-- Selenium-based large-scale crawling
-- Concurrent integration of 온통청년, 복지로, 서울, 경기, and other sources
-- User authentication or account management
-- Persistent personal profile storage
-- Policy application submission or document upload
-- Automatic application, reservation, payment, or notification execution
-- Administrator dashboard
-- Native mobile app
+* 온통청년 청년정책 데이터를 주 데이터 소스로 사용
+* 원본 API 응답 또는 공식 예시 JSON 보존
+* 정책 데이터를 공통 `PolicyRecord` 구조로 변환
+* 코드북을 이용한 원본 코드값 해석
+* 정책 데이터의 SQLite 저장·조회·갱신
+* 신청 상태, 연령, 지역, 취업 상태, 소득 조건 판정
+* `MATCH`, `UNKNOWN`, `NO_MATCH`의 3단계 판정
+* 여러 정책 일괄 평가
+* 추천 가능, 추가 확인 필요, 조건 불일치 정책 분류
+* 입력 정책과 판정 결과의 추적 가능성 유지
+* 향후 FAISS 기반 유사도 검색
+* 향후 OpenAI API 기반 추천 이유 및 신청 안내 생성
+* Streamlit 기반 사용자 입력 및 결과 화면
+* 공식 출처와 최종 확인 안내 표시
+* pytest 기반 자동 테스트
+* Streamlit Community Cloud 배포
 
-### 6.3 Optional extensions after MVP completion
+### 6.2 초기 MVP 제외 범위
 
-Only after the MVP is verified:
+초기 MVP에서는 다음 기능을 제외한다.
 
-- Add 복지로 or 서울시 policy data through a separate adapter
-- Separate recommendation logic into FastAPI
-- Migrate structured storage to PostgreSQL or MySQL
-- Add scheduled data refresh
-- Add policy bookmarks or non-sensitive local preferences
-- Add monitoring, analytics, or a simple admin data-quality screen
+* FastAPI 서버 분리
+* MySQL 또는 PostgreSQL
+* ChromaDB
+* Selenium 기반 대규모 크롤링
+* 여러 정책 제공처의 동시 통합
+* 사용자 계정과 로그인
+* 개인정보 프로필 영구 저장
+* 정책 신청 자동 제출
+* 문서 업로드 및 자동 접수
+* 결제 기능
+* 관리자 대시보드
+* 네이티브 모바일 애플리케이션
 
-## 7. Fixed technology stack
+### 6.3 MVP 이후 확장 가능 항목
 
-| Area | Decision |
-|---|---|
-| Language | Python 3.10 |
-| Web application | Streamlit |
-| HTTP collection | Requests |
-| Data processing | Pandas |
-| Structured storage | raw API JSON/XML snapshots, processed CSV, and SQLite processed database |
-| Vector search | FAISS |
-| Vector artifacts | FAISS index and policy ID mapping data |
-| Embeddings | OpenAI API, default `text-embedding-3-small` |
-| Explanation generation | OpenAI API, model selected by environment variable |
-| Tests | pytest |
-| Deployment | Streamlit Community Cloud |
+MVP 검증 이후 다음 기능을 별도 확장으로 검토할 수 있다.
 
-The application remains a single Streamlit service for the MVP. FastAPI and external relational databases are intentionally deferred to reduce deployment and integration risk.
+* 복지로 또는 서울시 정책 데이터 어댑터
+* 정책 데이터 자동 갱신 작업
+* PostgreSQL 또는 MySQL 이전
+* FastAPI 기반 서비스 분리
+* 정책 즐겨찾기
+* 비민감 사용자 선호 저장
+* 추천 품질 모니터링
+* 데이터 품질 관리 화면
+* 신청 기간 알림 기능
 
-## 8. High-level architecture
+## 7. 기술 스택
+
+| 영역        | 기술                        |
+| --------- | ------------------------- |
+| 언어        | Python 3.10               |
+| 웹 애플리케이션  | Streamlit                 |
+| HTTP 통신   | Requests                  |
+| 데이터 처리    | Pandas                    |
+| 구조화 저장소   | JSON, CSV, SQLite         |
+| 벡터 검색     | FAISS                     |
+| 임베딩       | OpenAI API                |
+| 기본 임베딩 모델 | `text-embedding-3-small`  |
+| 설명 생성     | 환경 변수로 지정한 OpenAI 채팅 모델   |
+| 테스트       | pytest                    |
+| 배포        | Streamlit Community Cloud |
+| 버전 관리     | Git, GitHub               |
+
+MVP는 하나의 Streamlit 애플리케이션으로 구성한다.
+
+FastAPI, 외부 관계형 데이터베이스, 별도 프론트엔드 프레임워크는 사용자의 명시적 승인 없이 추가하지 않는다.
+
+## 8. 전체 목표 아키텍처
 
 ```text
-온통청년 API
-  ↓
-Raw JSON/XML snapshot
-  ↓
-Pandas normalization and validation
-  ↓
-Processed CSV + SQLite
-  ↓
-Embedding text construction
-  ↓
-OpenAI embedding generation
-  ↓
-FAISS index + policy_id mapping
-
-User profile + natural-language request
-  ↓
-Rule evaluation (MATCH / NO_MATCH / UNKNOWN)
-  ↓
-Candidate filtering
-  ↓
-FAISS semantic ranking
-  ↓
-Top policy records with official metadata
-  ↓
-Grounded OpenAI explanation
-  ↓
-Streamlit result cards + disclaimer + sources
+온통청년 API 또는 공식 예시 JSON
+        ↓
+원본 데이터 보존
+        ↓
+코드북 변환 및 정책 데이터 파싱
+        ↓
+PolicyRecord 표준 모델
+        ↓
+CSV 및 SQLite 저장
+        ↓
+사용자 조건 기반 규칙 판정
+        ↓
+MATCH / UNKNOWN / NO_MATCH 분류
+        ↓
+추천 후보 정책
+        ↓
+FAISS 벡터 유사도 검색
+        ↓
+상위 정책 데이터 조회
+        ↓
+공식 데이터 기반 LLM 설명 생성
+        ↓
+Streamlit 추천 결과 화면
 ```
 
-## 9. Data-source strategy
+현재 구현된 구간은 다음과 같다.
+
+```text
+공식 예시 JSON
+        ↓
+정책 데이터 파싱
+        ↓
+PolicyRecord 표준 모델
+        ↓
+SQLite 저장 및 조회
+        ↓
+단건 조건 판정
+        ↓
+여러 정책 일괄 평가
+        ↓
+MATCH / UNKNOWN / NO_MATCH 분류
+```
+
+## 9. 데이터 소스 전략
+
+### 9.1 주 데이터 소스
+
+초기 데이터 소스는 온통청년 청년정책 데이터로 제한한다.
+
+현재는 저장소에 포함된 공식 예시 JSON 10건을 이용하여 데이터 구조, 파싱, 저장, 매칭 기능을 검증하였다.
+
+실제 온통청년 API 호출은 인증키 승인 및 호출 구조 검증 후 연결한다.
+
+### 9.2 데이터 수집 원칙
+
+실제 API 연결 시 다음 원칙을 적용한다.
+
+* 원본 응답을 시간 정보가 포함된 파일로 저장한다.
+* 기존 원본 파일을 덮어쓰지 않는다.
+* 수집 시각과 요청 조건을 기록한다.
+* 빈 응답과 오류 응답을 구분한다.
+* 네트워크 오류와 인증 오류를 처리한다.
+* 개발 중에는 소량 데이터 호출 방식을 지원한다.
+* 비밀키를 코드나 Git 저장소에 기록하지 않는다.
+
+### 9.3 수동 보완 원칙
+
+필요 서류나 신청 방법을 수동으로 보완할 경우 공식 공고문이나 공공기관 페이지를 근거로 사용한다.
+
+보완 데이터에는 다음 정보를 보존한다.
+
+* 공식 출처 URL
+* 확인 날짜
+* 원본 제공 값인지 수동 정규화 값인지에 대한 구분
+
+블로그, 광고성 페이지 또는 LLM 출력을 공식 정보로 저장하지 않는다.
+
+## 10. 정책 데이터 모델
+
+현재 `PolicyRecord`는 다음 필드를 중심으로 구성된다.
+
+| 필드                   | 타입                  | 설명                   |
+| -------------------- | ------------------- | -------------------- |
+| `policy_id`          | `str`               | 정책 고유 ID             |
+| `policy_name`        | `str`               | 정책명                  |
+| `category`           | `str \| None`       | 정책 분류                |
+| `summary`            | `str \| None`       | 정책 요약                |
+| `region_code`        | `str \| None`       | 지역 코드 또는 쉼표 구분 지역 코드 |
+| `region_name`        | `str \| None`       | 지역명                  |
+| `age_min`            | `int \| None`       | 최소 연령                |
+| `age_max`            | `int \| None`       | 최대 연령                |
+| `income_condition`   | `str \| None`       | 소득 조건                |
+| `employment_status`  | `str \| None`       | 취업 상태 조건             |
+| `education_status`   | `str \| None`       | 교육 상태 조건             |
+| `application_start`  | `date \| None`      | 신청 시작일               |
+| `application_end`    | `date \| None`      | 신청 종료일               |
+| `application_status` | `ApplicationStatus` | 신청 상태                |
+| `eligibility_text`   | `str \| None`       | 자격 조건 원문 또는 결합 텍스트   |
+| `benefit_text`       | `str \| None`       | 지원 내용                |
+| `application_method` | `str \| None`       | 신청 방법                |
+| `required_documents` | `str \| None`       | 필요 서류                |
+| `contact`            | `str \| None`       | 문의처                  |
+| `source_name`        | `str`               | 출처 이름                |
+| `source_url`         | `str \| None`       | 공식 출처 URL            |
+| `last_verified_at`   | `datetime`          | 수집 또는 확인 시각          |
+| `embedding_text`     | `str`               | 벡터 검색용 텍스트           |
 
-### 9.1 Primary source
+### 10.1 데이터 처리 원칙
 
-Use the official 온통청년 youth-policy API as the initial source. The source-domain reference should use the current 온통청년 service (`youthcenter.go.kr`) rather than the outdated `korea-youth.go.kr` wording from an earlier plan.
+* `policy_id`는 SQLite와 벡터 인덱스에서 일관되게 사용한다.
+* 공식 데이터에 없는 값은 생성하지 않는다.
+* 누락값은 `None` 등 일관된 방식으로 유지한다.
+* 날짜는 가능한 경우 표준 날짜 형식으로 변환한다.
+* 정책 마감 여부를 확인할 수 없는 경우 `UNKNOWN`으로 유지한다.
+* 벡터 검색용 텍스트는 동일한 입력에서 동일한 결과가 나오도록 구성한다.
+* 감사와 디버깅에 필요한 원본 필드는 가능한 범위에서 보존한다.
 
-### 9.2 Collection requirements
+## 11. 현재 구현된 데이터 파싱
 
-- Store each raw response in a timestamped file.
-- Record collection time, source name, request parameters, and response format.
-- Never overwrite a previous raw snapshot.
-- Detect and report API errors, malformed responses, empty responses, and rate-limit failures.
-- Avoid collecting more data than needed during development.
-- Support a small sample mode for local testing.
+온통청년 공식 예시 JSON을 `PolicyRecord`로 변환하는 파서를 구현하였다.
 
-### 9.3 Manual supplementation
+현재 확인된 주요 변환 항목은 다음과 같다.
 
-Missing required documents or application procedures may be supplemented only when verified against an official source.
+* 정책 ID와 정책명
+* 정책 분류
+* 정책 요약
+* 연령 조건
+* 지역 코드
+* 취업 상태 코드
+* 소득 조건
+* 신청 시작일과 종료일
+* 신청 상태
+* 지원 내용
+* 신청 방법
+* 필요 서류
+* 문의처
+* 공식 출처
+* 임베딩용 텍스트
 
-Supplemented values must include:
+코드값은 `codebook.py`에 정의된 코드북을 이용해 한국어 라벨로 변환한다.
 
-- Official source URL
-- Verification date
-- A clear distinction between source-provided and manually normalized content
+코드북에서 해석할 수 없거나 원본 값이 없는 경우 임의의 의미를 생성하지 않는다.
 
-Do not infer missing official facts from blogs, commercial pages, or LLM output.
+## 12. SQLite 저장소
 
-### 9.4 Future sources
+현재 SQLite 저장소에는 다음 기능이 구현되어 있다.
 
-복지로 and Seoul youth-policy sources are future adapters. Their schemas must not be mixed into the primary pipeline until the 온통청년 end-to-end flow is stable and tested.
+* 데이터베이스 연결
+* 정책 테이블 초기화
+* 여러 정책 추가 및 갱신
+* 정책 ID 기준 단건 조회
+* 전체 정책 목록 조회
+* SQLite 행을 `PolicyRecord`로 복원
 
-## 10. Canonical policy data model
+주요 재사용 함수는 다음과 같다.
 
-The processed dataset uses the following fields.
+```python
+connect_database(db_path)
+initialize_database(connection)
+upsert_policies(connection, policies)
+get_policy_by_id(connection, policy_id)
+list_policies(connection)
+```
 
-| Field | Intended type | Description |
-|---|---|---|
-| `policy_id` | string | Stable unique identifier used across SQLite and FAISS mapping |
-| `policy_name` | string | Official policy title |
-| `category` | string/null | Normalized policy category |
-| `summary` | string/null | Concise source-grounded policy summary |
-| `region_code` | string/null | Official or normalized region code |
-| `region_name` | string/null | Human-readable region |
-| `age_min` | integer/null | Minimum eligible age when reliably extractable |
-| `age_max` | integer/null | Maximum eligible age when reliably extractable |
-| `income_condition` | string/null | Official income condition text or normalized label |
-| `employment_status` | string/null | Official employment condition text or normalized value |
-| `education_status` | string/null | Official education condition text or normalized value |
-| `application_start` | date/null | Application start date |
-| `application_end` | date/null | Application end date |
-| `application_status` | string | Derived or source status: `upcoming`, `open`, `closed`, `unknown` |
-| `eligibility_text` | string/null | Original or safely combined eligibility text |
-| `benefit_text` | string/null | Official benefit/support content |
-| `application_method` | string/null | Official application procedure |
-| `required_documents` | string/null | Official required-document information |
-| `contact` | string/null | Official contact information |
-| `source_name` | string | Source organization or platform |
-| `source_url` | string/null | Official policy or source URL |
-| `last_verified_at` | date/datetime | Latest collection or manual verification time |
-| `embedding_text` | string | Deterministically constructed text used for embeddings |
+`list_policies()`는 `PolicyRecord` 목록을 반환하며 현재 `policy_id` 오름차순으로 정렬한다.
 
-### 10.1 Data-model rules
+정책 데이터가 없으면 빈 리스트를 반환한다.
 
-- `policy_id` must remain stable between processed data and FAISS metadata.
-- Missing values remain null or empty according to one documented convention.
-- Do not replace missing official facts with generated content.
-- Preserve original source fields needed to audit mappings.
-- Normalize dates to `YYYY-MM-DD` where possible.
-- Derive `application_status` from dates using the current date when dates are reliable; otherwise use `unknown`.
-- The `embedding_text` rule must be deterministic and versioned in code or metadata.
+## 13. 사용자 입력 모델
 
-## 11. User input model
+현재 규칙 기반 엔진의 `UserProfile`은 다음 값을 지원한다.
 
-The initial Streamlit form should support:
+* 나이
+* 지역 코드
+* 취업 상태
 
-- Age
-- Residence region
-- Income condition or income bracket, including “모름/확인 필요”
-- Employment status
-- Education status
-- Interest category or categories
-- Optional natural-language request
+현재 사용자 소득 금액은 입력받지 않는다.
 
-Input design rules:
+소득 데이터의 단위, 개인·가구 기준, 기준중위소득 정보가 충분히 구조화되지 않았기 때문에 정책의 소득 조건만 보수적으로 판정한다.
 
-- Do not request a resident registration number, exact address, bank details, or other unnecessary sensitive data.
-- Allow unknown selections rather than forcing users to guess.
-- Explain that inputs are used only for the current recommendation session in the MVP.
-- Validate age and required fields with clear Korean messages.
+향후 Streamlit 화면에서는 최소한 다음 입력을 제공한다.
 
-## 12. Rule-based filtering design
+* 나이
+* 거주 지역 또는 지역 코드
+* 취업 상태
 
-### 12.1 Tri-state result
+이후 데이터 구조가 보완되면 다음 입력을 추가할 수 있다.
 
-Each evaluated condition returns:
+* 소득 수준 또는 소득 정보 미확인
+* 교육 상태
+* 관심 정책 분야
+* 자연어 요청
 
-- `MATCH`: available data supports the condition.
-- `NO_MATCH`: available data clearly contradicts the condition.
-- `UNKNOWN`: data is missing, ambiguous, or unsafe to parse.
+사용자 입력 화면에서는 주민등록번호, 정확한 주소, 계좌 정보와 같은 불필요한 민감정보를 요청하지 않는다.
 
-### 12.2 Hard-filter candidates
+## 14. 규칙 기반 판정 구조
 
-The following may be hard filters only when reliable structured data exists:
+### 14.1 판정 상태
 
-- Age range
-- Region restriction
-- Application status or confirmed application end date
+모든 정책은 다음 세 상태 중 하나로 판정한다.
 
-A policy with a clear `NO_MATCH` on a mandatory hard condition may be excluded.
+| 상태         | 의미                 |
+| ---------- | ------------------ |
+| `MATCH`    | 현재 데이터상 사용자 조건과 일치 |
+| `UNKNOWN`  | 데이터가 없거나 세부 확인 필요  |
+| `NO_MATCH` | 명확한 조건 불일치         |
 
-### 12.3 Soft or uncertain conditions
+최종 상태 우선순위는 다음과 같다.
 
-The following often appear as free text and should not automatically exclude a policy unless the source mapping is reliable:
+```text
+NO_MATCH → UNKNOWN → MATCH
+```
 
-- Income condition
-- Employment status
-- Education status
-- Household or special-category requirements
+조건 판정 순서는 다음과 같다.
 
-For these fields:
+```text
+신청 상태 → 연령 → 지역 → 취업 상태 → 소득
+```
 
-- Keep `UNKNOWN` candidates.
-- Record the uncertain condition.
-- Display it under “확인이 필요한 조건”.
+### 14.2 신청 상태 판정
 
-### 12.4 Explanation trace
+* `CLOSED`는 즉시 `NO_MATCH`
+* `UPCOMING`은 `UNKNOWN`
+* 상태를 확인할 수 없으면 `UNKNOWN`
+* 신청 가능 상태이면 나머지 조건 판정을 수행한다.
 
-For every recommended policy, retain:
+마감 정책은 다른 사용자 조건을 평가하지 않고 즉시 반환한다.
 
-- Matched conditions
-- Clear non-matches considered during filtering
-- Unknown or unverified conditions
-- Reason the policy remained in the candidate set
+### 14.3 연령 판정
 
-This trace supports the UI, automated tests, and final report evaluation.
+* 사용자 나이가 정책의 최소·최대 연령 범위 안이면 `MATCH`
+* 최소 연령보다 작거나 최대 연령보다 크면 `NO_MATCH`
+* 사용자 나이가 없으면 `UNKNOWN`
+* 정책 연령 조건을 확인할 수 없으면 `UNKNOWN`
 
-## 13. Semantic search design
+### 14.4 지역 판정
 
-### 13.1 Embedding content
+* 정책의 지역 코드 목록에 사용자 지역 코드가 포함되면 `MATCH`
+* 사용자 지역 코드가 포함되지 않으면 `NO_MATCH`
+* 사용자 지역이 없으면 `UNKNOWN`
+* 정책 지역 조건을 확인할 수 없으면 `UNKNOWN`
 
-`embedding_text` should be constructed from available official fields such as:
+정책의 지역값은 쉼표 구분 문자열을 분리하고 공백을 제거한 뒤 정확히 비교한다.
 
-- Policy name
-- Category
-- Summary
-- Eligibility text
-- Benefit text
-- Application method
-- Region name
+전국 대상 정책도 여러 지역 코드가 나열된 형태이므로 동일한 포함 여부 비교 방식으로 처리한다.
 
-Do not include generated recommendations in the embedding source.
+### 14.5 취업 상태 판정
 
-### 13.2 Indexing
+* 정책 취업 상태가 `제한없음`이면 `MATCH`
+* 사용자와 정책 취업 상태가 정확히 같으면 `MATCH`
+* 사용자와 정책 취업 상태가 명확히 다르면 `NO_MATCH`
+* 사용자 상태가 없으면 `UNKNOWN`
+* 정책 조건을 확인할 수 없으면 `UNKNOWN`
 
-- Generate embeddings offline or through an explicit build command.
-- Store the FAISS index separately from a metadata mapping.
-- Maintain an ordered mapping from vector position to `policy_id`.
-- Validate that the number of vectors equals the number of mapped policy IDs.
-- Rebuild the index when processed source data or the embedding model changes.
-- Record the embedding model and build time in index metadata.
+앞뒤 공백은 제거하지만 유사어 추정, 부분 문자열 비교, 자연어 예외 해석은 수행하지 않는다.
 
-### 13.3 Ranking
+### 14.6 소득 조건 판정
 
-- Apply rule filtering before semantic ranking.
-- Rank only the remaining candidate records.
-- Return Top-5 results by default.
-- Handle fewer than five candidates gracefully.
-- Define deterministic tie handling where practical.
+현재 `income_condition`에는 코드 라벨, 금액, 자유 텍스트가 하나의 문자열로 결합되어 있다.
 
-## 14. LLM explanation design
+금액의 단위와 개인·가구 기준이 완전히 구조화되지 않았으므로 다음과 같이 안전하게 처리한다.
 
-### 14.1 Allowed role
+* 값이 정확히 `무관`이면 `MATCH`
+* 값이 없으면 `UNKNOWN`
+* 그 외 소득 조건은 `UNKNOWN`
+* 소득 조건만으로 `NO_MATCH`를 반환하지 않는다.
 
-The LLM may:
+다음과 같은 조건은 세부 확인 대상으로 유지한다.
 
-- Summarize retrieved official policy information.
-- Explain why a retrieved policy appears relevant.
-- Separate matched and uncertain conditions.
-- Reformat application procedure and required documents for readability.
-- State that final eligibility requires official confirmation.
+* 연소득 최대 금액
+* 기준중위소득 비율
+* 가구소득 조건
+* 무주택 조건
+* 거래금액 조건
+* 기타 자유 텍스트 조건
 
-### 14.2 Prohibited role
+숫자 추출, 단위 추정, 기준중위소득 계산은 현재 구현하지 않는다.
 
-The LLM must not:
+## 15. 단건 정책 평가
 
-- Retrieve or introduce unprovided policies.
-- Decide final eligibility.
-- Invent missing values.
-- Change dates, benefit amounts, application instructions, or documents.
-- Hide uncertainty.
-- Cite unofficial sources as official facts.
+`evaluate_policy()`는 하나의 `PolicyRecord`와 하나의 `UserProfile`을 비교한다.
 
-### 14.3 Prompt requirements
+결과는 `MatchResult`로 반환한다.
 
-The prompt must:
+```python
+@dataclass(frozen=True)
+class MatchResult:
+    policy_id: str
+    status: MatchStatus
+    reasons: tuple[str, ...]
+```
 
-- Include only the selected policy records and user-provided conditions needed for the explanation.
-- Explicitly forbid unsupported additions.
-- Require unknown values to be described as confirmation items.
-- Require official source URL preservation.
-- Prefer a structured response that can be validated before display.
+`reasons`에는 판정 과정에서 발생한 불일치 또는 확인 필요 이유가 다음 순서로 저장된다.
 
-### 14.4 Failure behavior
+```text
+신청 상태 → 연령 → 지역 → 취업 상태 → 소득
+```
 
-If explanation generation fails:
+모든 조건이 명확히 일치하면 이유 목록은 빈 tuple이다.
 
-- Continue to display retrieved policy data.
-- Show a clear message that AI explanation is temporarily unavailable.
-- Do not discard official source information.
-- Log a sanitized error without secrets or sensitive user inputs.
+## 16. 여러 정책 일괄 평가
 
-## 15. Recommendation result requirements
+여러 정책을 평가하기 위해 다음 결과 모델이 구현되어 있다.
 
-Each result card must show, when available:
+```python
+@dataclass(frozen=True)
+class EvaluatedPolicy:
+    policy: PolicyRecord
+    result: MatchResult
 
-- 정책명
-- 추천 이유
-- 일치한 조건
-- 확인이 필요한 조건
-- 지원 내용
-- 신청 기간 and current status
-- 신청 방법
-- 필요 서류
-- 공식 출처 link
-- 최종 확인 날짜
 
-The page must display this disclaimer prominently:
+@dataclass(frozen=True)
+class PolicyEvaluationBatch:
+    matched: tuple[EvaluatedPolicy, ...]
+    unknown: tuple[EvaluatedPolicy, ...]
+    no_match: tuple[EvaluatedPolicy, ...]
+```
+
+공개 함수는 다음과 같다.
+
+```python
+def evaluate_policies(
+    policies: Iterable[PolicyRecord],
+    profile: UserProfile,
+) -> PolicyEvaluationBatch:
+```
+
+동작 규칙은 다음과 같다.
+
+* 입력 정책을 한 번씩 순회한다.
+* 각 정책에 `evaluate_policy()`를 적용한다.
+* 원본 정책과 판정 결과를 함께 보존한다.
+* `MATCH`는 `matched`에 저장한다.
+* `UNKNOWN`은 `unknown`에 저장한다.
+* `NO_MATCH`는 `no_match`에 저장한다.
+* 각 그룹 내부에서는 입력 정책의 상대적 순서를 유지한다.
+* 빈 정책 목록을 처리한다.
+* 리스트와 generator 입력을 모두 처리한다.
+* SQLite의 `list_policies()` 결과를 직접 입력할 수 있다.
+
+현재 단계에서는 점수 계산, Top-N 정렬, 벡터 유사도 검색을 수행하지 않는다.
+
+## 17. 추천 후보 처리 원칙
+
+규칙 기반 1차 판정 결과는 다음과 같이 사용한다.
+
+### 17.1 추천 가능 정책
+
+`matched`에 포함된 정책은 현재 입력한 기본 조건과 명확히 일치하는 정책이다.
+
+### 17.2 추가 확인 필요 정책
+
+`unknown`에 포함된 정책은 다음과 같은 이유로 세부 확인이 필요하다.
+
+* 신청 상태 불명확
+* 연령 조건 누락
+* 지역 조건 누락
+* 취업 상태 조건 누락
+* 복잡한 소득 조건
+* 자연어 자격 조건
+
+이 정책은 자동으로 제외하지 않는다.
+
+### 17.3 조건 불일치 정책
+
+`no_match`에 포함된 정책은 구조화된 조건에서 명확한 불일치가 확인된 정책이다.
+
+판정 이유를 보존하여 결과 화면이나 테스트에서 확인할 수 있도록 한다.
+
+## 18. 벡터 검색 설계
+
+벡터 검색은 규칙 기반 후보 분류 이후 구현한다.
+
+### 18.1 임베딩 텍스트
+
+`embedding_text`는 다음 공식 필드를 조합하여 생성한다.
+
+* 정책명
+* 정책 분류
+* 정책 요약
+* 자격 조건
+* 지원 내용
+* 신청 방법
+* 지역 정보
+
+생성형 AI가 만든 추천 문구는 임베딩 원본에 포함하지 않는다.
+
+### 18.2 FAISS 인덱스
+
+* 임베딩 생성은 명시적인 빌드 작업으로 수행한다.
+* FAISS 인덱스와 정책 ID 매핑을 별도 저장한다.
+* 벡터 위치와 `policy_id`의 순서를 일관되게 유지한다.
+* 벡터 개수와 정책 ID 개수가 같은지 검증한다.
+* 정책 데이터 또는 임베딩 모델이 변경되면 인덱스를 다시 생성한다.
+* 임베딩 모델과 생성 시각을 메타데이터에 기록한다.
+
+### 18.3 검색 순서
+
+```text
+사용자 조건 입력
+→ 규칙 기반 평가
+→ 명확한 NO_MATCH 후보 제외
+→ MATCH와 필요한 UNKNOWN 후보 유지
+→ 자연어 요청 임베딩
+→ FAISS 유사도 검색
+→ 상위 정책 반환
+```
+
+기본 목표 결과 수는 Top-5이며 후보가 5개보다 적으면 존재하는 결과만 반환한다.
+
+## 19. LLM 설명 설계
+
+### 19.1 허용 역할
+
+LLM은 검색된 공식 정책 데이터를 바탕으로 다음 작업을 수행할 수 있다.
+
+* 정책 내용 요약
+* 사용자 조건과의 관련성 설명
+* 일치한 조건과 확인이 필요한 조건 구분
+* 신청 방법과 필요 서류 정리
+* 최종 자격 확인 필요 안내
+
+### 19.2 금지 역할
+
+LLM은 다음 작업을 수행하면 안 된다.
+
+* 검색 결과 밖의 정책 추가
+* 최종 신청 자격 확정
+* 누락된 조건 추정
+* 지원 금액, 날짜, 신청 방법, 서류 임의 생성
+* 불확실한 조건 숨김
+* 비공식 출처를 공식 정보처럼 사용
+
+### 19.3 프롬프트 원칙
+
+* 검색된 정책 데이터만 입력한다.
+* 불필요한 개인정보를 포함하지 않는다.
+* 알 수 없는 값은 확인 필요 항목으로 표시하도록 한다.
+* 공식 출처를 유지하도록 한다.
+* 구조화된 출력이 필요한 경우 출력 형식을 검증한다.
+
+### 19.4 장애 대응
+
+LLM 호출이 실패해도 규칙 기반 정책 결과는 유지한다.
+
+화면에는 AI 설명을 생성하지 못했다는 안내를 표시하고 공식 정책 정보와 출처는 계속 제공한다.
+
+## 20. Streamlit UI 요구사항
+
+### 20.1 현재 다음 개발 작업
+
+다음 승인 작업은 **중간발표와 교수 피드백을 위한 규칙 기반 Streamlit 데모 UI 구현**이다.
+
+이 단계에서는 실제 온통청년 API, FAISS, OpenAI API를 연결하지 않는다.
+
+공식 예시 JSON 10건과 현재 구현된 규칙 기반 평가 기능을 사용한다.
+
+### 20.2 데모 입력 화면
+
+초기 데모 화면은 다음 입력을 제공한다.
+
+* 나이
+* 지역 코드
+* 취업 상태
+* 정책 추천 실행 버튼
+
+취업 상태 선택값은 현재 코드북과 정책 데이터 표현을 기준으로 제공한다.
+
+### 20.3 데모 결과 화면
+
+결과는 다음 세 그룹으로 구분한다.
+
+* 추천 가능
+* 추가 확인 필요
+* 조건 불일치
+
+각 정책에는 가능한 범위에서 다음 정보를 표시한다.
+
+* 정책명
+* 정책 ID
+* 정책 요약
+* 신청 상태
+* 신청 기간
+* 취업 상태 조건
+* 소득 조건
+* 규칙 기반 판정 상태
+* 판정 이유
+* 공식 출처
+* 최종 확인 시각
+
+`MATCH`의 이유 목록이 비어 있으면 입력한 기본 조건과 일치한다는 안내를 표시한다.
+
+값이 없는 경우 `None`을 그대로 노출하지 않고 `정보 없음` 등으로 표시한다.
+
+### 20.4 필수 안내 문구
+
+화면에는 다음 의미의 안내를 명확하게 표시한다.
 
 > 지원 가능성이 높은 정책입니다. 최종 신청 자격과 세부 조건은 반드시 공식 공고문에서 확인해야 합니다.
 
-Result wording must distinguish:
+중간 데모에서는 다음 내용도 표시한다.
 
-- Official source fields
-- Deterministic rule results
-- AI-generated explanation
+> 현재는 예시 정책 데이터와 규칙 기반 1차 조건 필터를 사용하며, 벡터 검색과 LLM 추천 설명은 추후 연결할 예정입니다.
 
-## 16. Streamlit UI requirements
+현재 규칙 기반 결과를 LLM이 생성한 추천 결과처럼 표현하지 않는다.
 
-The MVP should include:
+## 21. 오류 처리 요구사항
 
-1. Project title and short description
-2. Eligibility disclaimer
-3. User-condition input form
-4. Optional natural-language request
-5. Search/recommend button
-6. Loading and progress feedback
-7. Top result cards
-8. Matched and uncertain condition sections
-9. Official-source links
-10. Empty-result guidance
-11. Clear error states for missing configuration or unavailable services
+다음 상황을 사용자 친화적으로 처리한다.
 
-Usability rules:
+* 예시 JSON 파일 누락
+* JSON 파싱 실패
+* SQLite 데이터베이스 누락 또는 읽기 실패
+* 정책 데이터가 비어 있는 경우
+* 사용자 입력 누락
+* 유효하지 않은 나이
+* 조건에 맞는 정책이 없는 경우
+* OpenAI API 키 누락
+* 온통청년 API 네트워크 오류
+* API 인증 오류
+* FAISS 인덱스 누락
+* FAISS 메타데이터 불일치
+* LLM 호출 실패
 
-- Use Korean labels and plain language.
-- Do not overload the first screen with technical details.
-- Keep forms readable on a laptop screen.
-- Avoid implying that the service is an official government determination.
-- Provide a clear way to modify conditions and search again.
+사용자 화면에 비밀값이나 전체 스택 추적을 노출하지 않는다.
 
-## 17. Error handling requirements
+## 22. 설정 및 비밀정보
 
-Provide user-friendly handling for:
-
-- Missing OpenAI API key
-- Missing or unreadable SQLite database
-- Missing or mismatched FAISS index metadata
-- Public API network failure
-- Empty API response
-- No policies after hard filtering
-- No valid semantic-search candidates
-- LLM timeout or invalid response
-- Malformed dates or missing source URLs
-
-Errors should identify the failed stage without exposing secrets or raw stack traces to end users.
-
-## 18. Configuration and secrets
-
-Expected environment variables:
+예상 환경 변수는 다음과 같다.
 
 ```text
 OPENAI_API_KEY=
@@ -453,186 +699,249 @@ OPENAI_CHAT_MODEL=
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-Rules:
+관리 원칙:
 
-- Local secrets belong in `.env` or `.streamlit/secrets.toml`.
-- Deployment secrets belong in Streamlit Community Cloud secret settings.
-- `.env.example` contains names and safe placeholders only.
-- The chat model remains configurable; documentation must not permanently compare or lock the project to GPT-4o or any other chat model.
-- The application should show a clear configuration message when required values are missing.
+* 로컬 비밀값은 `.env` 또는 `.streamlit/secrets.toml`에 저장한다.
+* 배포 비밀값은 Streamlit Community Cloud 설정에 저장한다.
+* `.env.example`에는 환경 변수 이름과 안전한 예시만 넣는다.
+* 실제 API 키를 코드, 테스트, 문서, 캡처, 로그, Git 기록에 포함하지 않는다.
+* 채팅 모델은 환경 변수로 설정하며 특정 모델로 영구 고정하지 않는다.
 
-## 19. Proposed repository structure
+## 23. 실제 저장소 구조
 
-This is a target structure, not proof that files already exist:
+현재 확인된 주요 저장소 구조는 다음과 같다.
 
 ```text
 career-catch-4/
 ├─ AGENTS.md
 ├─ PROJECT_SPEC.md
+├─ PROJECT_STATUS.md
 ├─ TASKS.md
 ├─ README.md
-├─ app.py
 ├─ requirements.txt
 ├─ .env.example
-├─ .gitignore
-├─ data/
-│  ├─ raw/
-│  ├─ processed/
-│  └─ indexes/
-├─ scripts/
-│  ├─ fetch_policies.py
-│  ├─ build_dataset.py
-│  └─ build_index.py
 ├─ src/
 │  └─ career_catch/
 │     ├─ __init__.py
-│     ├─ config.py
 │     ├─ models.py
-│     ├─ collection.py
-│     ├─ normalization.py
-│     ├─ storage.py
-│     ├─ filtering.py
-│     ├─ retrieval.py
-│     ├─ explanation.py
-│     └─ service.py
-├─ tests/
-│  ├─ fixtures/
-│  ├─ test_normalization.py
-│  ├─ test_filtering.py
-│  ├─ test_storage.py
-│  └─ test_retrieval.py
-└─ docs/
+│     ├─ codebook.py
+│     ├─ ontong_parser.py
+│     ├─ sqlite_store.py
+│     └─ matching.py
+└─ tests/
+   ├─ fixtures/
+   │  └─ ontong_youth_policy_page1.json
+   ├─ test_models.py
+   ├─ test_codebook.py
+   ├─ test_ontong_parser.py
+   ├─ test_sqlite_store.py
+   └─ test_matching.py
 ```
 
-The exact structure may be simplified during implementation, but architecture changes require an explicit reason and user approval when they affect scope or dependencies.
+Streamlit 진입 파일과 벡터 검색 관련 파일은 아직 생성되지 않았다.
 
-## 20. Testing strategy
+새 파일은 실제 구현이 시작된 뒤 저장소 구조에 맞게 추가한다.
 
-### 20.1 Unit tests
+## 24. 테스트 전략
 
-Test at least:
+### 24.1 현재 테스트 현황
 
-- API field mapping into canonical fields
-- Duplicate handling by `policy_id`
-- Null and malformed source values
-- Date normalization and application-status derivation
-- Age and region hard filters
-- Income, employment, and education `UNKNOWN` behavior
-- Closed-policy exclusion
-- Matched and uncertain reason traces
-- FAISS vector-to-policy mapping integrity
-- No-network behavior through mocks
-- LLM response validation or safe fallback behavior
-
-### 20.2 Integration tests
-
-Use a small fixed policy fixture to verify:
+현재 전체 자동 테스트 결과는 다음과 같다.
 
 ```text
-User input
-→ rule evaluation
-→ candidate set
-→ semantic ranking
-→ grounded explanation request construction
-→ result view model
+81 passed
 ```
 
-Integration tests must not require a real OpenAI API call by default.
+검증된 영역:
 
-### 20.3 Manual checks
+* 정책 데이터 모델
+* 코드북 변환
+* 공식 예시 JSON 파싱
+* 누락값 및 잘못된 값 처리
+* 신청 상태 도출
+* SQLite 저장 및 조회
+* 신청 상태 판정
+* 연령 조건 판정
+* 지역 조건 판정
+* 취업 상태 판정
+* 소득 조건 안전 판정
+* 여러 정책 일괄 평가
+* 리스트 및 generator 처리
+* SQLite 조회 결과와 일괄 평가 기능 연결
+* 정책과 판정 결과 보존
+* 결과 그룹 내부 순서 유지
 
-- Launch the Streamlit app locally.
-- Complete at least three representative input scenarios.
-- Verify source links.
-- Verify closed-policy behavior.
-- Verify missing-key behavior.
-- Verify the app remains useful when LLM explanation fails.
+### 24.2 기본 테스트 명령
 
-## 21. Evaluation plan
+Windows 환경에서 다음 명령을 사용한다.
 
-Prepare approximately 10–20 synthetic user scenarios. Initial examples include:
-
-- 24 years old, Seoul, unemployed, income at or below a specified threshold, housing interest
-- 29 years old, Gyeonggi, employed, no known income restriction, asset-building interest
-- 22 years old, Busan, university student, education or certification interest
-
-Evaluate:
-
-- Clear non-matching policy exclusion rate
-- Expected-policy Top-5 inclusion rate
-- Closed-policy exclusion accuracy
-- Percentage of recommendations with an official source URL
-- Percentage with a verification date
-- Grounded explanation rate
-- Unsupported-content or hallucination count
-- Average end-to-end response time
-- Number of uncertain conditions correctly surfaced instead of guessed
-
-The final report may include verified results in a form such as:
-
-```text
-15개 시나리오 중 13개에서 기대 정책이 Top-5에 포함됨
-Top-5 포함률: 86.7%
-공식 출처 표시율: 100%
-신청 마감 정책 오추천: 1건
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
 ```
 
-These numbers are examples only. Do not use them as actual results until tests are run.
+Codex가 명령을 실행할 때는 bare `python`, `pip`, `pytest`, `streamlit` 대신 저장소 가상환경 Python을 명시적으로 사용한다.
 
-## 22. MVP acceptance criteria
+### 24.3 향후 테스트 항목
 
-The MVP is complete when all of the following are verified:
+다음 기능 구현 시 관련 테스트를 추가한다.
 
-- A documented command collects or loads a valid 온통청년 sample.
-- Raw responses are preserved without overwrite.
-- Canonical processed data is reproducibly generated.
-- SQLite contains queryable policy records with source traceability.
-- FAISS index and `policy_id` mapping pass integrity checks.
-- User inputs produce deterministic rule results.
-- Clear hard-condition mismatches are excluded.
-- Unknown conditions remain visible for confirmation.
-- Top-5 semantic results are returned when candidates exist.
-- LLM explanations use retrieved context only and have a safe fallback.
-- Every displayed recommendation preserves official source information.
-- The disclaimer is visible.
-- Relevant automated tests pass.
-- Local Streamlit execution is verified.
-- Deployment instructions are accurate, and a deployed URL is recorded only after real deployment.
+* Streamlit에서 사용할 비UI 서비스 함수
+* 실제 API 응답 구조와 예시 JSON 비교
+* API 오류 및 빈 응답 처리
+* FAISS 벡터와 정책 ID 매핑 무결성
+* 후보 검색 순서
+* LLM 프롬프트 근거 제한
+* LLM 출력 검증
+* LLM 장애 시 공식 정책 결과 유지
+* 최종 추천 결과 모델
+* 배포 환경 설정 누락 처리
 
-## 23. Privacy and security
+외부 API를 사용하는 단위 테스트는 실제 네트워크 호출 대신 mock 또는 fixture를 사용한다.
 
-- Collect only the minimum session inputs needed for recommendation.
-- Do not request highly sensitive identifiers.
-- Do not store user profiles in the MVP.
-- Do not log exact user inputs if they may contain personal information.
-- Never expose API keys in logs, error messages, screenshots, source code, or Git history.
-- Use official URLs and safe link rendering.
+## 25. 평가 계획
 
-## 24. Known limitations
+최종 평가에서는 약 10~20개의 가상 사용자 시나리오를 준비한다.
 
-The MVP will have these expected limitations:
+예시 시나리오:
 
-- Coverage is initially limited to the primary 온통청년 source.
-- Free-text conditions may remain ambiguous.
-- Policy freshness depends on the latest collected snapshot and source accuracy.
-- Semantic relevance does not guarantee administrative eligibility.
-- LLM explanations can fail and require fallback behavior.
-- Streamlit Community Cloud local filesystem changes are not durable.
-- Final eligibility always depends on the official notice and responsible institution.
+* 24세, 서울, 미취업자, 주거 지원 관심
+* 29세, 경기, 재직자, 자산 형성 관심
+* 22세, 부산, 대학생, 교육 및 자격증 관심
+* 35세, 광주, 예비 창업자, 창업 지원 관심
 
-## 25. Documentation and evidence rules
+평가 항목:
 
-- `README.md` must describe only verified features and commands.
-- `TASKS.md` must reflect current status rather than a fictional completed history.
-- Daily and final reports must use real screenshots, actual outputs, measured metrics, and real test results from this codebase.
-- Do not fabricate commits, API results, evaluation scores, deployment URLs, or user-test evidence.
-- Architecture diagrams may describe planned or implemented designs, but their status must be clear.
+* 명확한 조건 불일치 정책 제외율
+* 기대 정책의 Top-5 포함률
+* 마감 정책 제외 정확도
+* 공식 출처 표시율
+* 데이터 확인 시점 표시율
+* 확인이 필요한 조건 표시율
+* 근거 없는 LLM 내용 발생 수
+* 평균 응답 시간
+* 오류 상황에서 공식 정책 정보 유지 여부
 
-## 26. Immediate next-document expectations
+실제 실행 결과가 없는 수치는 보고서에 사용하지 않는다.
 
-After this specification and `AGENTS.md` are placed in the project root, the next project-planning task is to create:
+## 26. MVP 완료 기준
 
-- `TASKS.md`, containing only the current implementation status, the next approved task, completion checks, and deferred extensions
-- An initial `README.md`, clearly labeling unimplemented features and placeholder setup instructions
+다음 조건이 실제로 검증되면 MVP가 완료된 것으로 판단한다.
 
-No application code should be generated until those documents are reviewed and the user approves the first implementation task.
+* 온통청년 정책 데이터를 불러오는 명령 또는 기능이 문서화됨
+* 원본 응답이 덮어쓰기 없이 보존됨
+* 정책 데이터가 재현 가능한 방식으로 정규화됨
+* SQLite에서 정책 조회가 가능함
+* 사용자 조건에 따른 규칙 기반 판정이 가능함
+* 명확한 조건 불일치 정책이 구분됨
+* 불명확한 조건이 추가 확인 항목으로 유지됨
+* 여러 정책이 추천 후보, 확인 필요, 제외 정책으로 분류됨
+* FAISS 인덱스와 정책 ID 매핑이 검증됨
+* 자연어 요청에 대한 상위 후보가 반환됨
+* LLM 설명이 검색된 정책 데이터만 사용함
+* LLM 실패 시에도 공식 정책 정보가 유지됨
+* 각 추천 정책에 공식 출처가 표시됨
+* 최종 자격 확인 안내가 화면에 표시됨
+* 관련 자동 테스트가 통과함
+* Streamlit 로컬 실행이 검증됨
+* Streamlit 배포가 실제로 완료됨
+* README의 실행 및 배포 안내가 실제 명령과 일치함
+
+## 27. 개인정보 및 보안 원칙
+
+* 추천에 필요한 최소한의 사용자 조건만 입력받는다.
+* 주민등록번호, 정확한 주소, 계좌번호와 같은 민감정보를 요청하지 않는다.
+* 초기 MVP에서는 사용자 프로필을 영구 저장하지 않는다.
+* 사용자 자연어 입력에 개인정보가 포함될 수 있으므로 불필요한 로그 저장을 피한다.
+* API 키를 코드나 Git 기록에 포함하지 않는다.
+* 공식 출처 URL만 신뢰 정보로 표시한다.
+* 오류 메시지에 비밀값을 포함하지 않는다.
+
+## 28. 현재 한계
+
+현재 구현에는 다음 한계가 있다.
+
+* 실제 온통청년 API 인증키 기반 호출 미연결
+* 공식 예시 JSON 10건 중심의 기능 검증
+* 지역명이 아닌 지역 코드 중심 비교
+* 소득 조건의 단위와 개인·가구 기준 미구조화
+* 고용보험 예외 등 자연어 취업 조건 미판정
+* 교육 상태 판정 미구현
+* 관심 분야 및 자연어 검색 미구현
+* FAISS 벡터 검색 미구현
+* LLM 추천 설명 미구현
+* Streamlit 웹 화면 미구현
+* 서비스 배포 미완료
+
+잘못된 정책 탈락을 줄이기 위해 명확하지 않은 조건은 `UNKNOWN`으로 유지한다.
+
+## 29. 개발 순서
+
+현재 완료된 작업:
+
+* [x] 프로젝트 개발 환경 구성
+* [x] 정책 표준 데이터 모델 구현
+* [x] 온통청년 코드북 구현
+* [x] 공식 예시 JSON 파싱
+* [x] SQLite 저장·조회·갱신 기능
+* [x] 신청 상태 판정
+* [x] 연령 조건 판정
+* [x] 지역 조건 판정
+* [x] 취업 상태 판정
+* [x] 소득 조건 안전 판정
+* [x] 정책 단건 평가
+* [x] 여러 정책 일괄 평가
+* [x] 추천 가능·추가 확인·불일치 그룹 분류
+* [x] 전체 자동 테스트 81개 통과
+* [x] GitHub 저장소 연결 및 주요 커밋 푸시
+* [x] `PROJECT_STATUS.md` 작성
+
+다음 작업:
+
+* [ ] Streamlit 규칙 기반 데모 UI 구현
+
+이후 작업:
+
+* [ ] 실제 온통청년 API 호출 구조 점검
+* [ ] 인증키 기반 실제 응답 검증
+* [ ] 실제 정책 데이터 적재
+* [ ] 사용자 관심 분야 및 자연어 요청 입력
+* [ ] FAISS 벡터 검색 구현
+* [ ] LLM 추천 이유 및 신청 안내 생성
+* [ ] Streamlit 통합 화면 개선
+* [ ] 추천 품질 평가
+* [ ] 배포 및 최종 검증
+* [ ] 최종 보고서와 발표 자료 작성
+
+## 30. 문서 관리 원칙
+
+각 문서는 다음 역할을 가진다.
+
+* `PROJECT_SPEC.md`: 제품 요구사항, 기술 결정, 범위와 완료 기준
+* `PROJECT_STATUS.md`: 현재까지의 상세 개발 현황
+* `TASKS.md`: 완료 작업과 다음 승인 작업
+* `README.md`: 외부 공개용 프로젝트 설명과 검증된 실행 방법
+* `AGENTS.md`: Codex 등 개발 에이전트가 따라야 할 지속 규칙
+
+계획된 기능을 완료된 기능처럼 작성하지 않는다.
+
+보고서에는 실제 코드, 테스트 결과, 실행 화면, Git 기록을 근거로 사용한다.
+
+가상의 API 결과, 테스트 수치, 배포 주소, 사용자 평가 결과를 만들지 않는다.
+
+## 31. 다음 승인 작업의 완료 조건
+
+다음 작업인 Streamlit 규칙 기반 데모 UI는 다음 조건을 만족하면 완료된 것으로 본다.
+
+* 공식 예시 JSON 10건을 기존 파서로 불러옴
+* 사용자 나이, 지역 코드, 취업 상태를 입력받음
+* 기존 `evaluate_policies()`를 사용함
+* 추천 가능, 추가 확인 필요, 조건 불일치 결과를 구분함
+* 정책명과 판정 이유를 표시함
+* 누락값을 안전한 안내 문구로 표시함
+* 규칙 기반 MVP임을 명확히 안내함
+* 최종 신청 자격 확인 문구를 표시함
+* 기존 매칭 규칙을 UI에 중복 구현하지 않음
+* 기존 자동 테스트가 모두 통과함
+* Streamlit 로컬 실행이 실제로 확인됨
+
+이 작업 완료 후 실제 온통청년 API 연결 준비와 벡터 검색 구현 순서를 다시 검토한다.
