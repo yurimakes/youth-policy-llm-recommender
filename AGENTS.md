@@ -30,7 +30,7 @@ The user wants development to proceed **one verified step at a time**.
 
 Use the following stack for the MVP:
 
-- Python 3.12
+- Python 3.10
 - Streamlit for the web UI and application entry point
 - Requests for public API calls
 - Pandas for tabular processing

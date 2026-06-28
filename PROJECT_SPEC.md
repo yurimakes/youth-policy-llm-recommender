@@ -121,7 +121,7 @@ Only after the MVP is verified:
 
 | Area | Decision |
 |---|---|
-| Language | Python 3.12 |
+| Language | Python 3.10 |
 | Web application | Streamlit |
 | HTTP collection | Requests |
 | Data processing | Pandas |
