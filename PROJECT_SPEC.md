@@ -1,15 +1,67 @@
-# PROJECT_SPEC.md
+﻿# PROJECT_SPEC.md
+
+## 최신 문서 상태 (2026-07-01)
+
+* 프로젝트 저장소: `github.com/choiyuri-dev/youth-policy-llm-recommender`
+* 기준 단계: 온통청년 실제 API 수집, 실제 응답 파싱, SQLite 적재, 규칙 기반 평가 연결 검증 완료
+* 온통청년 OPEN API 인증키 승인 완료
+* 최신 온통청년 청년정책 API 엔드포인트: `https://www.youthcenter.go.kr/go/ythip/getPlcy`
+* 최신 목록 JSON 조회 파라미터: `apiKeyNm`, `pageNum`, `pageSize`, `pageType`, `rtnType`
+* 실제 API JSON 호출 성공 및 전체 정책 수 `2,633`건 확인
+* 1페이지 정책 10건의 원본 JSON과 메타데이터 저장 성공
+* 실제 응답 정책 목록 구조: `result.youthPolicyList`
+* 실제 정책 10건을 기존 `PolicyRecord` 파서로 변환 성공
+* `sbizCd`와 `sBizCd` 필드명을 모두 안전하게 처리하도록 하위 호환 반영
+* API 수집과 실제 응답 파서 연결 완료
+* snapshot JSON → `PolicyRecord` → SQLite 적재 → SQLite 재조회 파이프라인 구현
+* 실제 정책 입력 10건, SQLite 저장·재조회 10건 확인
+* 동일 snapshot 재적재 시 중복 행 증가 방지 기능 구현
+* SQLite 조회 결과를 `evaluate_policies()`에 연결 완료
+* 실제 검증 프로필: 나이 24세, 지역 코드 `11680`, 취업 상태 `미취업자`
+* 실제 평가 결과: `MATCH` 2건, `UNKNOWN` 1건, `NO_MATCH` 7건, 총 10건
+* 현재 테스트 결과: `102 passed`
+* `python compileall`: 성공
+* `data/raw`, `data/processed`, SQLite 산출물은 `.gitignore`로 제외한다.
+* 실제 raw 데이터 파일과 실제 SQLite 파일은 Git에 포함하지 않는다.
+* API 수집·파서 연결 커밋과 SQLite 파이프라인 커밋은 GitHub `main`에 푸시 완료
+* 다음 승인 작업: 온통청년 API 여러 페이지 수집 기능 구현
+* 초기 안전 검증 범위: `pageSize=10`, `max_pages=2`, 정책 최대 20건
+
+현재 구현 아키텍처:
+
+```text
+온통청년 실제 API
+        ↓
+raw snapshot 저장
+        ↓
+PolicyRecord 변환
+        ↓
+SQLite 적재·재조회
+        ↓
+MATCH / UNKNOWN / NO_MATCH 평가
+```
+
+## 아직 완료되지 않은 작업 (2026-07-01)
+
+* 여러 페이지 수집
+* 전체 또는 필요한 범위 정책 적재
+* Streamlit UI
+* FAISS 검색
+* LLM 설명
+* 배포
+
+## 구현 이력 — 2026-06-29부터 2026-07-01 이전 기록
 
 ## 1. 문서 상태
 
 * 프로젝트명: **청년 맞춤 정책 추천 및 신청 지원 웹서비스**
 * 프로그램: P-커리어캐치Ⅳ
-* GitHub 저장소: `CHOIYURI8/youth-policy-llm-recommender`
+* GitHub 저장소: `github.com/choiyuri-dev/youth-policy-llm-recommender`
 * 로컬 저장소 루트: `career-catch-4/`
 * 기준일: 2026-06-29
 * 기본 언어: 한국어 UI·문서, 영어 코드 식별자
 * 현재 단계: 규칙 기반 정책 매칭 및 여러 정책 후보 분류 완료
-* 다음 승인 작업: Streamlit 규칙 기반 데모 UI 구현
+* 2026-06-29 당시 다음 승인 작업: Streamlit 규칙 기반 데모 UI 구현
 
 이 문서는 프로젝트의 제품 요구사항, 구현된 기능, 기술적 결정, 현재 한계와 향후 개발 범위를 정의한다.
 
@@ -612,7 +664,7 @@ LLM 호출이 실패해도 규칙 기반 정책 결과는 유지한다.
 
 ## 20. Streamlit UI 요구사항
 
-### 20.1 현재 다음 개발 작업
+### 20.1 개발 이력 — 2026-06-29 당시 다음 개발 작업
 
 다음 승인 작업은 **중간발표와 교수 피드백을 위한 규칙 기반 Streamlit 데모 UI 구현**이다.
 
@@ -744,7 +796,7 @@ Streamlit 진입 파일과 벡터 검색 관련 파일은 아직 생성되지 �
 
 ## 24. 테스트 전략
 
-### 24.1 현재 테스트 현황
+### 24.1 개발 이력 — 2026-06-29 당시 테스트 현황
 
 현재 전체 자동 테스트 결과는 다음과 같다.
 
@@ -927,21 +979,18 @@ Codex가 명령을 실행할 때는 bare `python`, `pip`, `pytest`, `streamlit` 
 보고서에는 실제 코드, 테스트 결과, 실행 화면, Git 기록을 근거로 사용한다.
 
 가상의 API 결과, 테스트 수치, 배포 주소, 사용자 평가 결과를 만들지 않는다.
-
 ## 31. 다음 승인 작업의 완료 조건
 
-다음 작업인 Streamlit 규칙 기반 데모 UI는 다음 조건을 만족하면 완료된 것으로 본다.
+다음 작업인 온통청년 API 여러 페이지 수집 기능은 다음 조건을 만족하면 완료된 것으로 본다.
 
-* 공식 예시 JSON 10건을 기존 파서로 불러옴
-* 사용자 나이, 지역 코드, 취업 상태를 입력받음
-* 기존 `evaluate_policies()`를 사용함
-* 추천 가능, 추가 확인 필요, 조건 불일치 결과를 구분함
-* 정책명과 판정 이유를 표시함
-* 누락값을 안전한 안내 문구로 표시함
-* 규칙 기반 MVP임을 명확히 안내함
-* 최종 신청 자격 확인 문구를 표시함
-* 기존 매칭 규칙을 UI에 중복 구현하지 않음
-* 기존 자동 테스트가 모두 통과함
-* Streamlit 로컬 실행이 실제로 확인됨
+* 최신 엔드포인트와 파라미터를 사용해 목록 JSON을 순차 수집함
+* 초기 안전 검증 범위는 `pageSize=10`, `max_pages=2`, 정책 최대 20건으로 제한함
+* 각 페이지 raw 응답과 메타데이터를 덮어쓰기 없이 보존함
+* API 키와 전체 요청 URL을 출력하지 않음
+* 수집한 snapshot을 기존 파서와 SQLite 파이프라인으로 적재함
+* 동일 정책 재적재 시 중복 행이 증가하지 않음
+* 수집·파싱·저장 건수 불일치를 명확한 오류로 처리함
+* 실제 raw 데이터와 SQLite 산출물을 Git에 포함하지 않음
+* 관련 자동 테스트가 모두 통과함
 
-이 작업 완료 후 실제 온통청년 API 연결 준비와 벡터 검색 구현 순서를 다시 검토한다.
+이 작업 완료 후 Streamlit UI와 FAISS 검색 구현 순서를 다시 검토한다.
