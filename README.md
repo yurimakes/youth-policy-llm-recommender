@@ -1,3 +1,31 @@
+﻿## 현재 상태 (2026-07-01)
+
+이 저장소는 `github.com/choiyuri-dev/youth-policy-llm-recommender`를 기준으로 관리합니다.
+
+온통청년 OPEN API 인증키 승인이 완료되었고, 최신 청년정책 API 엔드포인트 `https://www.youthcenter.go.kr/go/ythip/getPlcy`에 맞춰 목록 JSON 조회 흐름을 구현했습니다. 요청 파라미터는 `apiKeyNm`, `pageNum`, `pageSize`, `pageType`, `rtnType`을 사용합니다.
+
+실제 API JSON 호출로 전체 정책 수 `2,633`건을 확인했고, 1페이지 정책 10건의 원본 JSON과 메타데이터를 저장했습니다. 실제 응답의 정책 목록은 `result.youthPolicyList`에 있으며, 저장된 실제 정책 10건은 기존 `PolicyRecord` 파서로 변환됩니다. `sbizCd`와 `sBizCd` 필드명은 모두 안전하게 처리합니다.
+
+snapshot JSON → `PolicyRecord` → SQLite 적재 → SQLite 재조회 파이프라인을 구현했습니다. 실제 정책 입력 10건, SQLite 저장·재조회 10건을 확인했고, 동일 snapshot 재적재 시 중복 행이 증가하지 않습니다. SQLite 조회 결과는 기존 `evaluate_policies()`에 연결됩니다.
+
+실제 검증 프로필은 나이 24세, 지역 코드 `11680`, 취업 상태 `미취업자`이며, 평가 결과는 `MATCH` 2건, `UNKNOWN` 1건, `NO_MATCH` 7건, 총 10건입니다.
+
+현재 전체 자동 테스트 결과는 `102 passed`이고 `python compileall`도 성공했습니다. `data/raw`, `data/processed`, SQLite 산출물은 `.gitignore`로 제외하며 실제 raw 데이터 파일과 실제 SQLite 파일은 Git에 포함하지 않습니다.
+
+다음 작업은 온통청년 API를 여러 페이지 순차 수집하고 각 raw 응답을 보존하면서 SQLite에 중복 없이 적재하는 기능 구현입니다. 초기 안전 검증 범위는 `pageSize=10`, `max_pages=2`, 정책 최대 20건입니다.
+
+## 아직 완료되지 않은 작업 (2026-07-01)
+
+* 여러 페이지 수집
+* 전체 또는 필요한 범위 정책 적재
+* Streamlit UI
+* FAISS 검색
+* LLM 설명
+* 배포
+
+## 개발 진행 이력
+
+### 2026-06-29부터 2026-07-01 이전 기록
 # 청년 맞춤 정책 추천 및 신청 지원 웹서비스
 
 청년의 나이, 거주 지역, 취업 상태, 소득 조건을 바탕으로 신청 가능성이 있는 청년정책을 추천하는 LLM 기반 웹서비스 프로젝트입니다.
@@ -14,13 +42,13 @@
 
 > 지원 가능성이 높은 정책입니다. 최종 신청 자격과 세부 조건은 반드시 공식 공고문에서 확인해야 합니다.
 
-## 현재 개발 상태
+## 개발 진행 이력 — 2026-06-29 당시 개발 상태
 
 * 기준일: 2026년 6월 29일
 * 전체 MVP 예상 진행률: 약 55%
 * 백엔드 기반 예상 진행률: 약 75%
 * 전체 자동 테스트: 81개 통과
-* 다음 개발 작업: Streamlit 규칙 기반 데모 UI 구현
+* 2026-06-29 당시 다음 개발 작업: Streamlit 규칙 기반 데모 UI 구현
 
 현재 완료된 핵심 범위는 다음과 같습니다.
 
@@ -35,7 +63,7 @@
 * pytest 자동 테스트
 * Git 및 GitHub 버전 관리
 
-## 현재 구현된 기능
+## 개발 진행 이력 — 2026-06-29 당시 구현된 기능
 
 ### 1. 정책 표준 모델
 
@@ -171,7 +199,32 @@ NO_MATCH → UNKNOWN → MATCH
 * SQLite 전체 조회 결과 직접 연결
 * 추천 후보와 제외 정책 분리
 
-## 현재 처리 흐름
+### 6. 실제 API snapshot SQLite 파이프라인
+
+저장된 온통청년 실제 API JSON snapshot을 기존 파서와 SQLite 저장소에 연결하는 파이프라인을 구현했습니다.
+
+구현된 흐름:
+
+```text
+snapshot JSON
+        ↓
+PolicyRecord 변환
+        ↓
+SQLite 적재
+        ↓
+SQLite 재조회
+        ↓
+evaluate_policies() 연결
+```
+
+확인된 결과:
+
+* 실제 정책 입력 10건
+* SQLite 저장·재조회 10건
+* 동일 snapshot 재적재 시 중복 증가 없음
+* 실제 검증 프로필 기준 `MATCH` 2건, `UNKNOWN` 1건, `NO_MATCH` 7건
+
+## 개발 진행 이력 — 2026-06-29 당시 처리 흐름
 
 ```text
 온통청년 예시 JSON
@@ -219,7 +272,7 @@ MATCH / UNKNOWN / NO_MATCH 분류
 현재 테스트 결과:
 
 ```text
-81 passed
+102 passed
 ```
 
 검증된 영역:
@@ -237,6 +290,18 @@ MATCH / UNKNOWN / NO_MATCH 분류
 * SQLite 조회 결과와 평가 기능 연동
 
 ## 주요 프로젝트 파일
+
+추가로 현재 구현에 포함된 주요 파일:
+
+```text
+src/career_catch/config.py
+src/career_catch/ontong_client.py
+src/career_catch/pipeline.py
+scripts/fetch_ontong_policies.py
+scripts/load_ontong_snapshot.py
+tests/test_ontong_client.py
+tests/test_pipeline.py
+```
 
 ```text
 src/career_catch/
@@ -262,7 +327,7 @@ requirements.txt
 .env.example
 ```
 
-## 현재 제한 사항
+## 개발 진행 이력 — 2026-06-29 당시 제한 사항
 
 * 실제 온통청년 API 인증키 기반 데이터 호출 미연결
 * 공식 예시 JSON 10건을 중심으로 기능 검증
@@ -282,9 +347,12 @@ requirements.txt
 * [x] SQLite 저장 및 조회
 * [x] 규칙 기반 단건 정책 판정
 * [x] 여러 정책 일괄 평가 및 후보 분류
+* [x] 실제 온통청년 API 호출
+* [x] 실제 API snapshot 저장 및 파싱
+* [x] 실제 정책 데이터 SQLite 적재 및 재조회
+* [x] SQLite 조회 결과와 규칙 기반 평가 연결
+* [ ] 온통청년 API 여러 페이지 수집
 * [ ] Streamlit 규칙 기반 데모 UI
-* [ ] 실제 온통청년 API 호출
-* [ ] 실제 정책 데이터 적재 및 갱신
 * [ ] FAISS 벡터 유사도 검색
 * [ ] LLM 추천 이유 및 신청 정보 생성
 * [ ] Streamlit 통합 화면 개선
@@ -296,5 +364,5 @@ requirements.txt
 GitHub 저장소:
 
 ```text
-CHOIYURI8/youth-policy-llm-recommender
+choiyuri-dev/youth-policy-llm-recommender
 ```
