@@ -109,6 +109,7 @@ def parse_policy_item(
     application_method = _clean_text(item.get("plcyAplyMthdCn"))
     required_documents = _clean_text(item.get("sbmsnDcmntCn"))
     policy_name = _clean_text(item.get("plcyNm")) or ""
+    special_business_code = _first_clean_text(item.get("sbizCd"), item.get("sBizCd"))
 
     return PolicyRecord(
         policy_id=_clean_text(item.get("plcyNo")) or "",
@@ -154,7 +155,7 @@ def parse_policy_item(
             employment_status=employment_status,
             education_status=education_status,
             major=decode_code("plcyMajorCd", _clean_text(item.get("plcyMajorCd"))),
-            special_business=decode_code("sbizCd", _clean_text(item.get("sbizCd"))),
+            special_business=decode_code("sbizCd", special_business_code),
         ),
     )
 

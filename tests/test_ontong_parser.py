@@ -33,6 +33,40 @@ def parse_fixture():
     )
 
 
+def make_policy_item(policy_id: str = "policy-1", **overrides: object) -> dict[str, object]:
+    item: dict[str, object] = {
+        "plcyNo": policy_id,
+        "plcyNm": f"Policy {policy_id}",
+        "plcyExplnCn": "Summary",
+        "aplyPrdSeCd": "0057002",
+        "sbizCd": "0014010",
+    }
+    item.update(overrides)
+    return item
+
+
+def make_latest_response_payload(
+    items: list[dict[str, object]] | None = None,
+    *,
+    result_code: int = 200,
+) -> dict[str, object]:
+    if items is None:
+        items = [make_policy_item(f"policy-{index}") for index in range(10)]
+
+    return {
+        "resultCode": result_code,
+        "resultMessage": "ok",
+        "result": {
+            "pagging": {
+                "totCount": len(items),
+                "pageNum": 1,
+                "pageSize": 10,
+            },
+            "youthPolicyList": items,
+        },
+    }
+
+
 def test_fixture_shape_matches_official_sample():
     payload = load_fixture()
     result = payload["result"]
@@ -46,6 +80,19 @@ def test_parse_policy_page_returns_ten_records():
     records = parse_fixture()
 
     assert len(records) == 10
+
+
+def test_parse_policy_page_supports_latest_response_wrapper():
+    records = parse_policy_page(
+        make_latest_response_payload(),
+        verified_at=VERIFIED_AT,
+        reference_date=REFERENCE_DATE,
+    )
+
+    assert len(records) == 10
+    assert [record.policy_id for record in records] == [
+        f"policy-{index}" for index in range(10)
+    ]
 
 
 def test_first_policy_maps_core_fields():
@@ -106,6 +153,21 @@ def test_sbiz_code_is_included_in_embedding_text():
     assert first_record.embedding_text.count("제한없음") >= 2
 
 
+def test_sbiz_cd_and_legacy_sbiz_cd_alias_are_equivalent():
+    sbiz_record = parse_policy_item(
+        make_policy_item("policy-sbiz", sbizCd="0014010"),
+        verified_at=VERIFIED_AT,
+        reference_date=REFERENCE_DATE,
+    )
+    legacy_sbiz_record = parse_policy_item(
+        make_policy_item("policy-sbiz", sbizCd=None, sBizCd="0014010"),
+        verified_at=VERIFIED_AT,
+        reference_date=REFERENCE_DATE,
+    )
+
+    assert legacy_sbiz_record.embedding_text == sbiz_record.embedding_text
+
+
 def test_eligibility_text_uses_blank_line_between_sections():
     record = parse_policy_item(
         {
@@ -155,6 +217,13 @@ def test_malformed_payloads_raise_value_error():
 
     with pytest.raises(ValueError, match="youthPolicyList"):
         parse_policy_page(
+            {**valid_payload, "result": {}},
+            verified_at=VERIFIED_AT,
+            reference_date=REFERENCE_DATE,
+        )
+
+    with pytest.raises(ValueError, match="youthPolicyList"):
+        parse_policy_page(
             {**valid_payload, "result": {"youthPolicyList": {}}},
             verified_at=VERIFIED_AT,
             reference_date=REFERENCE_DATE,
@@ -166,3 +235,13 @@ def test_malformed_payloads_raise_value_error():
             verified_at=VERIFIED_AT,
             reference_date=REFERENCE_DATE,
         )
+
+
+def test_parse_policy_page_allows_empty_youth_policy_list():
+    records = parse_policy_page(
+        make_latest_response_payload([]),
+        verified_at=VERIFIED_AT,
+        reference_date=REFERENCE_DATE,
+    )
+
+    assert records == []
