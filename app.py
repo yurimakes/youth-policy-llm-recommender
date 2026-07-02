@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import html
 import inspect
+import os
 import sys
 from base64 import b64encode
 from dataclasses import asdict, is_dataclass
@@ -19,7 +20,7 @@ SRC_DIR = Path(__file__).resolve().parent / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from career_catch import codebook, ui_service
+from career_catch import codebook, llm_service, retrieval, ui_service
 
 
 ASSET_DIR = Path("assets")
@@ -503,10 +504,18 @@ def normalize_result(result: Any) -> dict[str, Any]:
 
     return {
         "status": status,
+        "raw_result": result,
+        "policy_id": first_value(merged, "policy_id", "id", default=""),
         "policy_name": first_value(merged, "policy_name", "name", "title", default="정책명 미확인"),
+        "category": first_value(merged, "category", default=""),
         "summary": first_value(merged, "summary", "description", "support_content", default="요약 정보가 없습니다."),
+        "eligibility_text": first_value(merged, "eligibility_text", "eligibility", "condition_text", default=""),
+        "benefit_text": first_value(merged, "benefit_text", "benefit", "support_detail", default=""),
         "application_start": first_value(merged, "application_start", "apply_start", default=""),
         "application_end": first_value(merged, "application_end", "apply_end", default=""),
+        "application_method": first_value(merged, "application_method", "apply_method", default=""),
+        "last_verified_at": first_value(merged, "last_verified_at", default=""),
+        "embedding_text": first_value(merged, "embedding_text", default=""),
         "source_url": first_value(merged, "source_url", "url", "official_url", default=""),
         "reasons": reasons,
     }
@@ -530,7 +539,7 @@ def render_header() -> None:
     )
 
 
-def render_input_card(region_options: dict[str, dict[str, str]]) -> tuple[int, str, str, bool]:
+def render_input_card(region_options: dict[str, dict[str, str]]) -> tuple[int, str, str, str, bool]:
     """메인 화면 카드형 조건 입력 영역을 표시합니다."""
     with st.container(border=True):
         st.markdown("### 맞춤 조건 입력")
@@ -545,8 +554,13 @@ def render_input_card(region_options: dict[str, dict[str, str]]) -> tuple[int, s
             region_code = districts.get(selected_district, "")
         with col_employment:
             employment_status = st.text_input("취업 상태", value="미취업자", placeholder="예: 미취업자")
+        user_interest = st.text_area(
+            "관심 정책 또는 필요한 지원",
+            placeholder="예: 자격증 시험 비용과 월세 지원이 필요해요.",
+            height=88,
+        )
         submitted = st.button("맞춤 정책 추천받기", type="primary")
-    return int(age), region_code, employment_status, submitted
+    return int(age), region_code, employment_status, user_interest, submitted
 
 
 def render_notice() -> None:
@@ -600,18 +614,73 @@ def render_summary_cards(results: list[dict[str, Any]]) -> None:
 
 
 def render_ai_placeholder() -> None:
-    """아직 구현되지 않은 AI 설명 기능을 준비 중으로 표시합니다."""
+    """AI 설명 입력 전 안내를 표시합니다."""
     with st.container(border=True):
         image_col, text_col = st.columns([0.12, 0.88])
         with image_col:
             if CHAT_MASCOT_IMAGE.exists():
                 st.image(str(CHAT_MASCOT_IMAGE), width=54)
         with text_col:
-            st.markdown("**AI 설명 기능 준비 중**")
+            st.markdown("**AI 추천 설명**")
             st.caption(
-                "현재 화면은 SQLite 정책 데이터와 규칙 기반 평가 결과만 표시합니다. "
-                "FAISS 검색과 LLM 설명은 아직 실제 기능으로 제공하지 않습니다."
+                "관심 정책 또는 필요한 지원을 입력하면 MATCH와 UNKNOWN 정책 중 관련도가 높은 Top-5를 검색해 설명합니다."
             )
+
+
+def get_setting(name: str, default: str = "") -> str:
+    """Streamlit secrets와 환경 변수에서 설정값을 읽습니다."""
+    env_value = os.getenv(name, "")
+    if env_value:
+        return env_value
+
+    value = ""
+    try:
+        value = str(st.secrets.get(name, "") or "")
+    except Exception:
+        value = ""
+    return value or default
+
+
+def create_openai_client() -> Any:
+    """OpenAI 클라이언트를 생성합니다."""
+    api_key = get_setting("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY가 설정되지 않았습니다.")
+
+    try:
+        from openai import OpenAI
+    except ImportError as exc:
+        raise RuntimeError("OpenAI 패키지를 불러올 수 없습니다.") from exc
+
+    return OpenAI(api_key=api_key)
+
+
+def render_ai_explanation(
+    *,
+    ranked_policies: list[retrieval.RankedPolicy],
+    explanation: str | None,
+    error_message: str | None,
+) -> None:
+    """FAISS 검색 결과와 AI 설명을 표시합니다."""
+    with st.container(border=True):
+        image_col, text_col = st.columns([0.12, 0.88])
+        with image_col:
+            if CHAT_MASCOT_IMAGE.exists():
+                st.image(str(CHAT_MASCOT_IMAGE), width=54)
+        with text_col:
+            st.markdown("**AI 추천 설명**")
+            if error_message:
+                st.warning("AI 설명 생성에 실패했습니다. 아래 Top-5 정책 결과는 유지됩니다.")
+                st.caption(error_message)
+            elif explanation:
+                st.markdown(explanation)
+            else:
+                st.caption("관심사를 입력하면 MATCH와 UNKNOWN 정책 중 관련도가 높은 Top-5를 검색해 설명합니다.")
+
+    if ranked_policies:
+        st.markdown("### 관심사 기반 Top-5 정책")
+        for ranked_policy in ranked_policies:
+            render_policy_card(ranked_policy.policy)
 
 
 def render_policy_card(result: dict[str, Any]) -> None:
@@ -657,7 +726,7 @@ def main() -> None:
         return
 
     region_options = build_region_options(policies)
-    age, region_code, employment_status, submitted = render_input_card(region_options)
+    age, region_code, employment_status, user_interest, submitted = render_input_card(region_options)
 
     if not submitted:
         render_ai_placeholder()
@@ -677,7 +746,48 @@ def main() -> None:
     )
 
     render_summary_cards(normalized_results)
-    render_ai_placeholder()
+
+    ranked_policies: list[retrieval.RankedPolicy] = []
+    explanation: str | None = None
+    ai_error: str | None = None
+    if user_interest.strip():
+        candidate_results = [
+            result
+            for result in normalized_results
+            if result["status"] in {"MATCH", "UNKNOWN"}
+        ]
+        try:
+            client = create_openai_client()
+            embedding_model = get_setting("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+            chat_model = get_setting("OPENAI_CHAT_MODEL", "gpt-4o-mini")
+            ranked_policies = retrieval.rank_policies(
+                candidates=candidate_results,
+                query=user_interest,
+                client=client,
+                embedding_model=embedding_model,
+                top_k=5,
+            )
+            explanation = llm_service.generate_explanation(
+                client=client,
+                chat_model=chat_model,
+                user_interest=user_interest,
+                user_profile={
+                    "age": age,
+                    "region_code": region_code,
+                    "employment_status": employment_status,
+                },
+                policies=[ranked_policy.policy for ranked_policy in ranked_policies],
+            )
+        except Exception as exc:
+            ai_error = str(exc)
+
+        render_ai_explanation(
+            ranked_policies=ranked_policies,
+            explanation=explanation,
+            error_message=ai_error,
+        )
+    else:
+        render_ai_placeholder()
 
     if not normalized_results:
         st.info("조건에 대해 표시할 정책 평가 결과가 없습니다.")
