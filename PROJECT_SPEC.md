@@ -3,7 +3,7 @@
 ## 1. 문서 기준
 
 - 기준일: 2026-07-02
-- 저장소: `github.com/choiyuri-dev/youth-policy-llm-recommender`
+- 저장소: `github.com/yurimakes/youth-policy-llm-recommender`
 - 사용자 화면 명칭: **청년 맞춤 정책 추천**
 - 현재 단계: 로컬 MVP 핵심 기능 구현 및 검증 완료
 - 전체 자동 테스트: `122 passed`

@@ -175,5 +175,5 @@ OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 ## 저장소
 
 ```text
-https://github.com/choiyuri-dev/youth-policy-llm-recommender
+https://github.com/yurimakes/youth-policy-llm-recommender
 ```
