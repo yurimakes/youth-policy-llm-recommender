@@ -70,7 +70,7 @@ Streamlit 결과 화면
 
 ```text
 app.py
-src/career_catch/
+src/
 ├── codebook.py
 ├── config.py
 ├── llm_service.py
