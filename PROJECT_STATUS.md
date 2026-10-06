@@ -133,10 +133,10 @@ Streamlit 결과 표시
 ## 5. 주요 변경 파일
 
 - `app.py`
-- `src/career_catch/codebook.py`
-- `src/career_catch/ui_service.py`
-- `src/career_catch/retrieval.py`
-- `src/career_catch/llm_service.py`
+- `src/youth_policy/codebook.py`
+- `src/youth_policy/ui_service.py`
+- `src/youth_policy/retrieval.py`
+- `src/youth_policy/llm_service.py`
 - `tests/test_ui_service.py`
 - `tests/test_retrieval.py`
 - `tests/test_llm_service.py`

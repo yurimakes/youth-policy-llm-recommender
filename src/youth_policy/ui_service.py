@@ -8,9 +8,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from career_catch.matching import PolicyEvaluationBatch, UserProfile, evaluate_policies
-from career_catch.models import PolicyRecord
-from career_catch.sqlite_store import connect_database, list_policies
+from youth_policy.matching import PolicyEvaluationBatch, UserProfile, evaluate_policies
+from youth_policy.models import PolicyRecord
+from youth_policy.sqlite_store import connect_database, list_policies
 
 
 DEFAULT_POLICY_DB_PATH = Path("data") / "processed" / "policies.sqlite3"

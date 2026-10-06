@@ -15,8 +15,8 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.config import ConfigurationError, get_ontong_api_key
-from career_catch.ontong_client import (
+from youth_policy.config import ConfigurationError, get_ontong_api_key
+from youth_policy.ontong_client import (
     ONTONG_POLICY_ENDPOINT,
     OntongEmptyResponseError,
     OntongHttpError,

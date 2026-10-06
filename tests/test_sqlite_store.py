@@ -11,9 +11,9 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.models import ApplicationStatus
-from career_catch.ontong_parser import parse_policy_page
-from career_catch.sqlite_store import (
+from youth_policy.models import ApplicationStatus
+from youth_policy.ontong_parser import parse_policy_page
+from youth_policy.sqlite_store import (
     connect_database,
     count_policies,
     get_policy_by_id,

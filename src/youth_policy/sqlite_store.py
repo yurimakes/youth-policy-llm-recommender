@@ -11,7 +11,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Iterable
 
-from career_catch.models import ApplicationStatus, PolicyRecord
+from youth_policy.models import ApplicationStatus, PolicyRecord
 
 
 POLICY_FIELDS = tuple(field.name for field in fields(PolicyRecord))

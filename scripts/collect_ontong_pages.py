@@ -16,13 +16,13 @@ SRC_PATH = REPOSITORY_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from career_catch.collection import (
+from youth_policy.collection import (
     DEFAULT_MAX_PAGES,
     DEFAULT_START_PAGE,
     collect_ontong_policy_pages,
 )
-from career_catch.config import ConfigurationError, get_ontong_api_key
-from career_catch.ontong_client import (
+from youth_policy.config import ConfigurationError, get_ontong_api_key
+from youth_policy.ontong_client import (
     DEFAULT_OUTPUT_DIR,
     DEFAULT_PAGE_SIZE,
     DEFAULT_TIMEOUT_SECONDS,

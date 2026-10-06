@@ -15,13 +15,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.collection import (
+from youth_policy.collection import (
     OntongPageFetchError,
     OntongPayloadError,
     collect_ontong_policy_pages,
 )
-from career_catch.ontong_client import OntongFetchResult, OntongHttpError
-from career_catch.sqlite_store import (
+from youth_policy.ontong_client import OntongFetchResult, OntongHttpError
+from youth_policy.sqlite_store import (
     connect_database,
     count_policies,
     initialize_database,

@@ -13,13 +13,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.models import ApplicationStatus, PolicyRecord
-from career_catch.sqlite_store import (
+from youth_policy.models import ApplicationStatus, PolicyRecord
+from youth_policy.sqlite_store import (
     connect_database,
     initialize_database,
     upsert_policies,
 )
-from career_catch.ui_service import (
+from youth_policy.ui_service import (
     PolicyServiceError,
     evaluate_sqlite_policies,
     load_policies_from_sqlite,
