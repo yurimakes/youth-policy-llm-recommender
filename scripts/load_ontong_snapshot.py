@@ -16,7 +16,7 @@ SOURCE_ROOT = REPOSITORY_ROOT / "src"
 if str(SOURCE_ROOT) not in sys.path:
     sys.path.insert(0, str(SOURCE_ROOT))
 
-from career_catch.pipeline import load_ontong_snapshot_to_sqlite
+from youth_policy.pipeline import load_ontong_snapshot_to_sqlite
 
 
 def build_parser() -> argparse.ArgumentParser:

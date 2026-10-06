@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from career_catch import llm_service
+from youth_policy import llm_service
 
 
 def test_build_explanation_messages_contains_only_given_policies() -> None:

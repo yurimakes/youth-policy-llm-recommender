@@ -11,14 +11,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.matching import (
+from youth_policy.matching import (
     MatchStatus,
     UserProfile,
     evaluate_policies,
     evaluate_policy,
 )
-from career_catch.models import ApplicationStatus, PolicyRecord
-from career_catch.sqlite_store import (
+from youth_policy.models import ApplicationStatus, PolicyRecord
+from youth_policy.sqlite_store import (
     connect_database,
     initialize_database,
     list_policies,

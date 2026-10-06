@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
 
-from career_catch.models import ApplicationStatus, PolicyRecord
+from youth_policy.models import ApplicationStatus, PolicyRecord
 
 
 class MatchStatus(str, Enum):

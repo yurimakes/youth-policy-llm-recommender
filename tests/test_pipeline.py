@@ -14,8 +14,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.matching import UserProfile, evaluate_policies
-from career_catch.pipeline import (
+from youth_policy.matching import UserProfile, evaluate_policies
+from youth_policy.pipeline import (
     SnapshotPipelineError,
     load_ontong_snapshot_to_sqlite,
 )

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from career_catch.codebook import decode_code
-from career_catch.models import ApplicationStatus, PolicyRecord
+from youth_policy.codebook import decode_code
+from youth_policy.models import ApplicationStatus, PolicyRecord
 
 
 def _clean_text(value: object) -> str | None:
