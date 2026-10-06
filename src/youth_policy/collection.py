@@ -14,7 +14,7 @@ from math import ceil
 from pathlib import Path
 from typing import Any
 
-from career_catch.ontong_client import (
+from youth_policy.ontong_client import (
     DEFAULT_OUTPUT_DIR,
     DEFAULT_PAGE_SIZE,
     DEFAULT_TIMEOUT_SECONDS,
@@ -22,8 +22,8 @@ from career_catch.ontong_client import (
     OntongFetchResult,
     fetch_ontong_policies,
 )
-from career_catch.ontong_parser import parse_policy_page
-from career_catch.sqlite_store import (
+from youth_policy.ontong_parser import parse_policy_page
+from youth_policy.sqlite_store import (
     connect_database,
     count_policies,
     initialize_database,

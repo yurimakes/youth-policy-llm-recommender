@@ -11,9 +11,9 @@ import json
 from json import JSONDecodeError
 from pathlib import Path
 
-from career_catch.models import PolicyRecord
-from career_catch.ontong_parser import parse_policy_page
-from career_catch.sqlite_store import (
+from youth_policy.models import PolicyRecord
+from youth_policy.ontong_parser import parse_policy_page
+from youth_policy.sqlite_store import (
     connect_database,
     count_policies,
     initialize_database,

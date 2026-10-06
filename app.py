@@ -20,7 +20,7 @@ SRC_DIR = Path(__file__).resolve().parent / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from career_catch import codebook, llm_service, retrieval, ui_service
+from youth_policy import codebook, llm_service, retrieval, ui_service
 
 
 ASSET_DIR = Path("assets")

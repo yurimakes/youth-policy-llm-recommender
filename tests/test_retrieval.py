@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from career_catch import retrieval
+from youth_policy import retrieval
 
 
 def test_build_embedding_text_prefers_existing_embedding_text() -> None:

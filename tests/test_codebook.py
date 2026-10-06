@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.codebook import CODEBOOKS, decode_code, get_codebook
+from youth_policy.codebook import CODEBOOKS, decode_code, get_codebook
 
 
 def test_decode_job_code():

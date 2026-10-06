@@ -12,8 +12,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from career_catch.models import ApplicationStatus
-from career_catch.ontong_parser import parse_policy_item, parse_policy_page
+from youth_policy.models import ApplicationStatus
+from youth_policy.ontong_parser import parse_policy_item, parse_policy_page
 
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "ontong_youth_policy_page1.json"
