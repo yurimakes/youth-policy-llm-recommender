@@ -107,6 +107,19 @@ def _check_candidates(response: dict[str, Any]) -> None:
         _require("source_url" in candidate, "source URL field is missing")
 
 
+def _find_detail_candidate(client: LocalApiClient) -> dict[str, Any] | None:
+    """건너뛰기 경로와 별개의 새 진행에서 상세 질문이 필요한 실제 후보를 찾습니다."""
+    response = client.request("/api/v1/intake/start", {"start_mode": "goal"})
+    response = client.transition(response, {"type": "choose_card", "key": "goal", "value": "unknown"})
+    response = client.transition(response, {"type": "show_results"})
+    _check_candidates(response)
+    for candidate in response["candidates"]:
+        selected = client.transition(response, {"type": "select_policy", "policy_id": candidate["policy_id"]})
+        if selected["detail_offer_available"]:
+            return selected
+    return None
+
+
 def run_smoke(client: LocalApiClient) -> tuple[CheckResult, ...]:
     """서버 점검 결과를 반환하며 데이터 의존 항목의 스킵을 성공과 구분합니다."""
     checks: list[CheckResult] = []
@@ -158,8 +171,11 @@ def run_smoke(client: LocalApiClient) -> tuple[CheckResult, ...]:
             _require(declined["candidates"] == selected["candidates"], "declining detail changed official guidance")
             checks.append(CheckResult(current, "PASS", "basic route and official guidance retained"))
             current = "detail_pause_resume"
-            if selected["detail_offer_available"]:
-                detail = client.transition(selected, {"type": "choose_detail", "accept": True})
+            # A prior explicit skip must stay respected. Use a separate unanswered
+            # synthetic route rather than erasing skips or forcing a detail step.
+            detail_candidate = _find_detail_candidate(client)
+            if detail_candidate is not None:
+                detail = client.transition(detail_candidate, {"type": "choose_detail", "accept": True})
                 _require(detail["state"]["stage"] == "detail", "accepted detail did not start")
                 paused = client.transition(detail, {"type": "pause_detail"})
                 resumed = client.transition(paused, {"type": "resume_detail"})
@@ -169,7 +185,7 @@ def run_smoke(client: LocalApiClient) -> tuple[CheckResult, ...]:
                 _check_candidates(resumed)
                 checks.append(CheckResult(current, "PASS", "accepted detail paused and resumed"))
             else:
-                checks.append(CheckResult(current, "SKIP", "selected policy has no remaining useful detail question"))
+                checks.append(CheckResult(current, "SKIP", "no candidate needs detail in a fresh unanswered route"))
         else:
             checks.extend(CheckResult(name, "SKIP", "no current candidate; review policy dates and data")
                           for name in ("detail_decline", "detail_pause_resume"))

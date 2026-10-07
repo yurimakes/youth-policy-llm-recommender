@@ -4,7 +4,7 @@
 
 팀원은 데모 UI를 담당하고, 이 브랜치는 백엔드와 데이터·AI 연결을 준비한다. 프론트엔드 화면·React·CSS는 이번 변경에 포함하지 않는다.
 
-API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `ff2fc56`의 Windows 전체 pytest에서 **214 passed, 57 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·로컬 정책 DB·팀원 UI 연결은 별도 확인이 필요하다.
+API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `2b8b66b`의 Windows 전체 pytest에서 **222 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건 조회와 기본 후보 5건을 확인했다. 공식 공고의 최신성·팀원 UI 연결은 별도 확인이 필요하다.
 
 이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 카드·선호에 따른 정책 순위, PostgreSQL, LangGraph, RAG, 준비 문서와 공개 배포는 후속 작업이다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
 
@@ -18,7 +18,7 @@ API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·�
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-API 의존성 설치와 `ff2fc56`의 Windows 전체 테스트는 확인했다. 위 Uvicorn 서버 명령과 이후 추가한 점검 도구의 Windows 실행은 확인 전이다. API 의존성은 기존 requirements.txt와 분리해 추가했다.
+API 의존성 설치, `2b8b66b`의 Windows 전체 테스트, 위 Uvicorn 서버 기동과 점검 CLI 실행을 확인했다. 이후 상세 점검 보완의 사용자 서버 실행은 확인 전이다. API 의존성은 기존 requirements.txt와 분리해 추가했다.
 
 정책 데이터가 없으면 기존 수집 CLI로 준비한다. API가 DB·샘플 정책을 자동 생성하지 않는다.
 
@@ -54,6 +54,8 @@ $env:API_CORS_ORIGINS = "http://localhost:8080"
 ```
 
 실제 사용자 정보 대신 카드 선택·합성 나이 24·모름 답변을 사용한다. 응답 상태 전체를 다음 POST에 전달하고 `/health`, `/ready`, 실행 중인 `/openapi.json`, 기본/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. loopback HTTP만 허용하며 상태·응답 원문을 저장하지 않는다.
+
+상세 중단·복귀는 기본 경로에서 건너뛴 답변을 수정하지 않고 별도의 새 합성 진행에서 점검한다. 첫 정책에 유용한 질문이 없으면 다음 후보도 확인한다. 모든 후보에 질문이 없으면 SKIP이 정상이며, 테스트를 위해 실제 데이터나 제품 질문 규칙을 바꾸지 않는다.
 
 | 결과 | 의미 |
 |---|---|

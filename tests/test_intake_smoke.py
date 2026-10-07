@@ -89,6 +89,24 @@ class SmokeTests(unittest.TestCase):
         self.assertEqual(len(checks), 6)
         self.assertEqual({c.status for c in checks}, {"PASS"})
 
+    def test_detail_uses_fresh_route_without_erasing_explicit_basic_skips(self):
+        record = policy(employment_status="제한없음")
+        with reference_server(records=(record,)) as url:
+            checks = run_smoke(LocalApiClient(url))
+        self.assertEqual({c.status for c in checks}, {"PASS"})
+
+    def test_detail_searches_later_candidates_and_skips_only_if_none_useful(self):
+        unrestricted = policy(policy_id="NO-DETAIL", age_min=None, age_max=None,
+                              region_code=None, employment_status="제한없음")
+        with reference_server(records=(unrestricted, policy())) as url:
+            checks = run_smoke(LocalApiClient(url))
+        self.assertEqual({c.status for c in checks}, {"PASS"})
+        with reference_server(records=(unrestricted,)) as url:
+            checks = run_smoke(LocalApiClient(url))
+        detail = next(c for c in checks if c.name == "detail_pause_resume")
+        self.assertEqual(detail.status, "SKIP")
+        self.assertFalse(any(c.status == "FAIL" for c in checks))
+
     def test_closed_policy_is_no_candidate_and_detail_checks_are_skipped(self):
         closed = policy(application_start=date(2026, 9, 1), application_end=date(2026, 9, 30))
         with reference_server(records=(closed,)) as url:
