@@ -4,9 +4,13 @@
 
 Follow the user's current instructions, `PROJECT_SPEC.md`, this file, then repository conventions. The current product is **지원장바구니: 청년정책 AI 에이전트**. Read `PROJECT_STATUS.md` before claiming a feature is implemented.
 
-The original Streamlit/SQLite MVP is preserved by `v0.1-mvp` at `23f33e7bc8e51d3e26812faeb479aae7f83ee596`. Never rewrite this tag or old history. Continue on `docs/service-redesign` until the user chooses integration. Keep the old collector, models, tests and `app.py` working while developing reusable modules under `src/youth_policy/`.
+The original Streamlit/SQLite MVP is preserved by `v0.1-mvp` at `23f33e7bc8e51d3e26812faeb479aae7f83ee596`. Never rewrite this tag or old history. Develop follow-up work on feature branches from the merged main branch; record the active branch in PROJECT_STATUS. Keep the old collector, models, tests and `app.py` working while developing reusable modules under `src/youth_policy/`.
 
 The latest plan authorizes React/TypeScript, FastAPI, PostgreSQL and later LangGraph and retrieval work. They are planned components, not proof of working integrations. Introduce each component with an explicit purpose and relevant verification. Keep deterministic business logic independent of UI, database and LLM providers.
+
+## Team ownership
+
+The teammate owns the demo UI. Do not implement frontend screens, CSS, React components or new visual assets unless the user changes this division. Focus on backend, data, AI, tests and interface contracts. Supply HTTP/OpenAPI input-output contracts for the UI teammate without sending messages to them.
 
 ## Product rules
 
