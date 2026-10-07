@@ -27,7 +27,8 @@
 - [x] 커밋 2b8b66b Windows 전체 pytest: 222 passed, 67 subtests passed, 경고 1개
 - [x] 실제 Uvicorn·정책 DB 20건 점검: PASS 5 / SKIP 1 / FAIL 0 / WARN 0, 기본 후보 5건
 - [x] 상세 중단·복귀 점검의 첫 후보·기존 건너뛰기 의존 제거 및 회귀 사례 2개 추가
-- [ ] 보완된 점검 명령으로 상세 중단·복귀 실제 서버 확인
+- [x] 커밋 1862bbe Windows 전체 pytest: 224 passed, 67 subtests passed, 경고 1개
+- [x] 보완된 실제 서버 점검: 상세 중단·복귀 포함 PASS 6 / FAIL 0 / SKIP 0 / WARN 0
 - [ ] 팀원 UI와 API 연결·브라우저 CORS·핵심 흐름 확인
 - [ ] 카드·선호 기반 정책 관련도 순위와 지원 방향 연결
 - [ ] 서울·전국 주거·취업 공식 정책 20~30개 목록 확정
