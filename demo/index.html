@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>지원장바구니 · 나에게 필요한 지원 찾기</title>
+  <link rel="stylesheet" href="/demo/assets/style.css">
+  <script type="module" src="/demo/assets/app.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="header">
+    <div class="brand" aria-label="지원장바구니">
+      <svg width="42" height="42" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M38 46 Q60 6 82 46" fill="none" stroke="#1E56C8" stroke-width="8" stroke-linecap="round"/>
+        <g transform="rotate(-12 62 40)"><rect x="46" y="16" width="32" height="40" rx="6" fill="#D9690A"/><path d="M53 36 L59 42 L71 29" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+        <rect x="12" y="46" width="96" height="14" rx="7" fill="#1E56C8"/>
+        <path d="M20 64 H100 L91 102 Q89 110 81 110 H39 Q31 110 29 102 Z" fill="#1E56C8"/>
+        <path d="M46 74 V100 M60 74 V100 M74 74 V100" stroke="#fff" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+      <div><strong><span>지원</span>장바구니</strong><small>청년정책 안내 데모</small></div>
+    </div>
+    <button class="text-button" id="restart" type="button">처음부터</button>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <ol class="steps" aria-label="진행 단계">
+      <li data-step="start" aria-current="step"><span>1</span> 시작</li>
+      <li data-step="question"><span>2</span> 필요한 조건 확인</li>
+      <li data-step="results"><span>3</span> 정책과 다음 행동</li>
+    </ol>
+    <div id="error" class="error" role="alert" hidden>
+      <p id="error-text"></p><button id="retry" type="button" class="secondary">다시 시도</button>
+    </div>
+    <p id="loading" class="loading" role="status" aria-live="polite" hidden>잠시만요. 안내를 불러오고 있어요.</p>
+
+    <section id="start-view" class="view">
+      <div class="hero">
+        <p class="eyebrow">정책 탐색, 부담 없이 시작해요</p>
+        <h1 id="start-heading" tabindex="-1">요즘 어떻게<br>지내고 있나요?</h1>
+        <p class="lede">쉽게 설명하지 않아도 괜찮아요.<br>지금 상황 하나만 골라주세요.</p>
+      </div>
+      <div class="mode-switch" aria-label="시작 방식">
+        <button id="situation-mode" type="button" aria-pressed="true">상황부터 둘러보기</button>
+        <button id="goal-mode" type="button" aria-pressed="false">목표부터 찾아보기</button>
+      </div>
+      <h2 id="opening-prompt" class="sr-only">요즘 어떻게 지내고 있나요?</h2>
+      <div id="opening-options" class="card-grid"></div>
+      <p class="gentle-note">내 상황 하나만 선택해 주세요.</p>
+      <div class="start-actions"><button id="opening-next" type="button" class="primary" disabled>다음</button><button id="opening-skip" type="button" class="text-button">답하기 어려우면 건너뛰기</button></div>
+    </section>
+
+    <section id="question-view" class="view narrow" hidden>
+      <div class="question-top"><p id="question-tag" class="eyebrow">필요한 조건 확인</p><button id="pause-detail" class="text-button" type="button" hidden>상세 확인 잠시 멈추기</button></div>
+      <h1 id="question-heading" tabindex="-1"></h1>
+      <p id="question-purpose" class="lede"></p>
+      <form id="answer-form" class="answer-box">
+        <div id="question-input"></div>
+        <div class="actions"><button id="submit-answer" class="primary" type="submit">답변하고 계속</button><button id="skip-answer" class="secondary" type="button">모름 · 건너뛰기</button></div>
+      </form>
+      <div id="question-options" class="card-grid" hidden></div>
+      <div class="question-bottom"><p>이미 답한 정보는 다시 묻지 않아요.</p><button id="show-results" class="text-button" type="button">지금 정보로 결과 보기 →</button></div>
+    </section>
+
+    <section id="results-view" class="view" hidden>
+      <p class="eyebrow" id="results-tag">나에게 필요한 지원 살펴보기</p>
+      <div class="result-heading"><div><h1 id="results-heading" tabindex="-1">확인해 볼 정책을 찾았어요.</h1><p id="results-description" class="lede"></p></div><button id="edit-answers" class="secondary" type="button">내 답변 수정</button></div>
+      <div id="profile-summary" class="profile-summary" aria-label="내가 입력한 정보"></div>
+      <div class="notice"><strong>신청 전, 공식 공고를 꼭 확인해 주세요.</strong><p id="notice-text"></p></div>
+      <aside id="detail-panel" class="detail-panel" aria-label="선택한 정책 확인" hidden></aside>
+      <section id="preparation-panel" class="preparation-panel" hidden><h2>다음 확인할 항목</h2><p>아래 안내를 참고해 공식 공고에서 신청 절차와 필요한 서류를 확인해 주세요.</p><ul id="preparation-actions"></ul><button id="back-results" type="button" class="text-button">정책 결과로 돌아가기</button></section>
+      <div class="section-label"><h2>현재 조건으로 확인할 정책 <span id="candidate-count"></span></h2><span>신청 가능 여부 확정 아님</span></div>
+      <div id="candidate-list" class="policy-list"></div>
+      <div id="empty-results" class="empty" hidden><h2>지금 정보로 안내할 후보가 없어요.</h2><p>현재 적재된 정책의 기간·조건에 따라 후보가 없을 수 있어요. 입력한 내용을 수정하거나 공식 공고에서 다른 지원을 찾아보세요.</p><a href="https://www.youthcenter.go.kr/" target="_blank" rel="noopener noreferrer">온통청년에서 정책 찾기 ↗</a></div>
+    </section>
+    <footer>입력은 이 화면이 열려 있는 동안만 유지돼요. 새로고침하면 처음부터 시작해요.</footer>
+  </main>
+
+  <dialog id="edit-dialog" aria-labelledby="edit-heading">
+    <form id="edit-form">
+      <h2 id="edit-heading">입력한 조건 수정</h2><p>수정한 답변으로 정책 조건을 다시 확인해요.</p>
+      <p id="edit-error" class="error" role="alert" hidden></p>
+      <label for="edit-key">수정할 항목</label><select id="edit-key"></select>
+      <div id="edit-input"></div>
+      <label class="checkbox-label"><input id="edit-unknown" type="checkbox"> 이 정보는 모름 · 건너뛰기로 바꾸기</label>
+      <div class="actions"><button class="primary" type="submit">수정 반영하기</button><button id="close-edit" class="secondary" type="button">닫기</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

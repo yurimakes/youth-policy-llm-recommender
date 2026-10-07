@@ -10,7 +10,7 @@ The latest plan authorizes React/TypeScript, FastAPI, PostgreSQL and later LangG
 
 ## Team ownership
 
-The teammate owns the demo UI. Do not implement frontend screens, CSS, React components or new visual assets unless the user changes this division. Focus on backend, data, AI, tests and interface contracts. Supply HTTP/OpenAPI input-output contracts for the UI teammate without sending messages to them.
+The user authorized the assistant to implement the submission demo UI because the teammate's 2–3 screens had not started (2026-10-07). Provide three connected views under `demo/`: start, questions and results, reusing the question view for optional detail. Serve the lightweight HTML/CSS/JavaScript demo from the existing FastAPI process. React/TypeScript remains the later frontend direction; do not claim that this demo implements it. Keep backend rules authoritative and do not send messages to teammates.
 
 ## Product rules
 

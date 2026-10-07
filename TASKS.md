@@ -19,7 +19,7 @@
 
 ## 후속 개발
 
-- [x] 팀원 데모 UI 담당 분리, API 연결 계약·JSON Schema 정리
+- [x] API 연결 계약·JSON Schema 정리
 - [x] FastAPI 코드와 stateless 상태 전환·입출력 검증 추가
 - [x] Python 계약·저장 경계 26개와 Pydantic 스키마 6개 검증
 - [x] API 커밋 ff2fc56 Windows 전체 pytest: 214 passed, 57 subtests passed, 경고 1개 (HTTP 테스트 11개 포함)
@@ -29,7 +29,14 @@
 - [x] 상세 중단·복귀 점검의 첫 후보·기존 건너뛰기 의존 제거 및 회귀 사례 2개 추가
 - [x] 커밋 1862bbe Windows 전체 pytest: 224 passed, 67 subtests passed, 경고 1개
 - [x] 보완된 실제 서버 점검: 상세 중단·복귀 포함 PASS 6 / FAIL 0 / SKIP 0 / WARN 0
-- [ ] 팀원 UI와 API 연결·브라우저 CORS·핵심 흐름 확인
+- [x] 사용자 담당 변경에 따라 제출용 시작·질문·결과 3개 화면 구현
+- [x] 세로 선택 카드·선택 표시·다음 버튼, 모름·건너뛰기·답변 수정 연결
+- [x] 정책별 조건·공식 링크·선택적 상세 거절·중단·복귀·다음 확인 항목 연결
+- [x] FastAPI에서 `/demo`와 로컬 정적 파일 제공, 기존 API 계약 재사용
+- [x] JavaScript 상태 관리 테스트 7개와 실제 순수 진행 계약의 참조 HTTP 연결 확인
+- [ ] UI 추가 후 Windows 전체 pytest 및 신규 HTTP 테스트 2개 확인
+- [ ] 실제 `/demo` 브라우저 배치·카드 선택/다음·답변 수정·상세·오류 복구 확인
+- [ ] 확인 완료 후 PR #3 검토·main 병합 및 제출 데모 고정
 - [ ] 카드·선호 기반 정책 관련도 순위와 지원 방향 연결
 - [ ] 서울·전국 주거·취업 공식 정책 20~30개 목록 확정
 - [ ] PostgreSQL / 버전·근거·필요 서류 구조화

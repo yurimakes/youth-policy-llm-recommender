@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from youth_policy.api_config import ApiSettings, korea_today, load_api_settings
 from youth_policy.api_schemas import IntakeResponse, StartRequest, TransitionRequest
@@ -33,6 +35,15 @@ def create_app(
     config = settings or load_api_settings()
     provider = policy_provider or (lambda: load_policies_readonly(config.policy_db_path))
     app = FastAPI(title="청년정책 AI 에이전트 — Intake API", version="0.2.0")
+    demo_directory = Path(__file__).resolve().parents[2] / "demo"
+    app.mount("/demo/assets", StaticFiles(directory=str(demo_directory)), name="demo-assets")
+
+    @app.get("/demo", include_in_schema=False)
+    @app.get("/demo/", include_in_schema=False)
+    def demo() -> FileResponse:
+        """같은 origin의 API를 사용하는 제출용 데모 화면을 반환합니다."""
+        return FileResponse(demo_directory / "index.html", media_type="text/html")
+
     app.add_middleware(
         CORSMiddleware, allow_origins=list(config.cors_origins), allow_credentials=False,
         allow_methods=["GET", "POST"], allow_headers=["Content-Type"],

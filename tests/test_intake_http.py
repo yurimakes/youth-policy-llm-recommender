@@ -41,6 +41,22 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(response.headers["cache-control"], "no-store")
         self.assertEqual(self.client.get("/ready").json()["policy_count"], 1)
 
+    def test_demo_page_and_local_assets_are_served_without_caching(self):
+        for path, content_type in (("/demo", "text/html"), ("/demo/", "text/html"),
+                                   ("/demo/assets/style.css", "text/css"),
+                                   ("/demo/assets/app.mjs", "javascript"),
+                                   ("/demo/assets/client.mjs", "javascript")):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(content_type, response.headers["content-type"])
+                self.assertEqual(response.headers["cache-control"], "no-store")
+
+    def test_demo_assets_do_not_expose_source_or_database(self):
+        for path in ("/demo/assets/../api.py", "/demo/assets/%2e%2e/api.py", "/demo/assets/policies.sqlite3"):
+            with self.subTest(path=path):
+                self.assertEqual(self.client.get(path).status_code, 404)
+
     def test_full_flow_uses_response_state(self):
         response = self.client.post("/api/v1/intake/start", json={})
         self.assertEqual(response.status_code, 200)
