@@ -26,7 +26,9 @@ from youth_policy.sqlite_store import connect_database, initialize_database, ups
 
 class IntegrationTests(unittest.TestCase):
     def setUp(self):
-        payload = json.loads((Path(__file__).parent / "fixtures/ontong_youth_policy_page1.json").read_text())
+        payload = json.loads(
+            (Path(__file__).parent / "fixtures/ontong_youth_policy_page1.json").read_text(encoding="utf-8")
+        )
         self.records = parse_policy_page(payload, verified_at=datetime(2026, 6, 28),
                                          reference_date=date(2026, 6, 28))
         self.temp = tempfile.TemporaryDirectory()

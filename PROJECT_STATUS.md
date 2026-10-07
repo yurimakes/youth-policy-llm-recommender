@@ -34,6 +34,12 @@
 
 `python -m pytest`는 pytest 패키지가 없어 실행되지 않았다. Git 직접 clone과 npm/pip 패키지 설치가 차단돼 있어 고정 커밋의 파일을 GitHub 연결로 가져와 검증했다. 기존 전체 122개 회귀 테스트는 사용자의 기존 설치 환경에서 실행해야 한다. 이번 49개 결과를 전체 회귀 통과로 해석하지 않는다.
 
+### Windows 회귀 실행과 인코딩 수정
+
+사용자가 `ad7b911`을 Windows Python 3.10에서 실행한 결과는 `5 failed, 166 passed, 23 subtests passed`였다. 실패 5개는 신규 통합 테스트의 공통 준비 단계에서 UTF-8 fixture를 시스템 기본 CP949로 읽으면서 발생한 동일한 `UnicodeDecodeError`였다.
+
+`tests/test_intake_integration.py`의 `read_text`에 `encoding="utf-8"`을 명시했다. CP949로 직접 읽을 때 기존 오류가 발생하는 것을 재현하고, 기본 파일 읽기 인코딩을 CP949로 모의한 환경에서 신규 49개 테스트가 모두 통과하는 것을 확인했다. 수정 파일의 compileall도 성공했다. 수정 후 Windows 전체 pytest 재실행은 아직 확인 전이다.
+
 ## 구현 한계와 다음 단계
 
 - React·TypeScript 카드 화면과 FastAPI는 아직 미구현이다. 카드 선택은 핵심 로직·CLI에 구현했다.
