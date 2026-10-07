@@ -10,7 +10,7 @@
 
 - 원본 버전: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), 커밋 `23f33e7`
 - 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
-- 현재 백엔드 브랜치: `feature/intake-api`
+- 현재 API·데모 UI 브랜치: `feature/intake-api`
 - 최신 기획: [2026-10-07 팀 공유본](docs/planning/service-redesign-2026-10.md)
 - 개발 계약: [PROJECT_SPEC.md](PROJECT_SPEC.md)
 - 구현·검증 상태: [PROJECT_STATUS.md](PROJECT_STATUS.md)
@@ -24,7 +24,7 @@
 | 조건 확인 | MATCH / UNKNOWN / NO_MATCH | 정책 불확실성과 사용자 정보 부족 구분 |
 | 진행 | 입력 후 결과 표시 | 선택적 상세 질문, 답변 이어받기·수정·중단·복귀 |
 | 결과 | 검색·추천 설명 | 정책·다음 행동 갱신, 준비·상담 지원 |
-| 화면·서버 | Streamlit·SQLite | FastAPI TestClient·로컬 서버/DB 확인, 데모 UI는 팀원 연동 대기, PostgreSQL 후속 |
+| 화면·서버 | Streamlit·SQLite | FastAPI·로컬 서버/DB 확인, 같은 서버의 3개 데모 화면 추가, PostgreSQL 후속 |
 | 검색·AI | OpenAI 임베딩·FAISS·설명 | 하이브리드 검색·RAG·상태 기반 도구 연결 검증 예정 |
 
 ‘쉬고 있어요’만으로 미취업·소득·경제난을 추정하지 않습니다. 서울·19~34세는 초기 대상 범위이며 실제 입력값을 대신하지 않습니다. 상세 정보 제공을 원치 않아도 남은 확인사항과 공식 경로를 안내합니다.
@@ -37,20 +37,20 @@
 - 조건별 네 가지 표시 상태, 신청 기간의 요청 날짜 재평가
 - 명확한 불일치 제외, 공식 링크·확인 시각과 다음 확인 행동 유지
 
-1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에서 이를 연결할 API를 추가합니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
+1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에는 FastAPI와 시작·질문·결과의 **3개 데모 화면**을 추가했습니다. 선택적 상세 확인은 질문 화면을 재사용합니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
 
-최신 코드 커밋 `1862bbe`는 사용자의 Windows Python 3.10 환경에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 실제 서버 점검은 상세 중단·복귀를 포함해 **6개 모두 통과, 실패·스킵·점검 경고 0개**입니다. 이전 단계별 검증 기록은 PROJECT_STATUS에 있습니다.
+UI 추가 전 API 커밋 `1862bbe`는 사용자의 Windows Python 3.10 환경에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 실제 서버 점검은 상세 중단·복귀를 포함해 **6개 모두 통과, 실패·스킵·점검 경고 0개**입니다. UI 추가분은 개발 환경의 Python 관련 테스트 성공 91개·HTTP 스킵 13개, JavaScript 상태 관리 테스트 7개 통과를 확인했습니다. UI 추가 후 Windows 전체 회귀·실제 FastAPI 화면 제공·브라우저 배치는 확인 전입니다. 단계별 검증 기록은 PROJECT_STATUS에 있습니다.
 
-## UI 담당 분리와 백엔드 API
+## 제출용 데모 UI와 백엔드 API
 
-팀원이 데모 UI를 담당합니다. 이 브랜치는 화면 대신 FastAPI와 UI 연결 규격, 구조화된 입력 검증, 서버 정책 재평가를 준비합니다. 사용자 진행 상태는 POST 본문으로 이어받고 서버에 영구 저장하지 않습니다.
+팀원의 화면 작업이 시작 전인 상황에서 사용자가 담당 범위를 변경해, 이 브랜치에 제출용 UI를 추가했습니다. HTML/CSS/JavaScript 화면과 API를 같은 FastAPI 서버에서 제공하며 npm 설치나 별도 빌드가 필요하지 않습니다. React/TypeScript는 이후 프론트엔드 방향으로 유지합니다. 사용자 진행 상태는 POST 본문으로 이어받고 서버에 영구 저장하지 않습니다.
 
 - [UI 연결 규격과 실행 방법](docs/api/intake-v1.md)
 - [시작 요청 JSON Schema](docs/api/schemas/start-request.json)
 - [전환 요청 JSON Schema](docs/api/schemas/transition-request.json)
 - [응답 JSON Schema](docs/api/schemas/intake-response.json)
 
-API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 회귀에서 통과했습니다. **Uvicorn 서버와 로컬 DB 20건 조회, 기본 후보 5건, 상세 거절·중단·복귀를 확인했습니다.** 팀원 UI 연결과 공식 공고의 최신성은 확인 전입니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
+API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 회귀에서 통과했습니다. **Uvicorn 서버와 로컬 DB 20건 조회, 기본 후보 5건, 상세 거절·중단·복귀를 확인했습니다.** 새 데모의 브라우저 연결·배치와 공식 공고의 최신성은 확인 전입니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
@@ -58,7 +58,7 @@ API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 �
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-사용자가 위 서버 명령으로 기동한 뒤 점검 CLI의 실제 HTTP 요청 성공을 확인했습니다. 기본 CORS origin은 localhost:5173/3000이며 팀원 데모의 origin에 맞게 설정할 수 있습니다. 새 UI·AI·문서·저장 기능 전체가 완성된 것으로 표시하지 않습니다.
+서버 실행 후 [http://127.0.0.1:8000/demo](http://127.0.0.1:8000/demo)를 엽니다. 이미 실행 중인 서버는 Ctrl+C로 종료하고 다시 실행해야 새 화면 경로가 반영됩니다. 데모는 같은 origin의 API에 연결하므로 CORS 추가 설정이 필요하지 않습니다. 별도 프론트엔드 개발 서버를 사용할 때는 origin을 명시합니다. 새 UI·AI·문서·저장 기능 전체가 완성된 것으로 표시하지 않습니다.
 
 서버를 실행한 상태에서 **다른 PowerShell 창**으로 질문·결과·상세 전환을 점검합니다. 이 명령은 실제 사용자 답변 대신 합성 입력을 사용하며, 로컬 서버에만 연결하고 상태·원문 응답을 파일에 저장하지 않습니다.
 
@@ -66,7 +66,18 @@ API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 �
 .\.venv\Scripts\python.exe scripts/check_intake_api.py
 ```
 
-`PASS` / `FAIL` / `SKIP` / `WARN`과 집계를 출력합니다. 상세 중단·복귀는 별도의 새 합성 진행에서 모든 후보를 차례로 확인해 유용한 질문이 있는 정책으로 점검합니다. 기본 경로의 건너뛰기 이력은 수정하지 않습니다. 데이터가 없으면 실패하며, 후보 또는 유용한 상세 질문이 없으면 해당 검증은 스킵됩니다. 상세 검증까지 필수로 확인하려면 `--require-detail`을 사용합니다. 공식 공고의 최신성·UI 연동·CORS 설정은 별도로 확인합니다.
+`PASS` / `FAIL` / `SKIP` / `WARN`과 집계를 출력합니다. 상세 중단·복귀는 별도의 새 합성 진행에서 모든 후보를 차례로 확인해 유용한 질문이 있는 정책으로 점검합니다. 기본 경로의 건너뛰기 이력은 수정하지 않습니다. 데이터가 없으면 실패하며, 후보 또는 유용한 상세 질문이 없으면 해당 검증은 스킵됩니다. 상세 검증까지 필수로 확인하려면 `--require-detail`을 사용합니다. 공식 공고의 최신성·브라우저 화면 동작은 별도로 확인합니다.
+
+### 화면 확인 순서
+
+1. 상황 또는 목표를 선택하고, 카드의 선택 표시를 확인한 뒤 ‘다음’을 누릅니다.
+2. 필요한 질문에 답하거나 모름·건너뛰기를 선택해 결과로 이동합니다.
+3. 결과에서 답변을 수정하고 정책을 선택합니다. 남은 유용한 질문이 있으면 상세 확인을 선택·거절·중단·복귀할 수 있습니다.
+4. 개별 조건과 공식 링크, 다음 확인할 항목을 확인합니다. 마지막 항목 안내는 준비 문서 생성 기능이 아닙니다.
+
+진행은 메모리에만 유지되며 새로고침하면 초기화됩니다. API 요청 실패 시 이전 답변을 유지하고 중복 요청을 막습니다. 새 데모는 외부 AI를 호출하지 않습니다.
+
+JavaScript 상태 관리 테스트는 Node가 있는 개발 환경에서 `node --test tests/test_demo_client.mjs`로 실행합니다. Node는 화면 실행에 필요하지 않습니다.
 
 ## 기존 구현에서 재사용하는 기능
 
@@ -79,13 +90,15 @@ API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 �
 | 경로 | 역할 |
 |---|---|
 | `app.py` | 기존 Streamlit MVP |
+| `demo/` | 시작·질문·결과의 제출용 HTML/CSS/JavaScript 화면 |
+| `api.py` | 데모와 API를 함께 제공하는 FastAPI 진입점 |
 | `src/youth_policy/` | 기존 데이터·규칙·검색·설명 모듈, 후속 진행 로직 |
 | `scripts/` | 기존 온통청년 수집·적재 CLI, 신규 `preview_intake.py` 흐름 점검 |
 | `tests/` | 기존 회귀 테스트와 신규 기능 테스트 |
 | `docs/planning/` | 최신 팀 공유 기획 |
 | `docs/decisions/` | 기획 전환과 구현 결정 |
 | `docs/mvp/` | 과거 MVP 명세·보존 설명 |
-| `assets/brand/logo-preview.html` | 첨부 로고 미리보기, 앱 연동 전 |
+| `assets/brand/logo-preview.html` | 서비스 로고 미리보기; 데모 헤더에도 같은 심볼 사용 |
 
 ## 기존 MVP 로컬 실행
 
