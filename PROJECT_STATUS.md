@@ -1,190 +1,61 @@
-# 청년 맞춤 정책 추천 개발 현황
+# 지원장바구니 개발 현황
 
-## 1. 현재 상태
+- 기준일: 2026-10-07
+- 브랜치: `docs/service-redesign`
+- 원본 MVP: `v0.1-mvp` → `23f33e7`
+- 단계: 기획 전환과 첫 Python 핵심 로직 구현·회귀 검증 완료
 
-- 기준일: 2026-07-02
-- 저장소: `github.com/yurimakes/youth-policy-llm-recommender`
-- 현재 단계: 로컬 MVP 핵심 기능 구현 및 검증 완료
-- 사용자 화면 명칭: **청년 맞춤 정책 추천**
-- 전체 테스트: `122 passed`
-- GitHub `main` 브랜치 반영 완료
+## 이번에 구현한 내용
 
-## 2. 완료 사항
+| 파일 | 변경 내용 |
+|---|---|
+| `src/youth_policy/intake.py` | 상황/목표 카드, 모름·건너뛰기, 사실·선호 분리, 상세 선택·거절·중단·복귀와 답변 수정 |
+| `src/youth_policy/conditions.py` | 조건별 네 가지 상태와 원인, 요청 날짜의 신청 기간 재평가, 명확한 제외와 불확실성 유지 |
+| `src/youth_policy/intake_service.py` | 필요한 기초/상세 질문, 현재 후보의 조건 갱신, 공식 근거와 다음 확인 행동 |
+| `scripts/preview_intake.py` | 기존 SQLite를 읽기 전용으로 연결하는 개발용 터미널 흐름 |
+| `tests/test_intake*.py` | 신규 단위·통합 테스트 49개 |
 
-### 2.1 실제 정책 데이터 수집
+기존 `app.py`, 데이터 수집·저장·검색·LLM 모듈과 과거 테스트는 수정하지 않았다. `main`과 원본 태그는 그대로 두고 고도화 브랜치에 일반 커밋을 추가한다. 최신 공유본 원문과 과거 명세, 첨부 로고 미리보기를 함께 기록했다.
 
-- 온통청년 청년정책 API 실제 호출 성공
-- 2페이지, 총 20건 수집
-- 페이지별 raw JSON과 메타데이터 저장
-- 실제 응답의 정책 목록을 `PolicyRecord`로 변환
-- `sbizCd`와 `sBizCd` 필드 하위 호환 처리
-- API 키와 전체 요청 URL은 출력하지 않음
+## 실제 실행한 검증
 
-### 2.2 SQLite 파이프라인
+환경: Linux, 저장소 `.venv/bin/python` 사용.
 
-- snapshot JSON → `PolicyRecord` → SQLite 적재 → SQLite 재조회 흐름 구현
-- 정책 20건 저장 및 재조회 확인
-- 정책 ID 기준 upsert로 동일 정책 중복 증가 방지
-- SQLite 조회 결과를 규칙 평가 서비스에 연결
-- raw 데이터와 SQLite 산출물은 Git에서 제외
-
-### 2.3 규칙 기반 평가
-
-- 나이, 지역 코드, 취업 상태를 입력으로 사용
-- 시·도 및 시·군·구 선택값을 실제 5자리 `region_code`로 변환
-- `MATCH`, `UNKNOWN`, `NO_MATCH`로 결과 분류
-- 판정 이유 보존
-- 불명확한 소득 및 자연어 조건은 자동 탈락시키지 않고 `UNKNOWN` 처리
-
-### 2.4 Streamlit UI
-
-- 단일 Streamlit 앱 구현
-- 나이 입력
-- 시·도 / 시·군·구 2단계 지역 선택
-- 취업 상태 입력
-- 자연어 관심사 입력
-- 규칙 평가 요약 카드
-- 정책 상세 카드와 공식 출처 표시
-- 최종 신청 자격 확인 안내 표시
-
-### 2.5 FAISS 검색
-
-- 규칙 결과 중 `MATCH`, `UNKNOWN` 정책만 검색 후보로 사용
-- 정책 `embedding_text` 또는 공식 필드 결합 텍스트 사용
-- OpenAI 임베딩 생성
-- 벡터 정규화 후 FAISS `IndexFlatIP` 검색
-- Top-5 정책 반환
-- 벡터 위치와 `policy_id` 매핑 유지
-
-### 2.6 OpenAI 추천 설명
-
-- 검색된 Top-5 공식 정책 정보만 프롬프트에 포함
-- 추천 이유, 일치 조건, 확인 조건, 신청 기간, 공식 출처 설명
-- 누락 정보는 `확인 필요`로 표시
-- 최종 신청 자격을 확정하지 않음
-- 설명 생성 실패 시 규칙 기반 결과와 검색 결과를 유지
-
-## 3. 현재 처리 흐름
-
-```text
-온통청년 공식 API
-        ↓
-raw snapshot 저장
-        ↓
-PolicyRecord 변환
-        ↓
-SQLite 적재 및 조회
-        ↓
-사용자 조건 규칙 평가
-        ↓
-MATCH / UNKNOWN 후보 유지
-        ↓
-OpenAI 임베딩
-        ↓
-FAISS Top-5 검색
-        ↓
-공식 데이터 기반 OpenAI 설명
-        ↓
-Streamlit 결과 표시
+```bash
+.venv/bin/python -m unittest discover -s tests -p 'test_intake*.py' -v
+# Ran 49 tests ... OK
+.venv/bin/python -m compileall -q app.py src scripts tests
+# 성공
+.venv/bin/python scripts/preview_intake.py --help
+# 성공
 ```
 
-## 4. 검증 결과
+기존 공식 예시 fixture → 기존 파서 → 임시 SQLite → 신규 안내 흐름 통합을 실행했다. 로컬 CLI의 상세 거절·추가 답변에 따른 후보 제외도 입력을 모의해 실행했다. 실제 사용자 답변 저장과 외부 API 호출은 하지 않았다. Windows CLI의 직접 수동 실행은 미검증이다.
 
-### 자동 검증
+`python -m pytest`는 pytest 패키지가 없어 실행되지 않았다. Git 직접 clone과 npm/pip 패키지 설치가 차단돼 있어 고정 커밋의 파일을 GitHub 연결로 가져와 검증했다. 이 개발 환경의 신규 49개 결과와 아래 사용자의 Windows 전체 회귀 결과를 구분해 기록한다.
+
+### Windows 회귀 실행과 인코딩 수정
+
+사용자가 `ad7b911`을 Windows Python 3.10에서 실행한 결과는 `5 failed, 166 passed, 23 subtests passed`였다. 실패 5개는 신규 통합 테스트의 공통 준비 단계에서 UTF-8 fixture를 시스템 기본 CP949로 읽으면서 발생한 동일한 `UnicodeDecodeError`였다.
+
+`tests/test_intake_integration.py`의 `read_text`에 `encoding="utf-8"`을 명시했다. CP949로 직접 읽을 때 기존 오류가 발생하는 것을 재현하고, 기본 파일 읽기 인코딩을 CP949로 모의한 환경에서 신규 49개 테스트가 모두 통과하는 것을 확인했다. 수정 파일의 compileall도 성공했다. 수정 후 사용자가 `1d67ade`를 Windows Python 3.10에서 다시 실행한 결과는 다음과 같다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
+# 171 passed, 23 subtests passed in 1.53s
 ```
 
-결과:
+2026-10-07 사용자가 제공한 터미널 출력으로 기존 122개와 신규 49개를 포함한 전체 회귀 통과를 확인했다. 23개 하위 테스트는 별도 집계이며 171개에 더해 전체 테스트 개수를 표기하지 않는다. 이후 변경은 검증 기록을 갱신하는 문서 변경뿐이다. 실제 사용자 효과·최신 정책 품질·신규 웹 배포 검증과는 구분한다.
 
-```text
-122 passed
-```
+## 구현 한계와 다음 단계
 
-### 구문 검증
+- React·TypeScript 카드 화면과 FastAPI는 아직 미구현이다. 카드 선택은 핵심 로직·CLI에 구현했다.
+- 카드·선호에 따른 정책 관련도 순위는 미구현이다. 선호는 사실과 분리해 저장만 하며 자격에 사용하지 않는다.
+- 광역·전국 지역 기준, 복합 소득·학력·예외 조건은 기관 확인으로 남긴다.
+- 추가 조건이 기록되지 않은 것을 제한 없음으로 해석하지 않아 전체 정책 요약은 보수적으로 확인 필요를 유지한다.
+- 저장한 신청 기간은 요청 날짜로 재평가하지만 최신 공고를 다시 조회하는 기능은 아직 없다.
+- PostgreSQL·LangGraph·pgvector/BM25·신규 RAG·준비 문서·배포·실사용 검증은 후속 단계다.
+- 초기 정책 20~30개 목록, 모델/API, 개인정보 전달·저장·삭제, 호스팅은 미정이다.
+- 최신 공유본의 청년 20명 실사용 테스트는 보류다. 평가 100건 이상·근거 일치율 95% 이상은 향후 목표다.
 
-```powershell
-.\.venv\Scripts\python.exe -m compileall app.py src
-```
-
-결과: 성공
-
-### 수동 실행 검증
-
-```powershell
-.\.venv\Scripts\python.exe -m streamlit run app.py
-```
-
-확인한 입력 예시:
-
-- 나이: 24
-- 지역: 서울특별시 / 강남구
-- 취업 상태: 미취업자
-- 관심사: 자격증 시험 비용과 월세 지원
-
-확인한 결과:
-
-- 규칙 기반 정책 평가 표시
-- FAISS 관심사 기반 Top-5 검색 표시
-- 실제 OpenAI 추천 설명 표시
-- 공식 출처와 확인 필요 안내 표시
-
-## 5. 주요 변경 파일
-
-- `app.py`
-- `src/youth_policy/codebook.py`
-- `src/youth_policy/ui_service.py`
-- `src/youth_policy/retrieval.py`
-- `src/youth_policy/llm_service.py`
-- `tests/test_ui_service.py`
-- `tests/test_retrieval.py`
-- `tests/test_llm_service.py`
-- `assets/`
-
-## 6. 주요 Git 반영 이력
-
-- `d124ea2` — 여러 페이지 온통청년 수집
-- `f159d91` — Streamlit 정책 추천 UI
-- `bacefcc` — FAISS 검색 및 OpenAI 설명
-
-현재 로컬 브랜치와 원격 `main`은 동기화된 상태로 확인했다.
-
-## 7. 현재 한계
-
-- 실제 정책 데이터 검증 범위는 20건이다.
-- 소득 조건은 단위와 개인·가구 기준이 완전히 구조화되지 않았다.
-- 복잡한 자유 텍스트 자격 조건은 자동 확정하지 않는다.
-- 새 환경에서는 Git에서 제외된 raw 데이터와 SQLite 파일을 다시 생성해야 한다.
-- OpenAI API 키와 사용 가능한 잔액이 필요하다.
-- Streamlit Community Cloud 배포는 아직 완료되지 않았다.
-
-## 8. 남은 작업
-
-- 최종 제출용 실행 화면 캡처 정리
-- 결과보고서 작성
-- 문서와 화면 문구 최종 점검
-- 필요 시 Streamlit Community Cloud 배포
-- 문서 변경분 최종 커밋 및 푸시
-
-## 9. 개발 이력
-
-### 2026-06-29
-
-- 정책 표준 모델, 코드북, 예시 JSON 파서, SQLite 저장소 구현
-- 규칙 기반 단건 및 일괄 평가 구현
-- 당시 전체 테스트 `81 passed`
-
-### 2026-07-01
-
-- 실제 API 호출 및 snapshot 파이프라인 연결
-- SQLite 적재·재조회와 중복 방지 확인
-- 여러 페이지 수집으로 20건 확보
-- Streamlit UI 구현
-
-### 2026-07-02
-
-- FAISS Top-5 검색 구현
-- OpenAI 추천 설명 구현
-- 전체 테스트 `122 passed`
-- 로컬 통합 실행 검증 및 GitHub 반영 완료
+과거 자동 테스트 122개·실제 API 20건은 2026-07 기록이며 이번 검증과 구분한다.
