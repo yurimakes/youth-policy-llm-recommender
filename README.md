@@ -9,7 +9,8 @@
 ## 원본 MVP와 현재 개발 기준
 
 - 원본 버전: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), 커밋 `23f33e7`
-- 고도화 브랜치: `docs/service-redesign`
+- 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
+- 현재 백엔드 브랜치: `feature/intake-api`
 - 최신 기획: [2026-10-07 팀 공유본](docs/planning/service-redesign-2026-10.md)
 - 개발 계약: [PROJECT_SPEC.md](PROJECT_SPEC.md)
 - 구현·검증 상태: [PROJECT_STATUS.md](PROJECT_STATUS.md)
@@ -23,7 +24,7 @@
 | 조건 확인 | MATCH / UNKNOWN / NO_MATCH | 정책 불확실성과 사용자 정보 부족 구분 |
 | 진행 | 입력 후 결과 표시 | 선택적 상세 질문, 답변 이어받기·수정·중단·복귀 |
 | 결과 | 검색·추천 설명 | 정책·다음 행동 갱신, 준비·상담 지원 |
-| 화면·서버 | Streamlit·SQLite | React·TypeScript·FastAPI·PostgreSQL 개발 예정 |
+| 화면·서버 | Streamlit·SQLite | 데모 UI는 팀원 담당, FastAPI 코드 추가·HTTP 실행 검증 대기, PostgreSQL 후속 |
 | 검색·AI | OpenAI 임베딩·FAISS·설명 | 하이브리드 검색·RAG·상태 기반 도구 연결 검증 예정 |
 
 ‘쉬고 있어요’만으로 미취업·소득·경제난을 추정하지 않습니다. 서울·19~34세는 초기 대상 범위이며 실제 입력값을 대신하지 않습니다. 상세 정보 제공을 원치 않아도 남은 확인사항과 공식 경로를 안내합니다.
@@ -36,9 +37,28 @@
 - 조건별 네 가지 표시 상태, 신청 기간의 요청 날짜 재평가
 - 명확한 불일치 제외, 공식 링크·확인 시각과 다음 확인 행동 유지
 
-이 단계는 **웹/API에 연결하기 위한 Python 핵심 로직과 개발용 CLI**입니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
+1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에서 이를 연결할 API를 추가합니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
 
 신규 로직 테스트 49개와 구문 검증이 통과했고, 2026-10-07 사용자의 Windows Python 3.10 환경에서 전체 pytest **171 passed, 23 subtests passed**를 확인했습니다. 상세 검증 기록은 PROJECT_STATUS에 있습니다.
+
+## UI 담당 분리와 백엔드 API
+
+팀원이 데모 UI를 담당합니다. 이 브랜치는 화면 대신 FastAPI와 UI 연결 규격, 구조화된 입력 검증, 서버 정책 재평가를 준비합니다. 사용자 진행 상태는 POST 본문으로 이어받고 서버에 영구 저장하지 않습니다.
+
+- [UI 연결 규격과 실행 방법](docs/api/intake-v1.md)
+- [시작 요청 JSON Schema](docs/api/schemas/start-request.json)
+- [전환 요청 JSON Schema](docs/api/schemas/transition-request.json)
+- [응답 JSON Schema](docs/api/schemas/intake-response.json)
+
+API 코드는 추가했으며 계약·스키마 검증을 수행했습니다. **FastAPI HTTP 실행 검증은 패키지 설치 제한으로 대기 중**입니다. 로컬 설치·테스트 후 서버를 실행합니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+```
+
+위 서버 명령은 이번 코드의 실행 방법이며 실제 HTTP 기동 검증 결과가 아닙니다. 기본 CORS origin은 localhost:5173/3000이며 팀원 데모의 origin에 맞게 설정할 수 있습니다. 새 UI·AI·문서·저장 기능 전체가 완성된 것으로 표시하지 않습니다.
 
 ## 기존 구현에서 재사용하는 기능
 
