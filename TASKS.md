@@ -19,7 +19,10 @@
 
 ## 후속 개발
 
-- [ ] React·TypeScript 화면과 FastAPI 계약 연결
+- [x] 팀원 데모 UI 담당 분리, API 연결 계약·JSON Schema 정리
+- [x] FastAPI 코드와 stateless 상태 전환·입출력 검증 추가
+- [x] Python 계약·저장 경계 26개와 Pydantic 스키마 6개 검증
+- [ ] 실제 HTTP 테스트 11개·서버 기동 및 2차 Windows 전체 pytest 검증
 - [ ] 카드·선호 기반 정책 관련도 순위와 지원 방향 연결
 - [ ] 서울·전국 주거·취업 공식 정책 20~30개 목록 확정
 - [ ] PostgreSQL / 버전·근거·필요 서류 구조화
