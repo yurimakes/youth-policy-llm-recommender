@@ -4,7 +4,7 @@
 - 브랜치: `feature/intake-api`
 - 이전 작업: PR #2 main 병합 완료 (`d0d86f2`)
 - 원본 MVP: `v0.1-mvp` → `23f33e7`
-- 단계: 1차 회귀 검증 완료 후 API 계약·백엔드 연결 구현
+- 단계: Windows API 회귀 통과, 실제 서버·데이터·UI 연동 확인 준비
 
 ## 이번에 구현한 내용
 
@@ -50,7 +50,7 @@
 
 ## 구현 한계와 다음 단계
 
-- 데모 UI는 팀원 담당이다. FastAPI 코드를 추가했으나 실제 HTTP 실행 검증은 대기 중이다.
+- 데모 UI는 팀원 담당이다. Windows FastAPI TestClient 검증은 통과했고 실제 Uvicorn 서버·로컬 정책 DB·UI 연동은 대기 중이다.
 - 카드·선호에 따른 정책 관련도 순위는 미구현이다. 선호는 사실과 분리해 저장만 하며 자격에 사용하지 않는다.
 - 광역·전국 지역 기준, 복합 소득·학력·예외 조건은 기관 확인으로 남긴다.
 - 추가 조건이 기록되지 않은 것을 제한 없음으로 해석하지 않아 전체 정책 요약은 보수적으로 확인 필요를 유지한다.
@@ -75,4 +75,28 @@
 
 검증은 기존 신규 로직 49개, API 계약·저장 경계 26개, 실제 Pydantic 스키마 6개를 포함한다. 설치된 런타임 Pydantic 2.13.5를 실제로 사용했다. FastAPI·HTTPX는 패키지 설치 차단으로 이용할 수 없어 HTTP 테스트 11개를 실행하지 못했다. 전체 대상 92개 중 성공 81개·스킵 11개이며 스킵을 통과로 표시하지 않는다. api.py/app.py/src/scripts/tests의 compileall과 JSON Schema 생성·JSON 읽기도 성공했다.
 
-2차 코드에 대한 Windows 전체 pytest와 실제 서버 기동은 아직 확인 전이다. 1차의 171 passed 기록은 2차 코드의 전체 회귀 통과 결과로 사용하지 않는다. API 관련 테스트는 API 의존성이 없으면 명시적으로 스킵되므로 requirements-api 설치 후 HTTP 테스트가 실행됐는지 확인해야 한다.
+### Windows API 전체 회귀 확인
+
+2026-10-07 사용자가 `feature/intake-api`의 `ff2fc56`에서 requirements-api.txt를 설치한 뒤 전체 pytest를 실행한 결과:
+
+```text
+214 passed, 1 warning, 57 subtests passed in 2.78s
+```
+
+실제 FastAPI TestClient 테스트 11개가 포함된 전체 회귀 통과다. 경고는 Starlette TestClient의 httpx 사용에 관한 deprecation이며 테스트 실패는 아니다. 이 결과는 `ff2fc56`의 기록이며 이후 변경 전체가 검증됐다는 뜻은 아니다. 실제 Uvicorn 서버 기동·사용자 로컬 DB·팀원 UI 연동·최신 공식 공고는 별도 확인이 필요하다.
+
+## 3차: 제출 전 실제 서버 점검 도구
+
+- `src/youth_policy/api_smoke.py`, `scripts/check_intake_api.py`: 실행 중인 로컬 HTTP API에 합성 답변을 보내 서버·DB 준비 상태, 런타임 OpenAPI, 상황/목표 경로, 모름·건너뛰기, 답변 수정, 상세 거절·중단·복귀, 준비 단계 전환을 점검한다.
+- 사용자 입력·응답 원문·진행 상태를 저장하지 않고 요약만 출력한다. loopback HTTP만 허용하며 프록시·리다이렉트는 사용하지 않는다.
+- 후보나 필요한 상세 질문이 없으면 상세 점검을 SKIP으로 표시한다. 실패는 종료 코드 1, `--require-detail` 사용 시 상세 스킵은 종료 코드 2다. 공식 URL이 없는 후보는 WARN으로 표시한다.
+- API 계약·제품 로직·선호 질문 범위는 변경하지 않았다. 준비 단계 점검은 문서 생성 검증이 아니다.
+
+개발 환경에서 실제 실행:
+
+```bash
+PYTHONPATH="$CODEX_PRIMARY_RUNTIME_ROOT/dependencies/python/lib/python3.12/site-packages" .venv/bin/python -m unittest discover -s tests -p 'test_intake*.py' -v
+# Ran 100 tests ... OK (skipped=11): 성공 89개 / HTTP 11개 스킵
+```
+
+신규 점검 도구 테스트 8개는 실제 loopback 표준 라이브러리 HTTP 참조 서버와 순수 진행 계약을 연결해 실행했다. 정상 흐름, 마감 정책에 따른 후보 없음·상세 스킵, 503, no-store 누락, 리다이렉트 차단, 잘못된 JSON, 외부 주소 차단, 계약 누락을 확인했다. api.py/app.py/src/scripts/tests의 compileall과 점검 CLI의 --help도 성공했다. 이는 FastAPI 대체 구현이나 실제 Uvicorn 실행 결과가 아니다. 현재 변경의 Windows 전체 pytest·실제 서버 점검은 확인 전이다.

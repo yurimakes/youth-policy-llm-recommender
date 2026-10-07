@@ -22,7 +22,10 @@
 - [x] 팀원 데모 UI 담당 분리, API 연결 계약·JSON Schema 정리
 - [x] FastAPI 코드와 stateless 상태 전환·입출력 검증 추가
 - [x] Python 계약·저장 경계 26개와 Pydantic 스키마 6개 검증
-- [ ] 실제 HTTP 테스트 11개·서버 기동 및 2차 Windows 전체 pytest 검증
+- [x] API 커밋 ff2fc56 Windows 전체 pytest: 214 passed, 57 subtests passed, 경고 1개 (HTTP 테스트 11개 포함)
+- [x] 실행 중인 로컬 서버 점검 CLI와 테스트 8개 추가: 결과별 통과·실패·스킵 구분
+- [ ] 점검 도구 추가 이후 Windows 전체 pytest 재검증
+- [ ] 실제 Uvicorn 서버·로컬 정책 DB 점검 CLI 실행 및 팀원 UI 연동 확인
 - [ ] 카드·선호 기반 정책 관련도 순위와 지원 방향 연결
 - [ ] 서울·전국 주거·취업 공식 정책 20~30개 목록 확정
 - [ ] PostgreSQL / 버전·근거·필요 서류 구조화

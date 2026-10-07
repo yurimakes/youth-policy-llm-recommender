@@ -68,3 +68,9 @@
 입력은 구조화된 선택값·만 나이·5자리 지역 코드 등으로 제한한다. 자유 입력·주민등록번호·계좌 필드는 받지 않는다. 사용자 답변을 URL이나 서버 로그·DB에 넣지 않고 진행 응답은 `Cache-Control: no-store`로 반환한다. 개발 서버는 loopback으로 실행하고 CORS는 명시한 데모 origin에만 허용한다. 공개 운영을 위한 인증·접근통제·처리 정책은 후속 결정사항이다.
 
 상세 규격·오류·실행 방법은 `docs/api/intake-v1.md`에서 관리한다. 기존 Streamlit 의존성과 분리한 `requirements-api.txt`를 사용한다. API 패키지를 설치하지 않아도 기존 171개 테스트와 신규 Python 계약 테스트를 실행할 수 있게 하되, HTTP 테스트를 건너뛴 것을 통과로 표기하지 않는다.
+
+### 제출 전 서버 점검
+
+`scripts/check_intake_api.py`는 실행 중인 loopback HTTP 서버에 합성 답변을 보내 health/readiness·실행 OpenAPI·상황/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. 사용자 상태와 원문 응답을 저장하지 않는다. 실제 데이터에 현재 후보나 유용한 상세 질문이 없으면 관련 확인은 스킵으로 구분한다. 준비 단계 전환은 문서 생성 구현을 뜻하지 않는다.
+
+API 커밋 `ff2fc56`의 Windows 전체 pytest는 214 passed, 57 subtests passed, 경고 1개로 확인했다. TestClient 통과와 실제 서버·공식 공고 최신성·UI 연결 검증은 별개다. 새 점검 도구의 검증 범위와 전체 회귀 대기 사항은 PROJECT_STATUS에 기록한다.
