@@ -39,11 +39,11 @@
 
 1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에는 FastAPI와 시작·질문·결과의 **3개 데모 화면**을 추가했습니다. 선택적 상세 확인은 질문 화면을 재사용합니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
 
-UI 추가 전 API 커밋 `1862bbe`는 사용자의 Windows Python 3.10 환경에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 실제 서버 점검은 상세 중단·복귀를 포함해 **6개 모두 통과, 실패·스킵·점검 경고 0개**입니다. UI 추가분은 개발 환경의 Python 관련 테스트 성공 91개·HTTP 스킵 13개, JavaScript 상태 관리 테스트 7개 통과를 확인했습니다. UI 추가 후 Windows 전체 회귀·실제 FastAPI 화면 제공·브라우저 배치는 확인 전입니다. 단계별 검증 기록은 PROJECT_STATUS에 있습니다.
+UI 추가 전 API 커밋 `1862bbe`는 사용자의 Windows Python 3.10 환경에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 실제 서버 점검은 상세 중단·복귀를 포함해 **6개 모두 통과, 실패·스킵·점검 경고 0개**입니다. UI 커밋 `f22e949`의 Windows 실행은 226 passed, 실패 하위 사례 2개, 경고 1개, 73 subtests passed였습니다. 실패는 두 JavaScript 모듈의 MIME 타입이 text/plain인 문제로, 서버가 타입을 직접 지정하도록 수정했습니다. 보완 후 개발 환경의 Python 관련 테스트는 성공 91개·HTTP 스킵 14개입니다. JavaScript 상태 관리 테스트 7개는 UI 구현 단계에서 통과했습니다. MIME 수정 후 Windows 전체 회귀·브라우저 배치는 확인 전입니다. 단계별 검증 기록은 PROJECT_STATUS에 있습니다.
 
 ## 제출용 데모 UI와 백엔드 API
 
-팀원의 화면 작업이 시작 전인 상황에서 사용자가 담당 범위를 변경해, 이 브랜치에 제출용 UI를 추가했습니다. HTML/CSS/JavaScript 화면과 API를 같은 FastAPI 서버에서 제공하며 npm 설치나 별도 빌드가 필요하지 않습니다. React/TypeScript는 이후 프론트엔드 방향으로 유지합니다. 사용자 진행 상태는 POST 본문으로 이어받고 서버에 영구 저장하지 않습니다.
+팀원의 화면 작업이 시작 전인 상황에서 사용자가 담당 범위를 변경해, 이 브랜치에 제출용 UI를 추가했습니다. HTML/CSS/JavaScript 화면과 API를 같은 FastAPI 서버에서 제공하며 npm 설치나 별도 빌드가 필요하지 않습니다. 정적 파일은 필요한 세 파일만 허용하며 CSS와 JavaScript MIME 타입을 직접 지정해 OS별 차이를 피합니다. React/TypeScript는 이후 프론트엔드 방향으로 유지합니다. 사용자 진행 상태는 POST 본문으로 이어받고 서버에 영구 저장하지 않습니다.
 
 - [UI 연결 규격과 실행 방법](docs/api/intake-v1.md)
 - [시작 요청 JSON Schema](docs/api/schemas/start-request.json)

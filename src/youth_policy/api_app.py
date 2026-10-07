@@ -10,11 +10,10 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from youth_policy.api_config import ApiSettings, korea_today, load_api_settings
 from youth_policy.api_schemas import IntakeResponse, StartRequest, TransitionRequest
@@ -36,7 +35,15 @@ def create_app(
     provider = policy_provider or (lambda: load_policies_readonly(config.policy_db_path))
     app = FastAPI(title="청년정책 AI 에이전트 — Intake API", version="0.2.0")
     demo_directory = Path(__file__).resolve().parents[2] / "demo"
-    app.mount("/demo/assets", StaticFiles(directory=str(demo_directory)), name="demo-assets")
+    demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
+                   "client.mjs": "text/javascript"}
+
+    @app.get("/demo/assets/{asset_name}", include_in_schema=False)
+    def demo_asset(asset_name: str) -> FileResponse:
+        """허용한 파일만 OS의 MIME 추측 없이 올바른 타입으로 제공합니다."""
+        if asset_name not in demo_assets:
+            raise HTTPException(status_code=404, detail="Not Found")
+        return FileResponse(demo_directory / asset_name, media_type=demo_assets[asset_name])
 
     @app.get("/demo", include_in_schema=False)
     @app.get("/demo/", include_in_schema=False)

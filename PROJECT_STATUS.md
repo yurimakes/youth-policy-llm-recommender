@@ -4,7 +4,7 @@
 - 브랜치: `feature/intake-api`
 - 이전 작업: PR #2 main 병합 완료 (`d0d86f2`)
 - 원본 MVP: `v0.1-mvp` → `23f33e7`
-- 단계: API 작업세트 검증 완료, 제출용 3개 데모 화면 추가; 새 화면의 Windows·브라우저 검증 대기
+- 단계: 제출용 UI의 Windows MIME 오류 수정; 보완 후 전체 회귀·브라우저 검증 대기
 
 ## 이번에 구현한 내용
 
@@ -158,3 +158,20 @@ HTML/CSS/JavaScript 데모이며 React 구현 완료로 표시하지 않는다. 
 - 실제 UI 클라이언트를 참조 HTTP 서버와 실제 순수 진행 계약·Pydantic 스키마에 연결해 상황/목표, 상세 동의·중단·복귀, 취업 상태 답변, 나이 수정 후 후보 제외, 상세 거절, 준비 단계 이동을 확인했다. 합성 테스트 정책만 사용했고 제품 데이터에 적재하지 않았다. 이 결과는 실제 FastAPI·Uvicorn·브라우저 클릭 검증이 아니다.
 
 브라우저가 개발 환경의 로컬 서버에 접속하지 못해 화면 배치·실제 조작은 확인하지 못했다. 위의 224 passed는 UI 추가 전 `1862bbe` 기록이며 새 UI 변경의 전체 회귀로 인용하지 않는다. PR #3은 새 범위를 반영해 draft로 되돌리고, 사용자 Windows에서 전체 pytest와 서버 재시작 후 `/demo` 확인을 기다린다. main은 아직 병합하지 않는다.
+
+
+### Windows 데모 모듈 MIME 오류와 수정
+
+2026-10-07 사용자가 `f22e949`를 Windows Python 3.10에서 실행한 결과:
+
+```text
+2 failed, 226 passed, 1 warning, 73 subtests passed in 4.93s
+```
+
+실패 2개는 같은 HTTP 테스트의 app.mjs·client.mjs 하위 사례다. 두 파일의 응답이 `text/plain; charset=utf-8`이라 JavaScript MIME 검증에 실패했다. 화면·CSS 제공과 기존 API 회귀에서 추가 실패는 보고되지 않았으며 Uvicorn startup complete도 확인했다. 이 결과를 전체 통과로 표시하지 않는다.
+
+OS의 파일 확장자 MIME 추측을 사용하던 정적 제공을, style.css·app.mjs·client.mjs만 허용하는 파일 경로로 변경했다. `FileResponse`에 각각 `text/css`·`text/javascript`를 명시해 Windows 분류에 의존하지 않는다. 경로·API 계약·화면은 유지하고 허용하지 않은 파일은 404를 반환한다.
+
+HTTP 회귀 테스트 1개를 추가해 실제 mimetypes의 .mjs 분류를 text/plain으로 바꾼 상태에서도 두 모듈의 JavaScript 헤더와 no-store를 확인한다. 기존 경로 제한 테스트도 목록 밖 파일 차단을 확인하도록 보완했다.
+
+수정 후 개발 환경에서 관련 Python 테스트 105개 중 성공 91개·HTTP 스킵 14개, compileall 성공을 확인했다. 표준 라이브러리에서 잘못된 MIME 분류 재현과 테스트 종료 후 복구도 확인했다. FastAPI/httpx를 설치할 수 없어 HTTP 회귀 테스트의 실제 실행은 사용자 Windows에서 확인해야 한다. 수정 후 전체 pytest와 브라우저 화면 조작은 대기 중이며 PR #3은 draft로 유지한다.

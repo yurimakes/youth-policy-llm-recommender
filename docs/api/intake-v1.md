@@ -74,7 +74,7 @@ $env:API_CORS_ORIGINS = "http://localhost:8080"
 | 메서드·경로 | 입력 | 출력 |
 |---|---|---|
 | `GET /demo`, `GET /demo/` | 없음 | 제출용 HTML 화면 |
-| `GET /demo/assets/*` | 없음 | 데모 디렉터리의 정적 파일만 제공 |
+| `GET /demo/assets/*` | 없음 | style.css·app.mjs·client.mjs만 허용, MIME 타입 명시 |
 | `GET /health` | 없음 | 프로세스 상태, `api_version` |
 | `GET /ready` | 없음 | DB 준비 여부·정책 건수, 미준비/비어 있음은 503 |
 | `POST /api/v1/intake/start` | `{"start_mode":"situation"}` 또는 `{}` | 초기 상태·상황 카드 질문 |
@@ -163,7 +163,7 @@ SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다.
 
 시작 화면에서 상황/목표 카드를 선택하고 ‘다음’을 누른다. 질문에 답하거나 건너뛰어 결과를 열고, 답변 수정·정책 선택·선택적 상세 확인을 점검한다. 선택한 정책에 유용한 미확인 질문이 없으면 추가 질문을 제안하지 않는다. 조건별 확인사항·공식 공고와 데이터 처리 기준일, 다음 확인할 항목을 표시한다. 마지막 안내는 문서 생성 기능이 아니다.
 
-요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. 새 화면의 시각적 배치·실제 FastAPI 제공 확인은 PROJECT_STATUS의 미검증 항목이다.
+요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. Windows에서 모듈이 text/plain으로 제공된 오류를 확인해 CSS·JavaScript MIME 타입을 서버가 직접 지정하도록 수정했다. 수정 후 Windows 전체 회귀·시각적 배치는 PROJECT_STATUS의 확인 대기 항목이다.
 
 Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
 
