@@ -5,9 +5,11 @@
 
 from datetime import date
 from importlib.util import find_spec
+import mimetypes
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -53,9 +55,21 @@ class HttpTests(unittest.TestCase):
                 self.assertEqual(response.headers["cache-control"], "no-store")
 
     def test_demo_assets_do_not_expose_source_or_database(self):
-        for path in ("/demo/assets/../api.py", "/demo/assets/%2e%2e/api.py", "/demo/assets/policies.sqlite3"):
+        for path in ("/demo/assets/../api.py", "/demo/assets/%2e%2e/api.py", "/demo/assets/policies.sqlite3",
+                     "/demo/assets/index.html", "/demo/assets/unlisted.mjs"):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 404)
+
+    def test_demo_modules_ignore_plain_text_os_mime_mapping(self):
+        mimetypes.init()
+        with patch.dict(mimetypes.types_map, {".mjs": "text/plain"}):
+            self.assertEqual(mimetypes.guess_type("app.mjs")[0], "text/plain")
+            for filename in ("app.mjs", "client.mjs"):
+                with self.subTest(filename=filename):
+                    response = self.client.get("/demo/assets/" + filename)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.headers["content-type"].split(";")[0], "text/javascript")
+                    self.assertEqual(response.headers["cache-control"], "no-store")
 
     def test_full_flow_uses_response_state(self):
         response = self.client.post("/api/v1/intake/start", json={})
