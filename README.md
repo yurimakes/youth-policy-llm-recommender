@@ -24,7 +24,7 @@
 | 조건 확인 | MATCH / UNKNOWN / NO_MATCH | 정책 불확실성과 사용자 정보 부족 구분 |
 | 진행 | 입력 후 결과 표시 | 선택적 상세 질문, 답변 이어받기·수정·중단·복귀 |
 | 결과 | 검색·추천 설명 | 정책·다음 행동 갱신, 준비·상담 지원 |
-| 화면·서버 | Streamlit·SQLite | 데모 UI는 팀원 담당, FastAPI 코드 추가·HTTP 실행 검증 대기, PostgreSQL 후속 |
+| 화면·서버 | Streamlit·SQLite | 데모 UI는 팀원 담당, FastAPI TestClient 통과·실제 서버 연동 확인 대기, PostgreSQL 후속 |
 | 검색·AI | OpenAI 임베딩·FAISS·설명 | 하이브리드 검색·RAG·상태 기반 도구 연결 검증 예정 |
 
 ‘쉬고 있어요’만으로 미취업·소득·경제난을 추정하지 않습니다. 서울·19~34세는 초기 대상 범위이며 실제 입력값을 대신하지 않습니다. 상세 정보 제공을 원치 않아도 남은 확인사항과 공식 경로를 안내합니다.
@@ -39,7 +39,7 @@
 
 1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에서 이를 연결할 API를 추가합니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
 
-신규 로직 테스트 49개와 구문 검증이 통과했고, 2026-10-07 사용자의 Windows Python 3.10 환경에서 전체 pytest **171 passed, 23 subtests passed**를 확인했습니다. 상세 검증 기록은 PROJECT_STATUS에 있습니다.
+1차 고도화는 사용자의 Windows Python 3.10 환경에서 **171 passed, 23 subtests passed**, API 추가 커밋 `ff2fc56`은 **214 passed, 57 subtests passed, 경고 1개**를 확인했습니다. 이후 서버 점검 도구의 검증은 별도 기록하며 상세 내용은 PROJECT_STATUS에 있습니다.
 
 ## UI 담당 분리와 백엔드 API
 
@@ -50,7 +50,7 @@
 - [전환 요청 JSON Schema](docs/api/schemas/transition-request.json)
 - [응답 JSON Schema](docs/api/schemas/intake-response.json)
 
-API 코드는 추가했으며 계약·스키마 검증을 수행했습니다. **FastAPI HTTP 실행 검증은 패키지 설치 제한으로 대기 중**입니다. 로컬 설치·테스트 후 서버를 실행합니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
+API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 회귀에서 통과했습니다. **Uvicorn 서버 기동·실제 로컬 정책 DB·팀원 UI 연결은 확인 전**입니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
@@ -59,6 +59,14 @@ API 코드는 추가했으며 계약·스키마 검증을 수행했습니다. **
 ```
 
 위 서버 명령은 이번 코드의 실행 방법이며 실제 HTTP 기동 검증 결과가 아닙니다. 기본 CORS origin은 localhost:5173/3000이며 팀원 데모의 origin에 맞게 설정할 수 있습니다. 새 UI·AI·문서·저장 기능 전체가 완성된 것으로 표시하지 않습니다.
+
+서버를 실행한 상태에서 **다른 PowerShell 창**으로 질문·결과·상세 전환을 점검합니다. 이 명령은 실제 사용자 답변 대신 합성 입력을 사용하며, 로컬 서버에만 연결하고 상태·원문 응답을 파일에 저장하지 않습니다.
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_intake_api.py
+```
+
+`PASS` / `FAIL` / `SKIP` / `WARN`과 집계를 출력합니다. 데이터가 없으면 실패하며, 현재 후보나 남은 상세 질문이 없으면 해당 상세 검증은 스킵됩니다. 스킵을 통과로 표시하지 않습니다. 상세 검증까지 필수로 확인하려면 `--require-detail`을 사용합니다. 공식 공고의 최신성·UI 연동·CORS 설정은 별도로 확인합니다.
 
 ## 기존 구현에서 재사용하는 기능
 
