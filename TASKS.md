@@ -24,8 +24,11 @@
 - [x] Python 계약·저장 경계 26개와 Pydantic 스키마 6개 검증
 - [x] API 커밋 ff2fc56 Windows 전체 pytest: 214 passed, 57 subtests passed, 경고 1개 (HTTP 테스트 11개 포함)
 - [x] 실행 중인 로컬 서버 점검 CLI와 테스트 8개 추가: 결과별 통과·실패·스킵 구분
-- [ ] 점검 도구 추가 이후 Windows 전체 pytest 재검증
-- [ ] 실제 Uvicorn 서버·로컬 정책 DB 점검 CLI 실행 및 팀원 UI 연동 확인
+- [x] 커밋 2b8b66b Windows 전체 pytest: 222 passed, 67 subtests passed, 경고 1개
+- [x] 실제 Uvicorn·정책 DB 20건 점검: PASS 5 / SKIP 1 / FAIL 0 / WARN 0, 기본 후보 5건
+- [x] 상세 중단·복귀 점검의 첫 후보·기존 건너뛰기 의존 제거 및 회귀 사례 2개 추가
+- [ ] 보완된 점검 명령으로 상세 중단·복귀 실제 서버 확인
+- [ ] 팀원 UI와 API 연결·브라우저 CORS·핵심 흐름 확인
 - [ ] 카드·선호 기반 정책 관련도 순위와 지원 방향 연결
 - [ ] 서울·전국 주거·취업 공식 정책 20~30개 목록 확정
 - [ ] PostgreSQL / 버전·근거·필요 서류 구조화

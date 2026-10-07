@@ -71,6 +71,6 @@
 
 ### 제출 전 서버 점검
 
-`scripts/check_intake_api.py`는 실행 중인 loopback HTTP 서버에 합성 답변을 보내 health/readiness·실행 OpenAPI·상황/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. 사용자 상태와 원문 응답을 저장하지 않는다. 실제 데이터에 현재 후보나 유용한 상세 질문이 없으면 관련 확인은 스킵으로 구분한다. 준비 단계 전환은 문서 생성 구현을 뜻하지 않는다.
+`scripts/check_intake_api.py`는 실행 중인 loopback HTTP 서버에 합성 답변을 보내 health/readiness·실행 OpenAPI·상황/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. 사용자 상태와 원문 응답을 저장하지 않는다. 상세 중단·복귀는 기본 경로의 건너뛰기를 지우지 않고 별도의 새 합성 진행에서 질문이 필요한 후보를 찾는다. 실제 데이터에 현재 후보나 유용한 상세 질문이 없으면 관련 확인은 스킵으로 구분한다. 준비 단계 전환은 문서 생성 구현을 뜻하지 않는다.
 
-API 커밋 `ff2fc56`의 Windows 전체 pytest는 214 passed, 57 subtests passed, 경고 1개로 확인했다. TestClient 통과와 실제 서버·공식 공고 최신성·UI 연결 검증은 별개다. 새 점검 도구의 검증 범위와 전체 회귀 대기 사항은 PROJECT_STATUS에 기록한다.
+커밋 `2b8b66b`의 Windows 전체 pytest는 222 passed, 67 subtests passed, 경고 1개로 확인했다. 실제 Uvicorn 서버와 로컬 정책 DB 20건에서 점검 5개 통과·상세 중단/복귀 1개 스킵을 확인했다. 공식 공고 최신성·UI 연결은 별도 검증사항이다. 이후 점검 도구 보완의 검증 범위는 PROJECT_STATUS에 기록한다.
