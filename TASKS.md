@@ -15,7 +15,7 @@
 - [x] 네 가지 조건 상태, 날짜 재평가와 다음 행동
 - [x] 신규 단위·통합 사례 테스트 49개 및 compileall
 - [x] 기존 SQLite 읽기 전용 개발용 CLI와 흐름 테스트
-- [ ] 기존 전체 pytest 회귀 검증 (패키지 설치 가능한 환경 필요)
+- [x] Windows Python 3.10 전체 pytest 회귀 검증: 171 passed, 23 subtests passed (2026-10-07 사용자 실행)
 
 ## 후속 개발
 

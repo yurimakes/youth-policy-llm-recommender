@@ -3,7 +3,7 @@
 - 기준일: 2026-10-07
 - 브랜치: `docs/service-redesign`
 - 원본 MVP: `v0.1-mvp` → `23f33e7`
-- 단계: 기획 전환과 첫 Python 핵심 로직 구현
+- 단계: 기획 전환과 첫 Python 핵심 로직 구현·회귀 검증 완료
 
 ## 이번에 구현한 내용
 
@@ -30,15 +30,22 @@
 # 성공
 ```
 
-기존 공식 예시 fixture → 기존 파서 → 임시 SQLite → 신규 안내 흐름 통합을 실행했다. 로컬 CLI의 상세 거절·추가 답변에 따른 후보 제외도 입력을 모의해 실행했다. 실제 사용자 답변 저장과 외부 API 호출은 하지 않았다. Windows 실행은 미검증이다.
+기존 공식 예시 fixture → 기존 파서 → 임시 SQLite → 신규 안내 흐름 통합을 실행했다. 로컬 CLI의 상세 거절·추가 답변에 따른 후보 제외도 입력을 모의해 실행했다. 실제 사용자 답변 저장과 외부 API 호출은 하지 않았다. Windows CLI의 직접 수동 실행은 미검증이다.
 
-`python -m pytest`는 pytest 패키지가 없어 실행되지 않았다. Git 직접 clone과 npm/pip 패키지 설치가 차단돼 있어 고정 커밋의 파일을 GitHub 연결로 가져와 검증했다. 기존 전체 122개 회귀 테스트는 사용자의 기존 설치 환경에서 실행해야 한다. 이번 49개 결과를 전체 회귀 통과로 해석하지 않는다.
+`python -m pytest`는 pytest 패키지가 없어 실행되지 않았다. Git 직접 clone과 npm/pip 패키지 설치가 차단돼 있어 고정 커밋의 파일을 GitHub 연결로 가져와 검증했다. 이 개발 환경의 신규 49개 결과와 아래 사용자의 Windows 전체 회귀 결과를 구분해 기록한다.
 
 ### Windows 회귀 실행과 인코딩 수정
 
 사용자가 `ad7b911`을 Windows Python 3.10에서 실행한 결과는 `5 failed, 166 passed, 23 subtests passed`였다. 실패 5개는 신규 통합 테스트의 공통 준비 단계에서 UTF-8 fixture를 시스템 기본 CP949로 읽으면서 발생한 동일한 `UnicodeDecodeError`였다.
 
-`tests/test_intake_integration.py`의 `read_text`에 `encoding="utf-8"`을 명시했다. CP949로 직접 읽을 때 기존 오류가 발생하는 것을 재현하고, 기본 파일 읽기 인코딩을 CP949로 모의한 환경에서 신규 49개 테스트가 모두 통과하는 것을 확인했다. 수정 파일의 compileall도 성공했다. 수정 후 Windows 전체 pytest 재실행은 아직 확인 전이다.
+`tests/test_intake_integration.py`의 `read_text`에 `encoding="utf-8"`을 명시했다. CP949로 직접 읽을 때 기존 오류가 발생하는 것을 재현하고, 기본 파일 읽기 인코딩을 CP949로 모의한 환경에서 신규 49개 테스트가 모두 통과하는 것을 확인했다. 수정 파일의 compileall도 성공했다. 수정 후 사용자가 `1d67ade`를 Windows Python 3.10에서 다시 실행한 결과는 다음과 같다.
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+# 171 passed, 23 subtests passed in 1.53s
+```
+
+2026-10-07 사용자가 제공한 터미널 출력으로 기존 122개와 신규 49개를 포함한 전체 회귀 통과를 확인했다. 23개 하위 테스트는 별도 집계이며 171개에 더해 전체 테스트 개수를 표기하지 않는다. 이후 변경은 검증 기록을 갱신하는 문서 변경뿐이다. 실제 사용자 효과·최신 정책 품질·신규 웹 배포 검증과는 구분한다.
 
 ## 구현 한계와 다음 단계
 
