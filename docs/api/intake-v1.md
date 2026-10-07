@@ -4,7 +4,7 @@
 
 팀원은 데모 UI를 담당하고, 이 브랜치는 백엔드와 데이터·AI 연결을 준비한다. 프론트엔드 화면·React·CSS는 이번 변경에 포함하지 않는다.
 
-API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마는 검증했다. FastAPI/HTTPX 설치가 개발 환경에서 차단되어 **실제 HTTP 실행 테스트 11개는 아직 실행하지 못했다.** 로컬 설치 후 테스트와 서버 실행을 확인해야 한다.
+API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `ff2fc56`의 Windows 전체 pytest에서 **214 passed, 57 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·로컬 정책 DB·팀원 UI 연결은 별도 확인이 필요하다.
 
 이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 카드·선호에 따른 정책 순위, PostgreSQL, LangGraph, RAG, 준비 문서와 공개 배포는 후속 작업이다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
 
@@ -18,7 +18,7 @@ API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·�
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-위 명령은 제공하는 Windows 실행 방법이며 이 변경에 대한 Windows 실행은 아직 확인 전이다. API 의존성은 기존 requirements.txt와 분리해 추가했다.
+API 의존성 설치와 `ff2fc56`의 Windows 전체 테스트는 확인했다. 위 Uvicorn 서버 명령과 이후 추가한 점검 도구의 Windows 실행은 확인 전이다. API 의존성은 기존 requirements.txt와 분리해 추가했다.
 
 정책 데이터가 없으면 기존 수집 CLI로 준비한다. API가 DB·샘플 정책을 자동 생성하지 않는다.
 
@@ -40,6 +40,31 @@ UI 개발 서버 origin이 다르면 해당 origin만 명시한다. 별도의 �
 ```powershell
 $env:API_CORS_ORIGINS = "http://localhost:8080"
 ```
+
+### 실행 중인 서버 점검
+
+서버를 실행한 채 다른 PowerShell 창에서:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_intake_api.py
+# 다른 로컬 포트를 쓸 때
+.\.venv\Scripts\python.exe scripts/check_intake_api.py --base-url http://127.0.0.1:8001
+# 상세 중단·복귀까지 확인이 필수인 경우
+.\.venv\Scripts\python.exe scripts/check_intake_api.py --require-detail
+```
+
+실제 사용자 정보 대신 카드 선택·합성 나이 24·모름 답변을 사용한다. 응답 상태 전체를 다음 POST에 전달하고 `/health`, `/ready`, 실행 중인 `/openapi.json`, 기본/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. loopback HTTP만 허용하며 상태·응답 원문을 저장하지 않는다.
+
+| 결과 | 의미 |
+|---|---|
+| PASS | 해당 흐름 확인 성공 |
+| FAIL | 서버·DB·응답 계약·흐름 오류. 종료 코드 1 |
+| SKIP | 현재 후보 또는 필요한 상세 질문이 없어 해당 확인을 실행하지 못함 |
+| WARN | 후보의 공식 공고 URL 보완 필요 |
+
+정상 완료의 종료 코드는 0이다. `--require-detail`에서 상세 확인이 스킵되면 2를 반환한다. 요약의 `skipped`·`warnings`도 확인한다. `/ready`의 503은 기존 공식 데이터 수집·적재 상태를 확인해야 하며 fixture를 실제 정책으로 적재해 해결하지 않는다. 정책 날짜 때문에 후보가 없다면 최신 공고 목록을 확인한다.
+
+점검 성공은 공고의 최신성·최종 신청 가능·브라우저 CORS·UI 통합을 인증하지 않는다. 이 명령은 준비 단계 이동만 확인하며 문서를 생성하지 않는다.
 
 ## 요청과 응답
 
