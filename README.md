@@ -39,7 +39,7 @@
 
 1차 병합의 결과는 **Python 핵심 로직과 개발용 CLI**입니다. 이번 후속 브랜치에서 이를 연결할 API를 추가합니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
 
-1차 고도화는 사용자의 Windows Python 3.10 환경에서 **171 passed, 23 subtests passed**, API 추가 커밋 `ff2fc56`은 **214 passed, 57 subtests passed**, 서버 점검 도구 추가 커밋 `2b8b66b`는 **222 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 이후 수정의 검증은 별도 기록하며 상세 내용은 PROJECT_STATUS에 있습니다.
+최신 코드 커밋 `1862bbe`는 사용자의 Windows Python 3.10 환경에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했습니다. 실제 서버 점검은 상세 중단·복귀를 포함해 **6개 모두 통과, 실패·스킵·점검 경고 0개**입니다. 이전 단계별 검증 기록은 PROJECT_STATUS에 있습니다.
 
 ## UI 담당 분리와 백엔드 API
 
@@ -50,7 +50,7 @@
 - [전환 요청 JSON Schema](docs/api/schemas/transition-request.json)
 - [응답 JSON Schema](docs/api/schemas/intake-response.json)
 
-API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 회귀에서 통과했습니다. **Uvicorn 서버와 로컬 DB 20건 조회를 확인했고, 기본 흐름에서 후보 5건을 반환했습니다.** 팀원 UI 연결과 공식 공고의 최신성은 확인 전입니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
+API 계약·스키마와 실제 FastAPI TestClient 테스트가 Windows 전체 회귀에서 통과했습니다. **Uvicorn 서버와 로컬 DB 20건 조회, 기본 후보 5건, 상세 거절·중단·복귀를 확인했습니다.** 팀원 UI 연결과 공식 공고의 최신성은 확인 전입니다. 기존 데이터 DB가 없으면 정책 후보 조회에는 별도 데이터 준비가 필요합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
