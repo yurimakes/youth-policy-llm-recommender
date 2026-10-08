@@ -8,4 +8,4 @@ Streamlit·SQLite 기반으로 나이·지역·취업 상태 입력, 조건 평�
 .\\.venv\\Scripts\\python.exe -m streamlit run app.py
 ```
 
-실행 전 정책 데이터와 API 키를 준비한다. [설정·실행 안내](../../README.md#기존-streamlit-mvp-실행)에서 확인할 수 있다. 기존 MVP의 검색·설명은 OpenAI API를 호출하며, 공개 정적 데모와 Intake API의 동작은 [구조와 데이터 흐름](../architecture.md)에서 구분한다.
+실행 전 정책 데이터와 API 키를 준비한다. [설정·실행 안내](../getting-started/README.md#기존-streamlit-mvp-실행)에서 확인할 수 있다. 기존 MVP의 검색·설명은 OpenAI API를 호출하며, 공개 정적 데모와 Intake API의 동작은 [구조와 데이터 흐름](../architecture.md)에서 구분한다.

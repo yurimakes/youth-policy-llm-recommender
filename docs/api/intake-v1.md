@@ -16,7 +16,7 @@ API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 서버가 읽�
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-API 의존성은 `requirements-api.txt`에 있다. 가상환경 준비는 [README](../../README.md#로컬-환경-준비)를 참고한다.
+API 의존성은 `requirements-api.txt`에 있다. 가상환경 준비는 [개발자 실행 안내](../getting-started/README.md#로컬-환경-준비)를 참고한다.
 
 정책 데이터가 없으면 기존 수집 CLI로 준비한다. API가 DB·샘플 정책을 자동 생성하지 않는다.
 
