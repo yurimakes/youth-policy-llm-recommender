@@ -36,7 +36,8 @@ def create_app(
     app = FastAPI(title="청년정책 AI 에이전트 — Intake API", version="0.2.0")
     demo_directory = Path(__file__).resolve().parents[2] / "demo"
     demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
-                   "client.mjs": "text/javascript"}
+                   "client.mjs": "text/javascript", "mock.mjs": "text/javascript",
+                   "official-policies.json": "application/json"}
 
     @app.get("/demo/assets/{asset_name}", include_in_schema=False)
     def demo_asset(asset_name: str) -> FileResponse:

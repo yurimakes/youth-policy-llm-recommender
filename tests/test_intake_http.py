@@ -47,12 +47,20 @@ class HttpTests(unittest.TestCase):
         for path, content_type in (("/demo", "text/html"), ("/demo/", "text/html"),
                                    ("/demo/assets/style.css", "text/css"),
                                    ("/demo/assets/app.mjs", "javascript"),
-                                   ("/demo/assets/client.mjs", "javascript")):
+                                   ("/demo/assets/client.mjs", "javascript"),
+                                   ("/demo/assets/mock.mjs", "javascript"),
+                                   ("/demo/assets/official-policies.json", "application/json")):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(content_type, response.headers["content-type"])
                 self.assertEqual(response.headers["cache-control"], "no-store")
+
+    def test_local_demo_keeps_api_mode_and_separate_official_catalogue(self):
+        self.assertIn('data-runtime="api"', self.client.get("/demo").text)
+        catalogue = self.client.get("/demo/assets/official-policies.json").json()
+        self.assertEqual(len(catalogue["policies"]), 6)
+        self.assertTrue(all(p["reference_id"].startswith("REF-") for p in catalogue["policies"]))
 
     def test_demo_assets_do_not_expose_source_or_database(self):
         for path in ("/demo/assets/../api.py", "/demo/assets/%2e%2e/api.py", "/demo/assets/policies.sqlite3",
@@ -64,7 +72,7 @@ class HttpTests(unittest.TestCase):
         mimetypes.init()
         with patch.dict(mimetypes.types_map, {".mjs": "text/plain"}):
             self.assertEqual(mimetypes.guess_type("app.mjs")[0], "text/plain")
-            for filename in ("app.mjs", "client.mjs"):
+            for filename in ("app.mjs", "client.mjs", "mock.mjs"):
                 with self.subTest(filename=filename):
                     response = self.client.get("/demo/assets/" + filename)
                     self.assertEqual(response.status_code, 200)

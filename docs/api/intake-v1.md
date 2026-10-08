@@ -2,11 +2,11 @@
 
 ## 담당과 구현 상태
 
-사용자 담당 변경 지시에 따라 이 브랜치에 시작·질문·결과의 제출용 데모를 추가했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
+사용자가 확정한 화면 보드에 따라 질문·결과·장바구니 준비·상담 문서 초안까지 제출용 UI를 연결했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
 
 API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `1862bbe`의 Windows 전체 pytest에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건·기본 후보 5건에서 상세 중단·복귀를 포함한 점검 **6개 모두 통과(실패·스킵·점검 경고 0개)**를 확인했다. 이 검증은 UI 추가 전 API 결과다. 새 데모의 Windows 전체 회귀·실제 FastAPI 화면 제공·브라우저 조작과 공고 최신성은 별도 확인이 필요하다.
 
-이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 카드·선호에 따른 정책 순위, PostgreSQL, LangGraph, RAG, 준비 문서와 공개 배포는 후속 작업이다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
+이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 실제 API의 관련도 순위, PostgreSQL, LangGraph와 RAG는 후속이다. 공개 정적 목데이터 체험은 실제 API와 별개이며 문서 초안은 클라이언트에서 입력·확인사항을 조합한다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
 
 ## 실행
 
@@ -103,7 +103,7 @@ $env:API_CORS_ORIGINS = "http://localhost:8080"
 | `choose_detail` | `accept` (boolean) | 상세 확인 동의/거절. 필요한 추가 입력 여부는 서버가 판단 |
 | `pause_detail` | 없음 | 상세 확인 중단, 답변 보존 |
 | `resume_detail` | 없음 | 동의한 상세 확인을 이어감. 선택 정책이 제외됐으면 거절 |
-| `prepare` | 없음 | 현재 결과에서 준비 단계로 이동. 문서 생성은 아직 미구현 |
+| `prepare` | 없음 | 현재 결과에서 준비 단계로 이동. 서버는 문서를 생성하지 않으며 UI에서 정해진 초안을 구성 |
 
 첫 API 응답을 `result`에 보관했다고 할 때 전환 본문 형태는 다음과 같다. JSON의 `state` 위치에는 **result.state 전체 객체**를 넣는다.
 
@@ -161,11 +161,11 @@ SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다.
 
 ## 내장 데모 확인
 
-시작 화면에서 상황/목표 카드를 선택하고 ‘다음’을 누른다. 질문에 답하거나 건너뛰어 결과를 열고, 답변 수정·정책 선택·선택적 상세 확인을 점검한다. 선택한 정책에 유용한 미확인 질문이 없으면 추가 질문을 제안하지 않는다. 조건별 확인사항·공식 공고와 데이터 처리 기준일, 다음 확인할 항목을 표시한다. 마지막 안내는 문서 생성 기능이 아니다.
+시작 화면에서 상황/목표 카드를 선택하고 ‘다음’을 누른다. 질문에 답하거나 건너뛰어 결과를 열고, 답변 수정·정책 선택·선택적 상세 확인을 점검한다. 선택한 정책에 유용한 미확인 질문이 없으면 추가 질문을 제안하지 않는다. 조건별 확인사항·공식 공고와 데이터 처리 기준일, 다음 확인할 항목을 표시한다. UI의 준비 화면에서는 메모리 체크와 입력·확인사항을 모은 문서 초안을 제공한다. PDF 저장은 브라우저 인쇄 기능이다.
 
 요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. Windows에서 모듈이 text/plain으로 제공된 오류를 확인해 CSS·JavaScript MIME 타입을 서버가 직접 지정하도록 수정했다. 수정 후 Windows 전체 회귀·시각적 배치는 PROJECT_STATUS의 확인 대기 항목이다.
 
-Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
+Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
 
 ## 검증과 계약 재생성
 
@@ -178,3 +178,10 @@ Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs`�
 API 패키지가 없으면 HTTP 테스트는 명시적으로 skip된다. 스킵을 통과로 해석하지 않고 의존성 설치 후 실제 실행을 확인한다. JSON Schema는 Pydantic 모델에서 생성한 계약 파일이며 실행한 FastAPI의 OpenAPI를 대체했다고 주장하지 않는다.
 
 공식 참고: [FastAPI 테스트](https://fastapi.tiangolo.com/tutorial/testing/), [CORS](https://fastapi.tiangolo.com/tutorial/cors/), [FastAPI 배포 패키지](https://pypi.org/project/fastapi/).
+
+
+## 공개 가상 체험과 실제 API의 경계
+
+공개 제출 주소와 시연 방법은 `docs/submission/2026-10-08-demo.md`에서 관리한다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 별도 검토한 페이지이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
+
+정적 파일은 style.css, app.mjs, client.mjs, mock.mjs, official-policies.json의 다섯 파일만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
