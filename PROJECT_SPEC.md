@@ -5,7 +5,7 @@
 - 원본 MVP: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp)
 - 1차 기획·핵심 로직: PR #2로 main 병합 완료
 - 현재 기준: `main`, API·확정 UI·공개 목데이터 체험 PR #3 병합 완료
-- 이전 검증 코드: `97cd09a`
+- 최신 앱·글꼴 검증 코드: `d429571`, 공개 체험 버전 4
 
 ## 제품 목적과 이용자
 

@@ -23,13 +23,13 @@
 - 원본: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), `23f33e7` 보존
 - 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
 - API·공개 데모 작업세트: [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3) main 병합 완료 (`2e120f3`)
-- 이전 검증 코드 기준: `97cd09a`, 공개 체험 버전 3
+- 글꼴 후속 검증 코드: `d429571`, 공개 체험 버전 4
 - 기획: [팀 공유본](docs/planning/service-redesign-2026-10.md), [확정 UI·배포 결정](docs/decisions/2026-10-approved-ui-and-public-demo.md)
 - 계약·진행: [PROJECT_SPEC](PROJECT_SPEC.md), [PROJECT_STATUS](PROJECT_STATUS.md), [TASKS](TASKS.md)
 
-검증한 `97cd09a`는 Windows Python 3.10의 전체 pytest **230 passed, 82 subtests passed, 기존 경고 1개**입니다. JavaScript 15개, Chromium 브라우저 시연 6개, compileall과 정적 빌드도 통과했습니다. 실제 FastAPI와 격리된 합성 정책을 이용한 UI 연결, 모름·건너뛰기·상세·수정·오류 복구, 상담 복사·PDF 출력과 모바일 가로 넘침을 확인했습니다.
+검증한 `d429571`은 Windows Python 3.10의 전체 pytest **230 passed, 86 subtests passed, 기존 경고 1개**입니다. JavaScript 15개, Chromium 브라우저 시연 6개, compileall과 정적 빌드도 통과했습니다. 실제 Pretendard 글꼴 로딩과 FastAPI·격리된 합성 정책을 이용한 UI 연결, 모름·건너뛰기·상세·수정·오류 복구, 상담 복사·PDF 출력과 모바일 가로 넘침을 확인했습니다.
 
-[검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655) · [화면 PNG 6개·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167) (캡처 보관: 2026-10-15까지)
+[검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670) · [화면 PNG 6개·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067) (캡처 보관: 2026-10-15까지)
 
 기존 사용자 DB 20건의 실제 서버 확인은 `1862bbe`의 이전 실행 기록이며 현재 브라우저의 합성 정책 검증과 구분합니다. 공개 체험은 배포 성공과 검증 코드 일치를 확인했으며 운영 데이터 전체의 최신성·실사용 효과 검증은 후속입니다. 자세한 단계별 기록은 PROJECT_STATUS에 있습니다.
 

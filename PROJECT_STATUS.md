@@ -1,7 +1,7 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
-- 이번 후속 작업 브랜치: `style/demo-typography` (병합된 main 기준)
+- 후속 작업 브랜치: `style/demo-typography` (PR #4, main 기준)
 - 후속 변경: v0 이미지의 글자 굵기에 맞춘 Pretendard 파일 제공, 일반 데모 안내·계획·빌드·검증 경로로 정리.
 - 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
 - 이전 검증 코드 기준: `97cd09a` (공개 체험 버전 3)
@@ -101,3 +101,14 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 Pretendard Regular·SemiBold·ExtraBold 원본 WOFF2와 OFL 원문을 함께 제공한다. 제목·카드·본문의 굵기와 행간을 v0 이미지에 맞춰 조정했다. 로컬 FastAPI와 공개 정적 빌드 모두 같은 글꼴을 제공하며 MIME과 허용 자산 목록을 갱신했다. 이전 데모 안내·계획·스크립트·테스트·워크플로 경로는 일반 이름으로 정리했다. 문서 날짜·정책 확인일·과거 검증 커밋은 출처 기록으로 유지한다.
 
 초기 로컬 검증: JavaScript 15 passed, 정적 빌드 2 passed, 관련 Python 진행·계약 85 passed / 21 skipped, compileall·정적 빌드 성공. 이 환경에는 pytest·FastAPI·httpx·Playwright가 없어 전체 pytest와 HTTP·브라우저 검증을 실행하지 못했다. 이는 코드 실패와 구분한다. 새 자산의 HTTP 응답과 실제 글꼴 로딩은 후속 PR의 `Demo checks` Windows 전체 회귀·Chromium 실행 기록을 기준으로 확인한다. 위의 230개·Chromium 6개 수치는 이전 코드 97cd09a의 결과다.
+
+
+### 최신 글꼴 버전 검증·배포 (d429571)
+
+- Windows Python 3.10: **230 passed, 86 subtests passed, 기존 경고 1개**, HTTP 스킵 없음. 새 글꼴 3개·라이선스의 명시적 MIME 응답 포함.
+- JavaScript: **15 passed**, compileall·정적 빌드 성공.
+- Chromium: **6 passed (15.6s)**. 실제 Pretendard 400·800 로딩, 제목 800 굵기, 기존 흐름·실제 FastAPI 합성 정책·복사·PDF·모바일 가로 넘침 확인.
+- 공개 데모 **버전 4** 배포 succeeded, audience public. CSS·모듈·JSON·글꼴·라이선스 9개 자산이 검증한 저장소 파일과 일치한다.
+- 아래 실행 이후에는 문서의 검증 기록·자산 목록만 추가 정리했으며 앱·글꼴·테스트 코드는 바꾸지 않았다.
+
+[최신 검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670) · [글꼴 적용 화면·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067)

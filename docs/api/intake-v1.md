@@ -74,7 +74,7 @@ $env:API_CORS_ORIGINS = "http://localhost:8080"
 | 메서드·경로 | 입력 | 출력 |
 |---|---|---|
 | `GET /demo`, `GET /demo/` | 없음 | 데모 HTML 화면 |
-| `GET /demo/assets/*` | 없음 | style.css·app.mjs·client.mjs만 허용, MIME 타입 명시 |
+| `GET /demo/assets/*` | 없음 | CSS·모듈·공식 참고 JSON·Pretendard 글꼴·라이선스만 허용, MIME 타입 명시 |
 | `GET /health` | 없음 | 프로세스 상태, `api_version` |
 | `GET /ready` | 없음 | DB 준비 여부·정책 건수, 미준비/비어 있음은 503 |
 | `POST /api/v1/intake/start` | `{"start_mode":"situation"}` 또는 `{}` | 초기 상태·상황 카드 질문 |
