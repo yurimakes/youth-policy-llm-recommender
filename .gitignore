@@ -8,6 +8,6 @@ data/raw/
 data/processed/
 *.sqlite3
 *.sqlite3-journal
-/submission-demo/
+/demo-build/
 /node_modules/
 /browser-artifacts/

@@ -6,10 +6,10 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from scripts.build_submission_demo import build
+from scripts.build_demo import build
 
 
-class SubmissionBuildTests(unittest.TestCase):
+class DemoBuildTests(unittest.TestCase):
     def test_static_copy_uses_mock_without_changing_local_api_html(self):
         source = Path(__file__).resolve().parents[1] / "demo" / "index.html"
         original = source.read_text(encoding="utf-8")
@@ -31,7 +31,9 @@ class SubmissionBuildTests(unittest.TestCase):
             names = {str(p.relative_to(output)).replace("\\", "/") for p in output.rglob("*") if p.is_file()}
             self.assertEqual(names, {"index.html", "demo/index.html", "demo/assets/style.css",
                                      "demo/assets/app.mjs", "demo/assets/client.mjs", "demo/assets/mock.mjs",
-                                     "demo/assets/official-policies.json"})
+                                     "demo/assets/official-policies.json", "demo/assets/Pretendard-Regular.woff2",
+                                     "demo/assets/Pretendard-SemiBold.woff2", "demo/assets/Pretendard-ExtraBold.woff2",
+                                     "demo/assets/Pretendard-OFL.txt"})
 
 
 if __name__ == "__main__":

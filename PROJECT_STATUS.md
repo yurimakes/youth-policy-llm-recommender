@@ -1,12 +1,14 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
+- 이번 후속 작업 브랜치: `style/demo-typography` (병합된 main 기준)
+- 후속 변경: v0 이미지의 글자 굵기에 맞춘 Pretendard 파일 제공, 일반 데모 안내·계획·빌드·검증 경로로 정리.
 - 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
-- 검증·제출 코드 기준: `97cd09a` (공개 체험 버전 3)
+- 이전 검증 코드 기준: `97cd09a` (공개 체험 버전 3)
 - main: 1차 고도화 PR #2 병합 완료 (`d0d86f2`)
 - 원본: `v0.1-mvp` → `23f33e7`, 변경 없음
-- 공개 제출 체험: https://youth-support-demo-20261008.cyr3918.chatgpt.site
-- 현재 단계: 확정 UI·공개 목데이터 배포·Windows 전체 회귀·Chromium 핵심 시연 완료. 제출용 코드 작업세트를 main에 병합했다.
+- 공개 데모: https://youth-support-demo-20261008.cyr3918.chatgpt.site
+- 현재 단계: 확정 UI·공개 목데이터 배포·Windows 전체 회귀·Chromium 핵심 시연 완료. 데모 코드 작업세트를 main에 병합했다.
 
 ## 현재 구현과 경계
 
@@ -37,17 +39,17 @@
 실행 명령:
 
 ```bash
-node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs
+node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs
 node --check demo/app.mjs
 PYTHONPATH="$CODEX_PRIMARY_RUNTIME_ROOT/dependencies/python/lib/python3.12/site-packages" .venv/bin/python -m unittest discover -s tests -p 'test_intake*.py'
-.venv/bin/python -m unittest discover -s tests -p 'test_submission_build.py'
+.venv/bin/python -m unittest discover -s tests -p 'test_demo_build.py'
 .venv/bin/python -m compileall -q api.py app.py src scripts tests
-.venv/bin/python scripts/build_submission_demo.py --output <정적 출력 폴더>
+.venv/bin/python scripts/build_demo.py --output <정적 출력 폴더>
 ```
 
 자동 검증에서는 모름·건너뛰기, 상세 거절·중단·복귀, 명시적 취업·나이 수정에 따른 제외와 모름으로 복원, 선호와 자격 분리, 후보 없음·데이터 오류 후 이전 답변 유지와 재시도를 확인했다. 첫 로컬 단위 검증은 실제 브라우저 결과가 아니며, 이후 확보한 Chromium 자동 시연 결과는 아래 최종 기록에 구분한다. 사람의 수동 시연과 모바일 실기기 검증은 아니다. 정적 HTML에는 연결된 자산이 존재하고 실제 API HTML은 API 모드를 유지한다.
 
-Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하고 HTTP 사례를 추가했다. Windows Python 3.10 전체 pytest, Node, 정적 빌드와 Chromium 시연을 수행하는 `Submission checks` 워크플로를 운영한다. 성공한 실행과 단순 설정을 구분해 기록한다.
+Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하고 HTTP 사례를 추가했다. Windows Python 3.10 전체 pytest, Node, 정적 빌드와 Chromium 시연을 수행하는 `Demo checks` 워크플로를 운영한다. 성공한 실행과 단순 설정을 구분해 기록한다.
 
 ## 이전 사용자 실행 기록
 
@@ -63,16 +65,16 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 
 `1862bbe` 실제 Uvicorn·로컬 정책 DB 20건에서 기본 후보 5건, 점검 PASS 6 / FAIL 0 / SKIP 0 / WARN 0을 확인했다. 이 결과와 기존 TestClient 의존성 경고 1개는 당시 기록이며 현재 변경의 전체 통과로 인용하지 않는다. 원본 Streamlit·수집·저장·검색·LLM 모듈은 유지했다.
 
-## 제출과 병합
+## 데모와 병합
 
-시연·실행·구현 범위는 `docs/submission/2026-10-08-demo.md`, 계획 현황은 `docs/planning/submission-mvp-2026-10-08.md`를 따른다. 제출 시각 확정 후 2~3시간 전 기능 동결, 제출처 요구 캡처·파일과 링크 확인, 최신 전체 회귀와 합성 정책을 이용한 실제 FastAPI·브라우저 연동 확인 후 PR #3을 main에 병합했다. 검증 코드 97cd09a와 공개 버전 3을 제출 기준으로 기록한다. 이 기준 이후 문서 기록만 갱신하며 실제 운영 서비스 완성으로 설명하지 않는다.
+시연·실행·구현 범위는 `docs/demo/README.md`, 계획 현황은 `docs/planning/demo-mvp.md`를 따른다. 전체 회귀와 합성 정책을 이용한 실제 FastAPI·브라우저 연동 확인 후 PR #3을 main에 병합했다. 코드 97cd09a와 공개 버전 3은 이전 검증 기록이다. 현재 공개 데모와 실제 운영 서비스의 구현 범위는 구분한다.
 
 정책 20~30개 전체 확정, PostgreSQL, LangGraph·신규 RAG, 모델 연결, 개인정보 처리 설계, 기술 평가·실사용 검증은 후속이다.
 
 
 ## Windows 자동 회귀 확보 (2b9eaab)
 
-[Submission checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37706147803)에서 Windows Python 3.10 전체 pytest **230 passed, 82 subtests passed, 경고 1개**, JavaScript 15개와 정적 빌드의 성공을 확인했다. 경고는 기존 Starlette TestClient의 httpx 관련 안내다. 이후 모바일 헤더 정렬과 MIME을 고정한 정적 미리보기 서버, 브라우저 회귀/캡처 도구를 추가하므로 최신 head의 결과는 별도로 확인한다.
+[Demo checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37706147803)에서 Windows Python 3.10 전체 pytest **230 passed, 82 subtests passed, 경고 1개**, JavaScript 15개와 정적 빌드의 성공을 확인했다. 경고는 기존 Starlette TestClient의 httpx 관련 안내다. 이후 모바일 헤더 정렬과 MIME을 고정한 정적 미리보기 서버, 브라우저 회귀/캡처 도구를 추가하므로 최신 head의 결과는 별도로 확인한다.
 
 
 ### 첫 Chromium 시연과 문서 버튼 보완
@@ -87,9 +89,15 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 - Chromium: **6 passed (11.7s)**. 기본 흐름과 상세 중단/복귀·준비/요약, 건너뛰기, 상세 거절, 수정 후 장바구니 제외와 모름 복원, 빈 결과/오류 후 재시도, 실제 FastAPI 합성 정책 연결과 수동 지역 코드 수정·공식 링크를 확인했다.
 - 상담 요약 클립보드 복사와 Chromium PDF 출력, 모바일 가로 넘침 없음, 화면 PNG 6개와 상담 PDF 1개 생성. 사람의 인쇄창에서 저장 위치 선택을 확인한 결과는 아니다.
 - 공개 체험 버전 3 배포 succeeded, audience public. 배포 자산이 검증한 저장소 demo 파일과 일치한다.
-- PR #3 main 병합 성공: `2e120f3701b853a7cfb0312a7fa9eeb9e7f00ce7`. 제출 코드 기준 `97cd09a46e9a09883348b6c85d9734b38f44f049`.
+- PR #3 main 병합 성공: `2e120f3701b853a7cfb0312a7fa9eeb9e7f00ce7`. 이전 검증 코드 기준 `97cd09a46e9a09883348b6c85d9734b38f44f049`.
 - 원본 태그가 `23f33e7bc8e51d3e26812faeb479aae7f83ee596`을 가리키며 설명도 유지됨을 재확인했다.
 
 [검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655) · [화면 PNG·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167)
 
-캡처 아티팩트는 2026-10-15까지 보관된다. 제출용 파일은 그 전에 내려받아 보관한다. 실제 정책 DB 20건은 이전 사용자 실행 기록이며 현재 Chromium의 실제 API 테스트는 격리된 합성 정책으로 수행했다. 새로운 정책 전체의 최신성·실사용 효과·공개 Python API 운영을 검증한 것으로 확대하지 않는다.
+캡처 아티팩트는 2026-10-15까지 보관된다. 캡처 파일은 그 전에 내려받아 보관한다. 실제 정책 DB 20건은 이전 사용자 실행 기록이며 현재 Chromium의 실제 API 테스트는 격리된 합성 정책으로 수행했다. 새로운 정책 전체의 최신성·실사용 효과·공개 Python API 운영을 검증한 것으로 확대하지 않는다.
+
+## 글꼴·데모 안내 후속 변경
+
+Pretendard Regular·SemiBold·ExtraBold 원본 WOFF2와 OFL 원문을 함께 제공한다. 제목·카드·본문의 굵기와 행간을 v0 이미지에 맞춰 조정했다. 로컬 FastAPI와 공개 정적 빌드 모두 같은 글꼴을 제공하며 MIME과 허용 자산 목록을 갱신했다. 이전 데모 안내·계획·스크립트·테스트·워크플로 경로는 일반 이름으로 정리했다. 문서 날짜·정책 확인일·과거 검증 커밋은 출처 기록으로 유지한다.
+
+초기 로컬 검증: JavaScript 15 passed, 정적 빌드 2 passed, 관련 Python 진행·계약 85 passed / 21 skipped, compileall·정적 빌드 성공. 이 환경에는 pytest·FastAPI·httpx·Playwright가 없어 전체 pytest와 HTTP·브라우저 검증을 실행하지 못했다. 이는 코드 실패와 구분한다. 새 자산의 HTTP 응답과 실제 글꼴 로딩은 후속 PR의 `Demo checks` Windows 전체 회귀·Chromium 실행 기록을 기준으로 확인한다. 위의 230개·Chromium 6개 수치는 이전 코드 97cd09a의 결과다.
