@@ -49,7 +49,11 @@ class HttpTests(unittest.TestCase):
                                    ("/demo/assets/app.mjs", "javascript"),
                                    ("/demo/assets/client.mjs", "javascript"),
                                    ("/demo/assets/mock.mjs", "javascript"),
-                                   ("/demo/assets/official-policies.json", "application/json")):
+                                   ("/demo/assets/official-policies.json", "application/json"),
+                                   ("/demo/assets/Pretendard-Regular.woff2", "font/woff2"),
+                                   ("/demo/assets/Pretendard-SemiBold.woff2", "font/woff2"),
+                                   ("/demo/assets/Pretendard-ExtraBold.woff2", "font/woff2"),
+                                   ("/demo/assets/Pretendard-OFL.txt", "text/plain")):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)

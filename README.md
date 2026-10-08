@@ -2,13 +2,13 @@
 
 **상황 카드에서 필요한 질문, 지원 후보와 조건 확인, 준비·상담 행동까지 이어가는 서비스**
 
-[제출용 공개 데모](https://youth-support-demo-20261008.cyr3918.chatgpt.site) · [시연·실행 안내](docs/submission/2026-10-08-demo.md) · [10월 8일 계획표](docs/planning/submission-mvp-2026-10-08.md)
+[공개 데모](https://youth-support-demo-20261008.cyr3918.chatgpt.site) · [시연·실행 안내](docs/demo/README.md) · [데모 계획표](docs/planning/demo-mvp.md)
 
 공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 실제 정책 DB를 읽는 FastAPI는 로컬 `/demo`에서 같은 화면을 사용합니다. 공개 주소에 Python API나 실제 자격 판정 서비스를 배포한 것은 아닙니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
 
 ## 현재 구현
 
-사용자가 확정한 화면 보드에 맞춰 상황·관심·기초 질문·지원 방향·상세 제안·상세 질문·갱신 결과·장바구니 준비·상담 요약을 연결했습니다. 흰 바탕, 파란 강조색, 회색 보조 정보와 세로 선택 카드를 사용합니다. HTML/CSS/JavaScript 구현이며 React/TypeScript는 후속 방향입니다.
+사용자가 확정한 화면 보드에 맞춰 상황·관심·기초 질문·지원 방향·상세 제안·상세 질문·갱신 결과·장바구니 준비·상담 요약을 연결했습니다. 흰 바탕, 파란 강조색, 회색 보조 정보와 세로 선택 카드를 사용합니다. HTML/CSS/JavaScript 구현이며 React/TypeScript는 후속 방향입니다. Pretendard 글꼴 파일을 함께 제공해 운영체제에 관계없이 굵은 제목·카드와 본문을 표시합니다. [글꼴 출처·라이선스](docs/demo/fonts.md)를 포함합니다.
 
 - 모름·건너뛰기, 답변 수정, 상세 거절·중단·복귀, 오류 후 재시도
 - 조건별 확인됨 / 미충족 / 확인 필요 / 입력 부족과 명확한 미충족 후보 제외
@@ -23,7 +23,7 @@
 - 원본: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), `23f33e7` 보존
 - 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
 - API·공개 데모 작업세트: [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3) main 병합 완료 (`2e120f3`)
-- 검증·제출 코드 기준: `97cd09a`, 공개 체험 버전 3
+- 이전 검증 코드 기준: `97cd09a`, 공개 체험 버전 3
 - 기획: [팀 공유본](docs/planning/service-redesign-2026-10.md), [확정 UI·배포 결정](docs/decisions/2026-10-approved-ui-and-public-demo.md)
 - 계약·진행: [PROJECT_SPEC](PROJECT_SPEC.md), [PROJECT_STATUS](PROJECT_STATUS.md), [TASKS](TASKS.md)
 
@@ -50,11 +50,11 @@
 공개 체험과 같은 목데이터 모드는 설치 없이 배포 링크에서 열거나 다음처럼 로컬에서 실행합니다.
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/build_submission_demo.py --output submission-demo
-.\.venv\Scripts\python.exe scripts/serve_submission_demo.py --directory submission-demo --port 8080
+.\.venv\Scripts\python.exe scripts/build_demo.py --output demo-build
+.\.venv\Scripts\python.exe scripts/serve_demo.py --directory demo-build --port 8080
 ```
 
-http://127.0.0.1:8080 을 엽니다. Node는 화면 실행에는 필요하지 않으며 개발 테스트에는 `node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs`를 사용합니다.
+http://127.0.0.1:8080 을 엽니다. Node는 화면 실행에는 필요하지 않으며 개발 테스트에는 `node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs`를 사용합니다.
 
 [API v1 규격](docs/api/intake-v1.md)과 [JSON Schema](docs/api/schemas/intake-response.json)를 유지합니다. 서버는 후보·조건·날짜를 클라이언트에서 받지 않고 SQLite와 한국 날짜로 평가합니다. 새로운 가구·참여 시간 질문은 가상 체험에만 있으며 실제 API 계약은 변경하지 않았습니다.
 
