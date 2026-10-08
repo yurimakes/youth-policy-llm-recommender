@@ -93,6 +93,8 @@ OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 
 ## 테스트
 
+[데이터·API 구현 검증](../validation/README.md)에서 API 키 없이 예제 정책을 SQLite·실제 API에 연결하고, 실제 로컬 DB의 품질과 원본 추적을 점검할 수 있습니다.
+
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m compileall -q api.py app.py src scripts tests

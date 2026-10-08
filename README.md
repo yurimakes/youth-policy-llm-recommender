@@ -71,6 +71,8 @@ G1에서 구축한 기반을 재사용하며 앞 Gate의 통과 증빙을 갖춰
 
 ## 검증
 
+**[데이터·API 구현 검증](docs/validation/README.md)**에서 기존 정책 예제 → SQLite → 실제 FastAPI → 조건 확인·답변 수정·준비 단계 연결을 한 명령으로 재현할 수 있습니다. API 키 없이 예제 정책 10개와 13개 연결·동작 검사를 실행하며, 소스·데이터 해시와 원본 추적 결과를 JSON으로 남깁니다. 실제 로컬 DB의 필드 완전성·기간·출처·원본 행을 읽기 전용으로 점검하는 도구도 제공합니다. 예제 재현과 실제 정책 운영 성능은 구분합니다.
+
 [GitHub Actions의 Demo checks](https://github.com/yurimakes/youth-policy-llm-recommender/actions/workflows/demo-checks.yml)는 Windows Python 회귀, JavaScript 시나리오, 정적 빌드와 Chromium 브라우저 흐름을 검사합니다. 실행별 결과와 화면 PNG·상담 PDF는 해당 실행에서 확인합니다. 브라우저 검증은 합성 정책과 합성 입력을 사용하며 실제 공고의 최신성이나 최종 자격을 보증하지 않습니다. [브라우저 검증 방법](docs/demo/README.md#자동-브라우저-검증과-캡처)
 
 ## 코드와 문서
@@ -84,6 +86,7 @@ G1에서 구축한 기반을 재사용하며 앞 Gate의 통과 증빙을 갖춰
 | `scripts/` | 정책 수집·적재, API 점검, 정적 빌드, 스키마 생성 |
 | `tests/` | 회귀 테스트와 브라우저 시나리오 |
 | `docs/getting-started/` | 환경 준비·데이터 준비·실행·테스트 안내 |
+| `docs/validation/` | 정책 데이터 점검·실제 API 연결 재현·검증 증빙 |
 | `docs/api/` | API 규격과 JSON Schema |
 | `docs/demo/` | 데모 실행 안내와 글꼴 라이선스 |
 | `assets/screens/` | 서비스 화면 캡처 |
