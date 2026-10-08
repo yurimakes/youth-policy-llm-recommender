@@ -2,9 +2,34 @@
 
 **상황 카드에서 필요한 질문, 지원 후보와 조건 확인, 준비·상담 행동까지 이어가는 서비스**
 
-[공개 데모](https://youth-support-demo-20261008.cyr3918.chatgpt.site) · [시연·실행 안내](docs/demo/README.md) · [데모 계획표](docs/planning/demo-mvp.md)
+[공개 데모](https://jiwon-basket.vercel.app/) · [시연·실행 안내](docs/demo/README.md) · [데모 계획표](docs/planning/demo-mvp.md)
 
 공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 실제 정책 DB를 읽는 FastAPI는 로컬 `/demo`에서 같은 화면을 사용합니다. 공개 주소에 Python API나 실제 자격 판정 서비스를 배포한 것은 아닙니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
+
+## 서비스 화면
+
+[지원장바구니 데모 열기](https://jiwon-basket.vercel.app/) — 설치·로그인 없이 화면 흐름을 체험할 수 있습니다.
+
+<table>
+  <tr>
+    <th>1. 상황 카드로 시작</th>
+    <th>2. 필요한 지원 살펴보기</th>
+  </tr>
+  <tr>
+    <td valign="top"><img src="assets/screens/01-situation.png" width="260" alt="요즘 상황을 선택해 지원 탐색을 시작하는 화면"></td>
+    <td valign="top"><img src="assets/screens/04-directions.png" width="260" alt="기초 답변을 바탕으로 가상 지원 후보를 살펴보고 담는 화면"></td>
+  </tr>
+  <tr>
+    <th>3. 담은 지원의 신청 준비</th>
+    <th>4. 상담 요약과 문서 저장</th>
+  </tr>
+  <tr>
+    <td valign="top"><img src="assets/screens/08-preparation.png" width="260" alt="담은 지원의 기간과 서류, 남은 조건을 확인하는 준비 체크 화면"></td>
+    <td valign="top"><img src="assets/screens/09-consultation.png" width="260" alt="입력 정보와 기관 문의사항을 정리하고 복사하거나 PDF로 저장하는 상담 요약 화면"></td>
+  </tr>
+</table>
+
+최신 글꼴 적용 버전의 실제 브라우저 캡처입니다. 정책·조건과 입력값은 **가상 체험 예시**이며, 실제 모집 공고나 최종 신청 자격을 뜻하지 않습니다. [캡처 출처](assets/screens/README.md)
 
 ## 현재 구현
 
