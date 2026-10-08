@@ -1,12 +1,10 @@
-# UI 데모 연결용 Intake API v1
+# Intake API v1
 
-## 담당과 구현 상태
+## 개요
 
-사용자가 확정한 화면 보드에 따라 질문·결과·장바구니 준비·상담 문서 초안까지 데모 UI를 연결했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
+FastAPI가 `/demo`의 HTML/CSS/JavaScript 화면과 진행 API를 함께 제공한다. API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다.
 
-API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `1862bbe`의 Windows 전체 pytest에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건·기본 후보 5건에서 상세 중단·복귀를 포함한 점검 **6개 모두 통과(실패·스킵·점검 경고 0개)**를 확인했다. 이 검증은 UI 추가 전 API 결과다. 최신 97cd09a의 Windows 전체 pytest 230 passed·82 subtests passed와 Chromium 시연 6개를 확인했다. 현재 브라우저 테스트는 실제 FastAPI에 합성 정책을 연결한 결과이며, 실제 데이터 전체의 최신성 검증과 구분한다.
-
-이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 실제 API의 관련도 순위, PostgreSQL, LangGraph와 RAG는 후속이다. 공개 정적 목데이터 체험은 실제 API와 별개이며 문서 초안은 클라이언트에서 입력·확인사항을 조합한다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
+API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 서버가 읽은 정책의 조건 평가 결과를 반환하며 개인별 최적 추천 순위나 최종 자격을 확정하지 않는다. 공개 정적 데모는 별도의 가상 데이터를 사용한다. 문서 초안은 클라이언트에서 입력·확인사항을 조합한다.
 
 ## 실행
 
@@ -18,7 +16,7 @@ API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·�
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-API 의존성 설치, `1862bbe`의 Windows 전체 테스트, 위 Uvicorn 서버 기동과 `--require-detail` 점검을 확인했다. API 의존성은 기존 requirements.txt와 분리해 추가했다.
+API 의존성은 `requirements-api.txt`에 있다. 가상환경 준비는 [README](../../README.md#로컬-환경-준비)를 참고한다.
 
 정책 데이터가 없으면 기존 수집 CLI로 준비한다. API가 DB·샘플 정책을 자동 생성하지 않는다.
 
@@ -26,7 +24,7 @@ API 의존성 설치, `1862bbe`의 Windows 전체 테스트, 위 Uvicorn 서버 
 .\.venv\Scripts\python.exe scripts/collect_ontong_pages.py --db data/processed/policies.sqlite3 --page-size 10 --max-pages 2
 ```
 
-수집 건수·내용은 실제 공식 API 응답에 따라 달라진다. 이 수집은 서울·전국 주거·취업 20~30개 정책 목록이 확정됐다는 뜻이 아니다.
+수집 건수·내용은 실제 공식 API 응답에 따라 달라진다.
 
 - 기본 주소: `http://127.0.0.1:8000`
 - 데모 화면: `/demo` 또는 `/demo/` (별도 빌드 없음)
@@ -157,13 +155,13 @@ const updated = await response.json();
 
 오류 응답은 `{"error":{"code":"...","message":"..."}}` 형식이다. 제출한 원문 값·내부 파일 경로를 오류에 돌려주지 않는다. POST 본문에 임의 필드, 계좌·주민등록번호·자유 입력 필드를 추가하면 거절한다. 모든 API 응답은 `Cache-Control: no-store`다.
 
-SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다. 인증·로그인·외부 모델 호출·자동 제출·자동 연락은 없다. CORS 설정은 브라우저 origin 허용이며 사용자 인증을 대신하지 않는다. 로컬 데모 연결 이후 공개 운영·개인정보 처리 설계는 별도 결정한다.
+SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다. 인증·로그인·외부 모델 호출·자동 제출·자동 연락은 없다. CORS 설정은 브라우저 origin 허용이며 사용자 인증을 대신하지 않는다. 사용자 인증이나 공개 운영에 필요한 개인정보 처리 기능을 제공하지 않는다.
 
 ## 내장 데모 확인
 
 시작 화면에서 상황/목표 카드를 선택하고 ‘다음’을 누른다. 질문에 답하거나 건너뛰어 결과를 열고, 답변 수정·정책 선택·선택적 상세 확인을 점검한다. 선택한 정책에 유용한 미확인 질문이 없으면 추가 질문을 제안하지 않는다. 조건별 확인사항·공식 공고와 데이터 처리 기준일, 다음 확인할 항목을 표시한다. UI의 준비 화면에서는 메모리 체크와 입력·확인사항을 모은 문서 초안을 제공한다. PDF 저장은 브라우저 인쇄 기능이다.
 
-요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. Windows에서 모듈이 text/plain으로 제공된 오류를 확인해 CSS·JavaScript MIME 타입을 서버가 직접 지정하도록 수정했다. 수정 후 Windows 전체 회귀·시각적 배치는 PROJECT_STATUS의 확인 대기 항목이다.
+요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. CSS·JavaScript MIME 타입은 서버가 직접 지정한다.
 
 Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
 
@@ -182,9 +180,6 @@ API 패키지가 없으면 HTTP 테스트는 명시적으로 skip된다. 스킵�
 
 ## 공개 가상 체험과 실제 API의 경계
 
-공개 데모 주소와 시연 방법은 `docs/demo/README.md`에서 관리한다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 별도 검토한 페이지이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
+공개 데모 주소와 사용 방법은 [데모 안내](../demo/README.md)에서 확인할 수 있다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 공식 페이지를 모은 목록이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
 
-정적 파일은 style.css, app.mjs, client.mjs, mock.mjs, official-policies.json의 다섯 파일만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
-
-
-2026-10-08 최종 코드 97cd09a는 Windows 전체 pytest 230 passed·82 subtests passed·경고 1개와 Chromium 자동 시연 6개를 통과했다. 실제 FastAPI에 격리된 합성 정책을 연결해 브라우저의 모듈 제공·지역 코드 입력/수정·공식 링크·준비/상담 흐름을 확인했다. 사용자 DB 20건의 과거 서버 검증과 구분하며 실제 데이터 전체의 최신성을 확인한 결과는 아니다. PR #3은 main에 병합됐다.
+정적 파일은 `style.css`, `app.mjs`, `client.mjs`, `mock.mjs`, `official-policies.json`, Pretendard WOFF2 글꼴 3개와 `Pretendard-OFL.txt`만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
