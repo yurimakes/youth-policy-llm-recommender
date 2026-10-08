@@ -1,13 +1,13 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
-- 후속 작업 브랜치: `style/demo-typography` (PR #4, main 기준)
+- 후속 작업 브랜치: `docs/readme-ui-screens` (main 기준, README 화면 소개)
 - 후속 변경: v0 이미지의 글자 굵기에 맞춘 Pretendard 파일 제공, 일반 데모 안내·계획·빌드·검증 경로로 정리.
 - 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
 - 이전 검증 코드 기준: `97cd09a` (공개 체험 버전 3)
 - main: 1차 고도화 PR #2 병합 완료 (`d0d86f2`)
 - 원본: `v0.1-mvp` → `23f33e7`, 변경 없음
-- 공개 데모: https://youth-support-demo-20261008.cyr3918.chatgpt.site
+- 공개 데모: https://jiwon-basket.vercel.app/ (사용자 배포·접속 확인)
 - 현재 단계: 확정 UI·공개 목데이터 배포·Windows 전체 회귀·Chromium 핵심 시연 완료. 데모 코드 작업세트를 main에 병합했다.
 
 ## 현재 구현과 경계
@@ -112,3 +112,7 @@ Pretendard Regular·SemiBold·ExtraBold 원본 WOFF2와 OFL 원문을 함께 제
 - 아래 실행 이후에는 문서의 검증 기록·자산 목록만 추가 정리했으며 앱·글꼴·테스트 코드는 바꾸지 않았다.
 
 [최신 검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670) · [글꼴 적용 화면·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067)
+
+## README 서비스 화면 추가
+
+README 상단에 상황 선택·지원 후보·신청 준비·상담 요약의 실제 Chromium 화면 4장을 2열로 배치했다. 파일은 `assets/screens/`에 보관하며, 글꼴 적용 코드 `d429571`의 성공한 자동 검증에서 생성한 가상 체험 캡처를 사용한다. 4장의 화면을 직접 확인했으며 이미지 링크와 Git blob 일치를 점검했다. 서비스 코드 변경은 없다. 공개 데모 링크는 사용자가 배포한 Vercel 주소로 갱신했다. 이번 작업에서 새 브라우저 캡처·전체 회귀·Vercel 동작 검증을 수행한 것은 아니다.
