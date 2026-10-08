@@ -1,61 +1,79 @@
 # 지원장바구니 개발 현황
 
-- 기준일: 2026-10-07
-- 브랜치: `docs/service-redesign`
-- 원본 MVP: `v0.1-mvp` → `23f33e7`
-- 단계: 기획 전환과 첫 Python 핵심 로직 구현·회귀 검증 완료
+- 갱신일: 2026-10-08, 한국 시간
+- 개발 브랜치: `feature/intake-api`, PR #3 draft
+- main: 1차 고도화 PR #2 병합 완료 (`d0d86f2`)
+- 원본: `v0.1-mvp` → `23f33e7`, 변경 없음
+- 공개 제출 체험: https://youth-support-demo-20261008.cyr3918.chatgpt.site
+- 현재 단계: 확정 UI와 공개 목데이터 체험 배포 완료. 2b9eaab의 Windows 전체 회귀 통과. 추가 브라우저 자동 시연 확인 후 main 병합.
 
-## 이번에 구현한 내용
+## 현재 구현과 경계
 
-| 파일 | 변경 내용 |
-|---|---|
-| `src/youth_policy/intake.py` | 상황/목표 카드, 모름·건너뛰기, 사실·선호 분리, 상세 선택·거절·중단·복귀와 답변 수정 |
-| `src/youth_policy/conditions.py` | 조건별 네 가지 상태와 원인, 요청 날짜의 신청 기간 재평가, 명확한 제외와 불확실성 유지 |
-| `src/youth_policy/intake_service.py` | 필요한 기초/상세 질문, 현재 후보의 조건 갱신, 공식 근거와 다음 확인 행동 |
-| `scripts/preview_intake.py` | 기존 SQLite를 읽기 전용으로 연결하는 개발용 터미널 흐름 |
-| `tests/test_intake*.py` | 신규 단위·통합 테스트 49개 |
+| 구간 | 구현 | 한계 |
+|---|---|---|
+| 진행·조건 | Python 카드·질문·상세·수정, 조건 4상태, 명확한 제외, 날짜 재평가 | 복합 소득·학력·예외는 기관 확인 |
+| 실제 API | stateless FastAPI, SQLite 읽기 전용, 상태·전환·스키마 검증 | 공개 Python 서버 운영·인증·영구 저장 미구현 |
+| 확정 UI | 상황·관심·기초·방향·상세 제안·상세·갱신·준비·상담 요약 | 최신 브라우저 수동 시연 대기, React 구현 아님 |
+| 공개 체험 | 정적 목데이터 6개, 상단·후보·문서에 가상 표시 | 실제 정책 자격 판정·실제 DB 연동 없음 |
+| 준비·문서 | 메모리 장바구니, 사용자 완료 체크, 요약·체크리스트·발급 안내·문의 초안, 복사·인쇄 PDF | 기관 확인·자동 발급·AI 생성·자동 연락 없음 |
+| 공식 참고 | 실제 제도 6개의 공식 페이지, ID·URL·확인일·기간 안내 | 가상 후보와 연결 안 함. 전체 조건의 정규화·실제 DB 선별 미완료 |
 
-기존 `app.py`, 데이터 수집·저장·검색·LLM 모듈과 과거 테스트는 수정하지 않았다. `main`과 원본 태그는 그대로 두고 고도화 브랜치에 일반 커밋을 추가한다. 최신 공유본 원문과 과거 명세, 첨부 로고 미리보기를 함께 기록했다.
+확정 ZIP과 재첨부 ZIP의 SHA-256이 일치한다. 사용자 지시는 초기 3개 화면 범위를 확장했으며 `docs/decisions/2026-10-approved-ui-and-public-demo.md`에 기록했다. Python 계약은 확장하지 않았다. 새 가구·참여 시간 질문과 관심 관련도 정렬은 목데이터 진행에만 사용한다. 상황 카드에서 미취업·소득·거주를 추정하지 않는다.
 
-## 실제 실행한 검증
+## 이번 변경에서 실제 실행한 검증
 
-환경: Linux, 저장소 `.venv/bin/python` 사용.
+| 검증 | 결과 | 구분 |
+|---|---|---|
+| Node 클라이언트·가상 진행 | 15 passed, 0 failed, 0 skipped | API 요청 상태 보존 + 가상 핵심 시나리오 |
+| Python 공개 빌드 | 2 tests OK | 원본 API 모드 유지, 정적 리소스·배포 파일 경계 |
+| Python 관련 진행·계약 | 성공 91, HTTP 스킵 15 | FastAPI/httpx 미설치. 스킵을 통과로 집계하지 않음 |
+| compileall / JS syntax | 성공 | api.py, app.py, src, scripts, tests와 모듈 구문 |
+| 공개 정적 빌드·배포 | 배포 succeeded, audience public | 로그인 없는 공개 URL, 실제 서버 공개 운영 검증 아님 |
+| 공식 참고 페이지 | 2026-10-08 확인, 6개 기록 | 청년수당·월세의 해당 모집 종료 표시; 나머지 기관·예약 확인 필요 |
+| Windows 전체 pytest·HTTP | 230 passed, 82 subtests passed, warning 1 | 2b9eaab, GitHub Actions Windows Python 3.10. 실제 TestClient 경로 포함 |
+| 브라우저 화면·캡처 | 자동 시연 실행 준비 | Chromium 6개 경로와 실제 FastAPI 합성 정책 연동, 복사·PDF·캡처 확인 |
+
+실행 명령:
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -p 'test_intake*.py' -v
-# Ran 49 tests ... OK
-.venv/bin/python -m compileall -q app.py src scripts tests
-# 성공
-.venv/bin/python scripts/preview_intake.py --help
-# 성공
+node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs
+node --check demo/app.mjs
+PYTHONPATH="$CODEX_PRIMARY_RUNTIME_ROOT/dependencies/python/lib/python3.12/site-packages" .venv/bin/python -m unittest discover -s tests -p 'test_intake*.py'
+.venv/bin/python -m unittest discover -s tests -p 'test_submission_build.py'
+.venv/bin/python -m compileall -q api.py app.py src scripts tests
+.venv/bin/python scripts/build_submission_demo.py --output <정적 출력 폴더>
 ```
 
-기존 공식 예시 fixture → 기존 파서 → 임시 SQLite → 신규 안내 흐름 통합을 실행했다. 로컬 CLI의 상세 거절·추가 답변에 따른 후보 제외도 입력을 모의해 실행했다. 실제 사용자 답변 저장과 외부 API 호출은 하지 않았다. Windows CLI의 직접 수동 실행은 미검증이다.
+자동 검증에서는 모름·건너뛰기, 상세 거절·중단·복귀, 명시적 취업·나이 수정에 따른 제외와 모름으로 복원, 선호와 자격 분리, 후보 없음·데이터 오류 후 이전 답변 유지와 재시도를 확인했다. 실제 브라우저 클릭·레이아웃·클립보드·PDF 인쇄의 수동 실행 결과는 아니다. 정적 HTML에는 연결된 자산이 존재하고 실제 API HTML은 API 모드를 유지한다.
 
-`python -m pytest`는 pytest 패키지가 없어 실행되지 않았다. Git 직접 clone과 npm/pip 패키지 설치가 차단돼 있어 고정 커밋의 파일을 GitHub 연결로 가져와 검증했다. 이 개발 환경의 신규 49개 결과와 아래 사용자의 Windows 전체 회귀 결과를 구분해 기록한다.
+Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하고 HTTP 사례를 추가했다. Windows Python 3.10의 전체 pytest와 Node·정적 빌드를 수행하는 `Submission checks` 워크플로를 추가한다. 설정 존재와 성공한 실행은 구분하며, 실행 결과가 확보될 때 기록을 갱신한다.
 
-### Windows 회귀 실행과 인코딩 수정
+## 이전 사용자 실행 기록
 
-사용자가 `ad7b911`을 Windows Python 3.10에서 실행한 결과는 `5 failed, 166 passed, 23 subtests passed`였다. 실패 5개는 신규 통합 테스트의 공통 준비 단계에서 UTF-8 fixture를 시스템 기본 CP949로 읽으면서 발생한 동일한 `UnicodeDecodeError`였다.
+| 커밋 | 사용자 Windows 결과 | 의미 |
+|---|---|---|
+| ad7b911 | 5 failed, 166 passed, 23 subtests passed | UTF-8 fixture를 CP949로 읽는 오류 |
+| 1d67ade | 171 passed, 23 subtests passed | UTF-8 명시 후 전체 회귀 |
+| ff2fc56 | 214 passed, 57 subtests passed, warning 1 | FastAPI 계약·HTTP 추가 후 회귀 |
+| 2b8b66b | 222 passed, 67 subtests passed, warning 1 | 실제 서버 점검 CLI 추가 후 회귀 |
+| 1862bbe | 224 passed, 67 subtests passed, warning 1 | 상세 중단·복귀 점검 보완 후 회귀 |
+| f22e949 | 226 passed, failed subtests 2, 73 subtests passed, warning 1 | Windows .mjs가 text/plain인 MIME 오류 |
+| 2216f84 | 사용자가 기존 /demo 화면 표시 확인 | MIME 타입 명시. 수정 후 전체 pytest 출력 미제공 |
 
-`tests/test_intake_integration.py`의 `read_text`에 `encoding="utf-8"`을 명시했다. CP949로 직접 읽을 때 기존 오류가 발생하는 것을 재현하고, 기본 파일 읽기 인코딩을 CP949로 모의한 환경에서 신규 49개 테스트가 모두 통과하는 것을 확인했다. 수정 파일의 compileall도 성공했다. 수정 후 사용자가 `1d67ade`를 Windows Python 3.10에서 다시 실행한 결과는 다음과 같다.
+`1862bbe` 실제 Uvicorn·로컬 정책 DB 20건에서 기본 후보 5건, 점검 PASS 6 / FAIL 0 / SKIP 0 / WARN 0을 확인했다. 이 결과와 기존 TestClient 의존성 경고 1개는 당시 기록이며 현재 변경의 전체 통과로 인용하지 않는다. 원본 Streamlit·수집·저장·검색·LLM 모듈은 유지했다.
 
-```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-# 171 passed, 23 subtests passed in 1.53s
-```
+## 제출과 병합
 
-2026-10-07 사용자가 제공한 터미널 출력으로 기존 122개와 신규 49개를 포함한 전체 회귀 통과를 확인했다. 23개 하위 테스트는 별도 집계이며 171개에 더해 전체 테스트 개수를 표기하지 않는다. 이후 변경은 검증 기록을 갱신하는 문서 변경뿐이다. 실제 사용자 효과·최신 정책 품질·신규 웹 배포 검증과는 구분한다.
+시연·실행·구현 범위는 `docs/submission/2026-10-08-demo.md`, 계획 현황은 `docs/planning/submission-mvp-2026-10-08.md`를 따른다. 제출 시각 확정 후 2~3시간 전 기능 동결, 제출처 요구 캡처·파일과 링크 확인, 최신 전체 회귀·핵심 실제 연동 확인 후 PR #3 main 병합과 제출 커밋 고정을 진행한다. 그 전에는 공개 체험 링크를 제공하되 실제 운영 서비스 완성으로 설명하지 않는다.
 
-## 구현 한계와 다음 단계
+정책 20~30개 전체 확정, PostgreSQL, LangGraph·신규 RAG, 모델 연결, 개인정보 처리 설계, 기술 평가·실사용 검증은 후속이다.
 
-- React·TypeScript 카드 화면과 FastAPI는 아직 미구현이다. 카드 선택은 핵심 로직·CLI에 구현했다.
-- 카드·선호에 따른 정책 관련도 순위는 미구현이다. 선호는 사실과 분리해 저장만 하며 자격에 사용하지 않는다.
-- 광역·전국 지역 기준, 복합 소득·학력·예외 조건은 기관 확인으로 남긴다.
-- 추가 조건이 기록되지 않은 것을 제한 없음으로 해석하지 않아 전체 정책 요약은 보수적으로 확인 필요를 유지한다.
-- 저장한 신청 기간은 요청 날짜로 재평가하지만 최신 공고를 다시 조회하는 기능은 아직 없다.
-- PostgreSQL·LangGraph·pgvector/BM25·신규 RAG·준비 문서·배포·실사용 검증은 후속 단계다.
-- 초기 정책 20~30개 목록, 모델/API, 개인정보 전달·저장·삭제, 호스팅은 미정이다.
-- 최신 공유본의 청년 20명 실사용 테스트는 보류다. 평가 100건 이상·근거 일치율 95% 이상은 향후 목표다.
 
-과거 자동 테스트 122개·실제 API 20건은 2026-07 기록이며 이번 검증과 구분한다.
+## Windows 자동 회귀 확보 (2b9eaab)
+
+[Submission checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37706147803)에서 Windows Python 3.10 전체 pytest **230 passed, 82 subtests passed, 경고 1개**, JavaScript 15개와 정적 빌드의 성공을 확인했다. 경고는 기존 Starlette TestClient의 httpx 관련 안내다. 이후 모바일 헤더 정렬과 MIME을 고정한 정적 미리보기 서버, 브라우저 회귀/캡처 도구를 추가하므로 최신 head의 결과는 별도로 확인한다.
+
+
+### 첫 Chromium 시연과 문서 버튼 보완
+
+400ea8e의 Windows 전체 pytest는 다시 230 passed, 82 subtests passed로 통과했다. Chromium은 4 passed / 2 failed였다. 두 실패는 가상 체험·실제 FastAPI 모두 상담 요약 버튼의 접근성 이름에 아이콘 문자가 포함되어 제목으로 찾을 수 없는 문제였다. 문서 도구에 명시적 aria-label을 지정하고 재검증한다. 다른 4개 시나리오와 실제 API의 수동 지역 코드 수정·공식 링크 연결은 해당 버튼 전까지 정상 진행했다. 브라우저 전체 통과나 PDF 성공으로 표시하지 않는다.

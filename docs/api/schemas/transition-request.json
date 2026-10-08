@@ -1,0 +1,397 @@
+{
+  "$defs": {
+    "CardAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "choose_card",
+          "title": "Type",
+          "type": "string"
+        },
+        "key": {
+          "enum": [
+            "situation",
+            "interest",
+            "goal"
+          ],
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "title": "CardAction",
+      "type": "object"
+    },
+    "DetailAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "choose_detail",
+          "title": "Type",
+          "type": "string"
+        },
+        "accept": {
+          "title": "Accept",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "type",
+        "accept"
+      ],
+      "title": "DetailAction",
+      "type": "object"
+    },
+    "FactAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "answer_fact",
+          "title": "Type",
+          "type": "string"
+        },
+        "key": {
+          "enum": [
+            "age",
+            "region_code",
+            "employment_status"
+          ],
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "title": "FactAction",
+      "type": "object"
+    },
+    "PreferenceAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "answer_preference",
+          "title": "Type",
+          "type": "string"
+        },
+        "key": {
+          "enum": [
+            "participation_format",
+            "contact_format"
+          ],
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "type",
+        "key",
+        "value"
+      ],
+      "title": "PreferenceAction",
+      "type": "object"
+    },
+    "ProfileSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Age"
+        },
+        "region_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{5}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region Code"
+        },
+        "employment_status": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Employment Status"
+        }
+      },
+      "title": "ProfileSchema",
+      "type": "object"
+    },
+    "SelectPolicyAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "select_policy",
+          "title": "Type",
+          "type": "string"
+        },
+        "policy_id": {
+          "maxLength": 128,
+          "title": "Policy Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "policy_id"
+      ],
+      "title": "SelectPolicyAction",
+      "type": "object"
+    },
+    "SimpleAction": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "show_results",
+            "pause_detail",
+            "resume_detail",
+            "prepare"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "SimpleAction",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "start",
+        "interest",
+        "basic",
+        "results",
+        "detail",
+        "preparation"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "StateSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "start_mode": {
+          "enum": [
+            "situation",
+            "goal"
+          ],
+          "title": "Start Mode",
+          "type": "string"
+        },
+        "stage": {
+          "$ref": "#/$defs/Stage"
+        },
+        "cards": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Cards",
+          "type": "object"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSchema"
+        },
+        "preferences": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Preferences",
+          "type": "object"
+        },
+        "answered": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Answered",
+          "type": "array"
+        },
+        "skipped": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Skipped",
+          "type": "array"
+        },
+        "interested_policy_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interested Policy Id"
+        },
+        "detail_choice": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detail Choice"
+        },
+        "detail_paused": {
+          "title": "Detail Paused",
+          "type": "boolean"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_mode",
+        "stage",
+        "cards",
+        "profile",
+        "preferences",
+        "answered",
+        "skipped",
+        "interested_policy_id",
+        "detail_choice",
+        "detail_paused",
+        "revision"
+      ],
+      "title": "StateSchema",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "state": {
+      "$ref": "#/$defs/StateSchema"
+    },
+    "action": {
+      "discriminator": {
+        "mapping": {
+          "answer_fact": "#/$defs/FactAction",
+          "answer_preference": "#/$defs/PreferenceAction",
+          "choose_card": "#/$defs/CardAction",
+          "choose_detail": "#/$defs/DetailAction",
+          "pause_detail": "#/$defs/SimpleAction",
+          "prepare": "#/$defs/SimpleAction",
+          "resume_detail": "#/$defs/SimpleAction",
+          "select_policy": "#/$defs/SelectPolicyAction",
+          "show_results": "#/$defs/SimpleAction"
+        },
+        "propertyName": "type"
+      },
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CardAction"
+        },
+        {
+          "$ref": "#/$defs/FactAction"
+        },
+        {
+          "$ref": "#/$defs/PreferenceAction"
+        },
+        {
+          "$ref": "#/$defs/SelectPolicyAction"
+        },
+        {
+          "$ref": "#/$defs/DetailAction"
+        },
+        {
+          "$ref": "#/$defs/SimpleAction"
+        }
+      ],
+      "title": "Action"
+    }
+  },
+  "required": [
+    "state",
+    "action"
+  ],
+  "title": "TransitionRequest",
+  "type": "object"
+}

@@ -1,44 +1,59 @@
 # 지원장바구니: 청년정책 AI 에이전트
 
-**정책을 찾아보지 않던 청년이 적은 카드 선택으로 시작하고, 필요한 지원과 준비·상담 행동을 이어가는 서비스**
+**상황 카드에서 필요한 질문, 지원 후보와 조건 확인, 준비·상담 행동까지 이어가는 서비스**
 
-목표가 뚜렷하지 않아도 일상적인 상황·관심 카드로 시작합니다. 관심 정책을 고르면 사용자가 선택한 상세 질문에서 필요한 조건과 선호를 보완하고, 정책 후보와 다음 행동을 갱신하는 흐름을 개발합니다.
+[제출용 공개 데모](https://youth-support-demo-20261008.cyr3918.chatgpt.site) · [시연·실행 안내](docs/submission/2026-10-08-demo.md) · [10월 8일 계획표](docs/planning/submission-mvp-2026-10-08.md)
 
-현재 저장소는 **기존 MVP에서 새 서비스로 고도화하는 단계**입니다. 새 React 웹서비스가 구현·배포 완료된 상태가 아닙니다. 최종 신청 자격은 공식 공고와 담당 기관에서 확인합니다.
+공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 실제 정책 DB를 읽는 FastAPI는 로컬 `/demo`에서 같은 화면을 사용합니다. 공개 주소에 Python API나 실제 자격 판정 서비스를 배포한 것은 아닙니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
 
-## 원본 MVP와 현재 개발 기준
+## 현재 구현
 
-- 원본 버전: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), 커밋 `23f33e7`
-- 고도화 브랜치: `docs/service-redesign`
-- 최신 기획: [2026-10-07 팀 공유본](docs/planning/service-redesign-2026-10.md)
-- 개발 계약: [PROJECT_SPEC.md](PROJECT_SPEC.md)
-- 구현·검증 상태: [PROJECT_STATUS.md](PROJECT_STATUS.md)
-- 과거 구현 기록: [MVP 개요](docs/mvp/overview.md)
+사용자가 확정한 화면 보드에 맞춰 상황·관심·기초 질문·지원 방향·상세 제안·상세 질문·갱신 결과·장바구니 준비·상담 요약을 연결했습니다. 흰 바탕, 파란 강조색, 회색 보조 정보와 세로 선택 카드를 사용합니다. HTML/CSS/JavaScript 구현이며 React/TypeScript는 후속 방향입니다.
 
-## 고도화 방향
+- 모름·건너뛰기, 답변 수정, 상세 거절·중단·복귀, 오류 후 재시도
+- 조건별 확인됨 / 미충족 / 확인 필요 / 입력 부족과 명확한 미충족 후보 제외
+- 메모리 장바구니, 준비 체크 3개, 상담 요약·체크리스트·발급 안내·문의 초안
+- 문서 복사와 브라우저 인쇄를 통한 PDF 저장. 외부 AI·자동 제출·예약·연락 없음
+- 실제 제도 6개의 별도 공식 참고자료: ID·URL·확인일·모집 종료 또는 기관 확인 필요 표시
 
-| 구간 | 원본 MVP | 지원장바구니 방향 |
-|---|---|---|
-| 시작 | 나이·지역·취업 상태와 관심사 입력 | 상황 또는 목표 카드, 모름·건너뛰기 |
-| 조건 확인 | MATCH / UNKNOWN / NO_MATCH | 정책 불확실성과 사용자 정보 부족 구분 |
-| 진행 | 입력 후 결과 표시 | 선택적 상세 질문, 답변 이어받기·수정·중단·복귀 |
-| 결과 | 검색·추천 설명 | 정책·다음 행동 갱신, 준비·상담 지원 |
-| 화면·서버 | Streamlit·SQLite | React·TypeScript·FastAPI·PostgreSQL 개발 예정 |
-| 검색·AI | OpenAI 임베딩·FAISS·설명 | 하이브리드 검색·RAG·상태 기반 도구 연결 검증 예정 |
+‘쉬고 있어요’에서 미취업·소득·경제난을 추정하지 않습니다. 선호는 자격에 사용하지 않습니다. 공개 가상 정책의 조건과 공식 참고자료를 연결하지 않으며, 실제 정책 목록 전체의 조건 정규화는 후속 작업입니다. 입력·장바구니·완료 체크는 새로고침하면 초기화됩니다.
 
-‘쉬고 있어요’만으로 미취업·소득·경제난을 추정하지 않습니다. 서울·19~34세는 초기 대상 범위이며 실제 입력값을 대신하지 않습니다. 상세 정보 제공을 원치 않아도 남은 확인사항과 공식 경로를 안내합니다.
+## 개발 기준과 검증
 
-## 이번 브랜치의 첫 코드 구현
+- 원본: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), `23f33e7` 보존
+- 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
+- 후속: `feature/intake-api`, [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3)
+- 기획: [팀 공유본](docs/planning/service-redesign-2026-10.md), [확정 UI·배포 결정](docs/decisions/2026-10-approved-ui-and-public-demo.md)
+- 계약·진행: [PROJECT_SPEC](PROJECT_SPEC.md), [PROJECT_STATUS](PROJECT_STATUS.md), [TASKS](TASKS.md)
 
-- 상황/목표 카드 진입, 모름·건너뛰기, 직접 확인한 사실과 선호 분리
-- 사용자 선택에 따른 상세 확인, 중단·복귀·답변 수정
-- 후보에 필요한 기초/상세 질문 선택과 중복 질문 방지
-- 조건별 네 가지 표시 상태, 신청 기간의 요청 날짜 재평가
-- 명확한 불일치 제외, 공식 링크·확인 시각과 다음 확인 행동 유지
+현재 개발 환경의 JavaScript 테스트 15개, Python 공개 빌드 테스트 2개와 compileall을 실행했습니다. 관련 Python 진행·계약 테스트는 91개 통과이며 HTTP 테스트는 의존성 부재로 스킵됐습니다. 공개 배포 성공과 실제 브라우저 수동 시연·최신 Windows 전체 pytest는 구분합니다. 최신 결과와 남은 확인은 PROJECT_STATUS에서 관리합니다.
 
-이 단계는 **웹/API에 연결하기 위한 Python 핵심 로직과 개발용 CLI**입니다. 카드 화면이 구현된 상태는 아닙니다. 상황/관심 카드에 따른 정책 순위와 선호 반영, AI 질문·설명·문서 생성, 실제 정책 목록 검증은 후속 작업입니다.
+기존 API 커밋 `1862bbe`에서 사용자의 Windows 전체 pytest 224 passed, 67 subtests passed와 실제 DB 20건의 서버 점검 PASS 6을 확인했습니다. `f22e949` 화면 추가 후 Windows의 모듈 MIME 실패 2개는 `2216f84`에서 명시적 JavaScript 타입으로 수정했습니다. 사용자는 기존 `/demo` 화면 표시를 확인했으나 최신 확정 UI의 전체 회귀 결과는 아직 전달되지 않았습니다. 과거 수치를 최신 코드의 통과로 표시하지 않습니다.
 
-신규 로직 테스트 49개와 구문 검증이 통과했고, 2026-10-07 사용자의 Windows Python 3.10 환경에서 전체 pytest **171 passed, 23 subtests passed**를 확인했습니다. 상세 검증 기록은 PROJECT_STATUS에 있습니다.
+## 로컬 데모와 API
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
+```
+
+서버를 재시작한 후 http://127.0.0.1:8000/demo 를 엽니다. 실제 정책 SQLite가 없으면 후보 요청에서 데이터 오류를 안내합니다. 별도 PowerShell 창에서 다음 명령으로 실제 서버·DB와 상세 흐름을 확인합니다.
+
+```powershell
+.\.venv\Scripts\python.exe scripts/check_intake_api.py --require-detail
+```
+
+공개 체험과 같은 목데이터 모드는 설치 없이 배포 링크에서 열거나 다음처럼 로컬에서 실행합니다.
+
+```powershell
+.\.venv\Scripts\python.exe scripts/build_submission_demo.py --output submission-demo
+.\.venv\Scripts\python.exe scripts/serve_submission_demo.py --directory submission-demo --port 8080
+```
+
+http://127.0.0.1:8080 을 엽니다. Node는 화면 실행에는 필요하지 않으며 개발 테스트에는 `node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs`를 사용합니다.
+
+[API v1 규격](docs/api/intake-v1.md)과 [JSON Schema](docs/api/schemas/intake-response.json)를 유지합니다. 서버는 후보·조건·날짜를 클라이언트에서 받지 않고 SQLite와 한국 날짜로 평가합니다. 새로운 가구·참여 시간 질문은 가상 체험에만 있으며 실제 API 계약은 변경하지 않았습니다.
 
 ## 기존 구현에서 재사용하는 기능
 
@@ -51,13 +66,15 @@
 | 경로 | 역할 |
 |---|---|
 | `app.py` | 기존 Streamlit MVP |
+| `demo/` | 확정 UI, 로컬 실제 API 모드와 공개 가상 체험 모드 |
+| `api.py` | 데모와 API를 함께 제공하는 FastAPI 진입점 |
 | `src/youth_policy/` | 기존 데이터·규칙·검색·설명 모듈, 후속 진행 로직 |
 | `scripts/` | 기존 온통청년 수집·적재 CLI, 신규 `preview_intake.py` 흐름 점검 |
 | `tests/` | 기존 회귀 테스트와 신규 기능 테스트 |
 | `docs/planning/` | 최신 팀 공유 기획 |
 | `docs/decisions/` | 기획 전환과 구현 결정 |
 | `docs/mvp/` | 과거 MVP 명세·보존 설명 |
-| `assets/brand/logo-preview.html` | 첨부 로고 미리보기, 앱 연동 전 |
+| `assets/brand/logo-preview.html` | 서비스 로고 미리보기 |
 
 ## 기존 MVP 로컬 실행
 
