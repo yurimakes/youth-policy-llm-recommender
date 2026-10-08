@@ -11,3 +11,12 @@ data/processed/
 /demo-build/
 /node_modules/
 /browser-artifacts/
+
+# Private working documents
+/.private/
+/docs/internal/
+/docs/planning/
+/docs/decisions/
+/PROJECT_SPEC.md
+/PROJECT_STATUS.md
+/TASKS.md

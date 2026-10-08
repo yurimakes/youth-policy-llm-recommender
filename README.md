@@ -2,13 +2,13 @@
 
 **상황 카드에서 필요한 질문, 지원 후보와 조건 확인, 준비·상담 행동까지 이어가는 서비스**
 
-[공개 데모](https://jiwon-basket.vercel.app/) · [시연·실행 안내](docs/demo/README.md) · [데모 계획표](docs/planning/demo-mvp.md)
+[공개 데모](https://jiwon-basket.vercel.app/) · [데모 실행 안내](docs/demo/README.md) · [구조와 데이터 흐름](docs/architecture.md) · [API 규격](docs/api/intake-v1.md)
 
-공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 실제 정책 DB를 읽는 FastAPI는 로컬 `/demo`에서 같은 화면을 사용합니다. 공개 주소에 Python API나 실제 자격 판정 서비스를 배포한 것은 아닙니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
+공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 로컬 FastAPI는 실제 정책 SQLite를 읽어 같은 화면에 응답합니다. 공개 정적 데모에서는 Python API와 실제 정책 DB를 사용하지 않습니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
 
 ## 서비스 화면
 
-[지원장바구니 데모 열기](https://jiwon-basket.vercel.app/) — 설치·로그인 없이 화면 흐름을 체험할 수 있습니다.
+[지원장바구니 데모 열기](https://jiwon-basket.vercel.app/)
 
 <table>
   <tr>
@@ -29,99 +29,67 @@
   </tr>
 </table>
 
-최신 글꼴 적용 버전의 실제 브라우저 캡처입니다. 정책·조건과 입력값은 **가상 체험 예시**이며, 실제 모집 공고나 최종 신청 자격을 뜻하지 않습니다. [캡처 출처](assets/screens/README.md)
+실제 브라우저 캡처이며 정책·조건과 입력값은 **가상 체험 예시**입니다. [캡처 출처](assets/screens/README.md)
 
-## 현재 구현
+## 주요 기능
 
-사용자가 확정한 화면 보드에 맞춰 상황·관심·기초 질문·지원 방향·상세 제안·상세 질문·갱신 결과·장바구니 준비·상담 요약을 연결했습니다. 흰 바탕, 파란 강조색, 회색 보조 정보와 세로 선택 카드를 사용합니다. HTML/CSS/JavaScript 구현이며 React/TypeScript는 후속 방향입니다. Pretendard 글꼴 파일을 함께 제공해 운영체제에 관계없이 굵은 제목·카드와 본문을 표시합니다. [글꼴 출처·라이선스](docs/demo/fonts.md)를 포함합니다.
+상황·관심 카드, 기초 질문, 지원 후보, 선택적 상세 확인, 장바구니 준비와 상담 요약을 연결합니다. 화면은 HTML/CSS/JavaScript로 구현했으며 Pretendard 글꼴을 함께 제공합니다. [글꼴 출처·라이선스](docs/demo/fonts.md)
 
 - 모름·건너뛰기, 답변 수정, 상세 거절·중단·복귀, 오류 후 재시도
-- 조건별 확인됨 / 미충족 / 확인 필요 / 입력 부족과 명확한 미충족 후보 제외
-- 메모리 장바구니, 준비 체크 3개, 상담 요약·체크리스트·발급 안내·문의 초안
-- 문서 복사와 브라우저 인쇄를 통한 PDF 저장. 외부 AI·자동 제출·예약·연락 없음
-- 실제 제도 6개의 별도 공식 참고자료: ID·URL·확인일·모집 종료 또는 기관 확인 필요 표시
+- 조건별 확인됨 / 미충족 / 확인 필요 / 입력 부족 표시와 명확한 미충족 후보 제외
+- 메모리 장바구니, 준비 체크, 상담 요약·체크리스트·발급 안내·문의 초안
+- 문서 복사와 브라우저 인쇄를 통한 PDF 저장
+- 실제 제도 6개의 별도 공식 참고자료: ID·URL·확인일·기간 주의사항 표시
 
-‘쉬고 있어요’에서 미취업·소득·경제난을 추정하지 않습니다. 선호는 자격에 사용하지 않습니다. 공개 가상 정책의 조건과 공식 참고자료를 연결하지 않으며, 실제 정책 목록 전체의 조건 정규화는 후속 작업입니다. 입력·장바구니·완료 체크는 새로고침하면 초기화됩니다.
+상황 카드에서 미취업·소득·경제난을 추정하지 않고, 선호를 자격 조건으로 사용하지 않습니다. 가상 정책의 조건과 공식 참고자료는 별개입니다. 입력·장바구니·완료 체크는 새로고침하면 초기화됩니다. 문서 초안은 입력과 확인사항을 조합하며 외부 AI 호출·자동 제출·예약·연락을 수행하지 않습니다.
 
-## 개발 기준과 검증
+## 로컬 환경 준비
 
-- 원본: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), `23f33e7` 보존
-- 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
-- API·공개 데모 작업세트: [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3) main 병합 완료 (`2e120f3`)
-- 글꼴 후속 검증 코드: `d429571`, 공개 체험 버전 4
-- 기획: [팀 공유본](docs/planning/service-redesign-2026-10.md), [확정 UI·배포 결정](docs/decisions/2026-10-approved-ui-and-public-demo.md)
-- 계약·진행: [PROJECT_SPEC](PROJECT_SPEC.md), [PROJECT_STATUS](PROJECT_STATUS.md), [TASKS](TASKS.md)
+Windows PowerShell에서 저장소를 내려받고 가상환경을 만듭니다.
 
-검증한 `d429571`은 Windows Python 3.10의 전체 pytest **230 passed, 86 subtests passed, 기존 경고 1개**입니다. JavaScript 15개, Chromium 브라우저 시연 6개, compileall과 정적 빌드도 통과했습니다. 실제 Pretendard 글꼴 로딩과 FastAPI·격리된 합성 정책을 이용한 UI 연결, 모름·건너뛰기·상세·수정·오류 복구, 상담 복사·PDF 출력과 모바일 가로 넘침을 확인했습니다.
+```powershell
+git clone https://github.com/yurimakes/youth-policy-llm-recommender.git
+cd youth-policy-llm-recommender
+py -3.10 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-api.txt
+```
 
-[검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670) · [화면 PNG 6개·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067) (캡처 보관: 2026-10-15까지)
-
-기존 사용자 DB 20건의 실제 서버 확인은 `1862bbe`의 이전 실행 기록이며 현재 브라우저의 합성 정책 검증과 구분합니다. 공개 체험은 배포 성공과 검증 코드 일치를 확인했으며 운영 데이터 전체의 최신성·실사용 효과 검증은 후속입니다. 자세한 단계별 기록은 PROJECT_STATUS에 있습니다.
+Python 버전과 운영체제에 따라 고정 의존성의 설치 가능 여부를 확인합니다.
 
 ## 로컬 데모와 API
 
+실제 정책 데이터가 준비된 저장소 루트에서 실행합니다.
+
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
-.\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
 ```
 
-서버를 재시작한 후 http://127.0.0.1:8000/demo 를 엽니다. 실제 정책 SQLite가 없으면 후보 요청에서 데이터 오류를 안내합니다. 별도 PowerShell 창에서 다음 명령으로 실제 서버·DB와 상세 흐름을 확인합니다.
+[로컬 데모](http://127.0.0.1:8000/demo)를 엽니다. SQLite 데이터가 없으면 후보 요청에서 데이터 오류를 안내합니다. API는 후보·판정·기준일을 클라이언트에서 받지 않고 서버 DB와 한국 날짜로 조건을 평가합니다. 나이·지역·취업 상태와 선호를 받으며, 가상 체험 전용 가구 질문은 실제 API 계약에 포함되지 않습니다.
+
+서버를 실행한 채 별도 PowerShell 창에서 점검합니다.
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/check_intake_api.py --require-detail
 ```
 
-공개 체험과 같은 목데이터 모드는 설치 없이 배포 링크에서 열거나 다음처럼 로컬에서 실행합니다.
+실행 중인 서버는 Ctrl+C로 종료할 수 있습니다. 코드를 갱신한 뒤 다시 실행합니다. [API 규격](docs/api/intake-v1.md)과 [JSON Schema](docs/api/schemas/intake-response.json)에서 요청·응답과 오류를 확인할 수 있습니다.
+
+공개 데모와 같은 가상 데이터 모드는 DB나 API 키 없이 실행할 수 있습니다.
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/build_demo.py --output demo-build
 .\.venv\Scripts\python.exe scripts/serve_demo.py --directory demo-build --port 8080
 ```
 
-http://127.0.0.1:8080 을 엽니다. Node는 화면 실행에는 필요하지 않으며 개발 테스트에는 `node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs`를 사용합니다.
+[로컬 가상 데모](http://127.0.0.1:8080)를 엽니다. Node는 화면 실행에 필요하지 않습니다.
 
-[API v1 규격](docs/api/intake-v1.md)과 [JSON Schema](docs/api/schemas/intake-response.json)를 유지합니다. 서버는 후보·조건·날짜를 클라이언트에서 받지 않고 SQLite와 한국 날짜로 평가합니다. 새로운 가구·참여 시간 질문은 가상 체험에만 있으며 실제 API 계약은 변경하지 않았습니다.
+## 기존 Streamlit MVP 실행
 
-## 기존 구현에서 재사용하는 기능
+기존 MVP는 온통청년 API 수집·정규화·SQLite 적재, 조건 평가, OpenAI 임베딩·FAISS 검색, 공식 정보 기반 설명과 AI 실패 폴백을 제공합니다. 진입점은 `app.py`이며 원본 코드는 [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp)에서 확인할 수 있습니다. [원본 MVP 안내](docs/mvp/overview.md)
 
-온통청년 API 페이지 수집·raw snapshot 보존·정규화·SQLite upsert, 삼중 규칙 평가, OpenAI 임베딩·FAISS Top-5 검색, 검색된 공식 정보 기반 설명과 AI 실패 폴백을 보존합니다. 원본 Streamlit 진입점은 `app.py`입니다.
+### API 설정
 
-과거 2026-07-02 기록에는 자동 테스트 122개와 실제 API 20건 검증이 있습니다. 이는 해당 시점의 기록입니다. 새 에이전트 품질이나 최신 정책 전체에 대한 검증 결과가 아닙니다.
-
-## 코드와 문서
-
-| 경로 | 역할 |
-|---|---|
-| `app.py` | 기존 Streamlit MVP |
-| `demo/` | 확정 UI, 로컬 실제 API 모드와 공개 가상 체험 모드 |
-| `api.py` | 데모와 API를 함께 제공하는 FastAPI 진입점 |
-| `src/youth_policy/` | 기존 데이터·규칙·검색·설명 모듈, 후속 진행 로직 |
-| `scripts/` | 기존 온통청년 수집·적재 CLI, 신규 `preview_intake.py` 흐름 점검 |
-| `tests/` | 기존 회귀 테스트와 신규 기능 테스트 |
-| `docs/planning/` | 최신 팀 공유 기획 |
-| `docs/decisions/` | 기획 전환과 구현 결정 |
-| `docs/mvp/` | 과거 MVP 명세·보존 설명 |
-| `assets/brand/logo-preview.html` | 서비스 로고 미리보기 |
-
-## 기존 MVP 로컬 실행
-
-아래 안내는 Windows PowerShell에서 저장소 루트를 기준으로 합니다. 원본 정책 데이터와 DB는 저장소에 포함되지 않으므로 앱 실행 전에 데이터를 준비해야 합니다.
-
-### 1. 저장소와 가상환경 준비
-
-```powershell
-git clone https://github.com/yurimakes/youth-policy-llm-recommender.git
-cd youth-policy-llm-recommender
-py -3.10 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-Python 버전·운영체제에 따라 고정된 의존성의 설치 가능 여부를 확인해야 합니다.
-
-### 2. API 설정
-
-온통청년 API 인증키와 OpenAI API 키를 준비합니다. 저장소 루트에 `.streamlit/secrets.toml`을 만들고 아래 항목을 설정합니다.
+저장소 루트에 `.streamlit/secrets.toml`을 만들고 온통청년 API 인증키와 OpenAI API 키를 설정합니다.
 
 ```toml
 ONTONG_API_KEY = ""
@@ -130,57 +98,52 @@ OPENAI_CHAT_MODEL = ""
 OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 ```
 
-키와 채팅 모델명은 사용 가능한 값으로 입력합니다. 빈 채팅 모델 설정은 앱의 기본값을 사용합니다. 환경 변수도 지원하며, 수집 CLI와 앱 모두 환경 변수를 먼저 읽고, 값이 없으면 Streamlit secrets를 읽습니다. `.env` 파일을 자동으로 불러오는 기능은 없습니다.
+키와 모델명에 사용 가능한 값을 입력합니다. 빈 채팅 모델 설정은 앱의 기본값을 사용합니다. 환경 변수를 먼저 읽고 값이 없으면 Streamlit secrets를 읽습니다. `.env` 파일을 자동으로 불러오지는 않습니다.
 
-### 3. 정책 수집과 SQLite 적재
+### 정책 수집과 SQLite 적재
 
-수집 CLI는 페이지별 원본을 보존하고 정규화된 정책을 DB에 함께 적재합니다.
+원본 정책 데이터와 DB는 저장소에 포함되지 않습니다. 수집 CLI는 페이지별 원본을 보존하고 정규화한 정책을 적재합니다.
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/collect_ontong_pages.py `
-  --db data/processed/policies.sqlite3 `
-  --page-size 10 `
-  --max-pages 2
+.\.venv\Scripts\python.exe scripts/collect_ontong_pages.py --db data/processed/policies.sqlite3 --page-size 10 --max-pages 2
 ```
 
-이 설정은 최대 2페이지를 수집합니다. 과거 실제 API 검증에서는 20건이 적재되었으며, 현재 반환 건수와 내용은 API 응답에 따라 달라질 수 있습니다. CLI 출력의 `fetched_policies`와 `stored_policies`로 수집·저장 건수를 확인합니다.
+위 설정은 최대 2페이지를 수집합니다. 수집 건수와 내용은 공식 API 응답에 따라 달라지며 CLI의 `fetched_policies`와 `stored_policies`에서 확인합니다. 보존한 snapshot은 `scripts/load_ontong_snapshot.py`의 `--input`, `--db` 옵션으로 재적재할 수 있습니다.
 
-이미 보존한 snapshot이 있다면 `scripts/load_ontong_snapshot.py`의 `--input`, `--db` 옵션으로 재적재할 수 있습니다.
-
-### 4. 웹서비스 실행
+### 앱 실행
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-나이, 시·도와 시·군·구, 취업 상태를 입력하고 필요하면 관심사를 작성한 뒤 `맞춤 정책 추천받기`를 누릅니다. 예: `자격증 시험 비용과 월세 지원이 필요해요.` 지역 선택지는 현재 적재된 정책의 지역 정보에서 구성됩니다.
+나이·지역·취업 상태와 선택적인 관심사를 입력한 뒤 ‘맞춤 정책 추천받기’를 누릅니다. 지역 선택지는 적재된 정책 데이터에서 구성됩니다. 기존 MVP의 AI 검색·설명은 OpenAI API를 호출하며 사용자 관심사·조건이 전달되고 비용이 발생합니다.
 
-
-## 새 진행 로직 로컬 점검
-
-기존 정책 DB가 있으면 다음 명령으로 간편→선택적 상세→조건 갱신 흐름을 터미널에서 확인할 수 있습니다. DB를 읽기 전용으로 열고 사용자 답변을 저장하거나 외부 AI를 호출하지 않습니다. 웹서비스 실행 명령과는 별개입니다.
+## 테스트
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/preview_intake.py --db data/processed/policies.sqlite3
-.\.venv\Scripts\python.exe scripts/preview_intake.py --start goal --db data/processed/policies.sqlite3
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m compileall -q api.py app.py src scripts tests
+node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs
 ```
 
-UI 없이 실행할 신규 테스트:
+[GitHub Actions의 Demo checks](https://github.com/yurimakes/youth-policy-llm-recommender/actions/workflows/demo-checks.yml)는 Windows Python 회귀, JavaScript 시나리오, 정적 빌드와 Chromium 브라우저 흐름을 검사합니다. 실행별 결과와 화면 PNG·상담 PDF는 해당 실행에서 확인합니다. 브라우저 검증은 합성 정책과 합성 입력을 사용하며 실제 공고의 최신성이나 최종 자격을 보증하지 않습니다. [브라우저 검증 방법](docs/demo/README.md#자동-브라우저-검증과-캡처)
 
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_intake*.py" -v
-```
+## 코드와 문서
 
-CLI는 개발용이므로 지역을 5자리 코드로 입력하고, 카드에 따른 관심도 순위 없이 조건 후보를 표시합니다. 정책 DB가 없거나 안내할 후보가 없으면 이를 알립니다. 입력 수정과 선호 저장은 핵심 모듈에서 제공하며 CLI 화면에는 연결하지 않았습니다. PostgreSQL 또는 영구 진행 상태 저장은 이 단계에 포함하지 않습니다.
-
-## 검증과 다음 개발
-
-기존 전체 검증 명령은 `.\.venv\Scripts\python.exe -m pytest -q` 및 `.\.venv\Scripts\python.exe -m compileall app.py src scripts`입니다. 현재 브랜치의 실제 실행 결과와 제한은 PROJECT_STATUS에 기록합니다.
-
-초기 정책 20~30개 목록, 지원 플랫폼 API·모델, 개인정보 전달·저장·삭제, 호스팅은 확정 전입니다. 평가 사례 100건 이상과 근거 일치율 95% 이상은 목표이며 달성 성과가 아닙니다. 청년 20명 테스트는 최신 기획에서 보류로 표시돼 있습니다.
+| 경로 | 역할 |
+|---|---|
+| `app.py` | Streamlit MVP |
+| `api.py` | 데모와 API를 제공하는 FastAPI 진입점 |
+| `demo/` | 로컬 API 모드와 공개 가상 체험 모드 |
+| `src/youth_policy/` | 데이터·조건 평가·검색·설명·진행 상태 모듈 |
+| `scripts/` | 정책 수집·적재, API 점검, 정적 빌드, 스키마 생성 |
+| `tests/` | 회귀 테스트와 브라우저 시나리오 |
+| `docs/api/` | API 규격과 JSON Schema |
+| `docs/demo/` | 데모 실행 안내와 글꼴 라이선스 |
+| `assets/screens/` | 서비스 화면 캡처 |
 
 ## 데이터와 이용 조건
 
-주요 출처는 [온통청년](https://www.youthcenter.go.kr/) 청년정책 API입니다. 정책 ID·공식 URL·확인 시각을 보존합니다. `last_verified_at`은 적재·처리 시각이며 담당 기관이 모든 조건을 재확인했다는 뜻이 아닙니다. 공식 데이터의 이용·재배포 조건과 코드 라이선스는 별도로 확인해야 하며 현재 코드 라이선스는 지정되지 않았습니다.
+주요 출처는 [온통청년](https://www.youthcenter.go.kr/) 청년정책 API입니다. 정책 ID·공식 URL·확인 시각을 보존합니다. `last_verified_at`은 적재·처리 시각이며 담당 기관이 모든 조건을 재확인했다는 뜻이 아닙니다. 최종 자격과 현재 모집 여부는 공식 공고와 담당 기관에서 확인합니다.
 
-API 키·raw 데이터·로컬 DB는 Git에서 제외합니다. 기존 MVP의 AI 검색·설명 이용 시 사용자 관심사·조건이 OpenAI API에 전달되고 비용이 발생합니다. 신규 사용자 진행 상태의 외부 AI 전달과 영구 저장 설계는 후속 결정사항입니다. 자동 신청·자동 연락은 구현 범위에 포함하지 않습니다.
+API 키·raw 데이터·로컬 DB·사용자 답변은 공개 저장소에 포함하지 않습니다. 공식 데이터의 이용·재배포 조건과 코드 라이선스는 별도로 확인해야 하며 현재 코드 라이선스는 지정되지 않았습니다.

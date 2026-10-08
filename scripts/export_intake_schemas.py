@@ -1,6 +1,6 @@
 """export_intake_schemas.py
 
-UI 팀원이 참고할 Pydantic JSON Schema 계약 파일을 재생성합니다.
+Pydantic 모델에서 공개 API의 JSON Schema 계약 파일을 재생성합니다.
 """
 
 from pathlib import Path
