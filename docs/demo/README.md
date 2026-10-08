@@ -1,4 +1,4 @@
-# 10월 8일 제출용 데모 안내
+# 데모 안내
 
 공개 주소: https://youth-support-demo-20261008.cyr3918.chatgpt.site
 
@@ -49,35 +49,35 @@ http://127.0.0.1:8000/demo 에서 실제 API 응답으로 같은 화면을 사�
 ## 동일한 공개 체험을 로컬에서 보기
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/build_submission_demo.py --output submission-demo
-.\.venv\Scripts\python.exe scripts/serve_submission_demo.py --directory submission-demo --port 8080
+.\.venv\Scripts\python.exe scripts/build_demo.py --output demo-build
+.\.venv\Scripts\python.exe scripts/serve_demo.py --directory demo-build --port 8080
 ```
 
 http://127.0.0.1:8080 에서 목데이터 모드가 열린다. 생성 폴더는 Git에서 제외한다. Node가 있으면 다음 테스트를 실행한다.
 
 ```powershell
-node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs
+node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs
 ```
 
-## 제출 시 구현 범위 설명
+## 구현 범위 설명
 
 “상황 카드에서 필요한 질문, 지원 후보와 남은 조건 확인, 장바구니 준비와 상담 요약까지 이어지는 데모입니다. 공개 화면은 가상 데이터 체험이고, 별도로 구현한 FastAPI는 로컬의 실제 정책 DB를 읽어 조건을 평가합니다. 최종 자격·모집 여부는 공식 공고와 기관에서 확인합니다.”
 
 실제 RAG·LangGraph·신규 LLM 연결·PostgreSQL·서류 자동 발급·신청 제출·상담 예약은 구현 범위에 포함하지 않는다. 입력·장바구니·체크 표시는 메모리에서만 유지되고 새로고침하면 초기화된다. 준비 완료 표시는 기관의 확인이나 신청 완료를 뜻하지 않는다.
 
-배포 성공과 브라우저 수동 시연·전체 Windows 회귀는 구분한다. 최신 검증 결과와 병합 상태는 PROJECT_STATUS.md에 기록한다. 제출 시각이 확정되면 2~3시간 전 기능을 동결하고 검증한 제출 커밋을 고정한다.
+배포 성공과 브라우저 수동 시연·전체 Windows 회귀는 구분한다. 최신 검증 결과와 병합 상태는 PROJECT_STATUS.md에 기록한다.
 
 
 ## 자동 브라우저 검증과 캡처
 
-GitHub Actions의 Submission checks는 Chromium에서 5개 핵심 시나리오와 실제 FastAPI 합성 정책 연결을 확인하고 `submission-browser-captures` 아티팩트에 화면 PNG와 상담 요약 PDF를 저장한다. 실제 사용자 정보가 아닌 합성 입력만 사용한다. 해당 실행의 성공과 생성된 파일은 PROJECT_STATUS에서 확인한다.
+GitHub Actions의 Demo checks는 Chromium에서 5개 핵심 시나리오와 실제 FastAPI 합성 정책 연결을 확인하고 `demo-browser-captures` 아티팩트에 화면 PNG와 상담 요약 PDF를 저장한다. 실제 사용자 정보가 아닌 합성 입력만 사용한다. 해당 실행의 성공과 생성된 파일은 PROJECT_STATUS에서 확인한다.
 
-수동 시연은 공개 주소에서 진행하면 된다. 로컬 자동 브라우저 검증을 실행하려면 개발용 Node와 `npm install --no-save --package-lock=false @playwright/test`, `npx playwright install chromium`가 필요하다. 목데이터를 `submission-demo`에 빌드한 후 Windows PowerShell에서 `$env:TEST_PYTHON=".venv/Scripts/python.exe"`를 설정하고 `npx playwright test --config tests/submission_browser.config.mjs`를 실행한다. 실제 Python 서버 테스트는 격리된 합성 정책으로 자동 시작하며 운영 DB를 사용하지 않는다.
+수동 시연은 공개 주소에서 진행하면 된다. 로컬 자동 브라우저 검증을 실행하려면 개발용 Node와 `npm install --no-save --package-lock=false @playwright/test`, `npx playwright install chromium`가 필요하다. 목데이터를 `demo-build`에 빌드한 후 Windows PowerShell에서 `$env:TEST_PYTHON=".venv/Scripts/python.exe"`를 설정하고 `npx playwright test --config tests/demo_browser.config.mjs`를 실행한다. 실제 Python 서버 테스트는 격리된 합성 정책으로 자동 시작하며 운영 DB를 사용하지 않는다.
 
 
-## 제출 코드와 생성 자료
+## 검증 코드와 생성 자료
 
-- 코드 기준: `97cd09a`, PR #3 main 병합 `2e120f3`, 공개 체험 버전 3.
-- [최종 검증](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655): Windows pytest 230 passed·82 subtests passed·경고 1개, Node 15 passed, Chromium 6 passed.
-- [화면 PNG 6개와 상담 PDF 다운로드](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167): GitHub 로그인 후 내려받을 수 있으며 2026-10-15까지 보관한다. 공개 데모 자체에는 로그인이 필요 없다.
-- 공개 체험 링크·저장소 링크·필요 캡처를 제출처 요구 양식에 맞춰 사용한다. 실제 정책의 자격 보장·공개 Python API 운영·AI 자동 문서 생성으로 설명하지 않는다.
+- 앱·글꼴 검증 코드: `d429571`, 공개 체험 버전 4. PR #3의 기존 데모 병합 `2e120f3` 이후 글꼴을 보완했다.
+- [최종 검증](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670): Windows pytest 230 passed·86 subtests passed·경고 1개, Node 15 passed, Chromium 6 passed.
+- [화면 PNG 6개와 상담 PDF 다운로드](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067): GitHub 로그인 후 내려받을 수 있으며 2026-10-15까지 보관한다. 공개 데모 자체에는 로그인이 필요 없다.
+- 공개 체험 링크·저장소 링크·화면 캡처로 데모를 확인할 수 있다. 실제 정책의 자격 보장·공개 Python API 운영·AI 자동 문서 생성으로 설명하지 않는다.

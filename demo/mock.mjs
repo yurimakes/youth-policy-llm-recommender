@@ -1,4 +1,4 @@
-// 제출용 목데이터 전용 진행. 실제 FastAPI 판정이나 공식 정책 조건을 대체하지 않는다.
+// 데모 목데이터 전용 진행. 실제 FastAPI 판정이나 공식 정책 조건을 대체하지 않는다.
 export const DEMO_NOTICE = "화면 체험용 가상 정책·조건입니다. 실제 모집 공고나 신청 자격이 아니에요.";
 export const MOCK_POLICIES = [
   {id:"DEMO-LIVING",name:"청년 활동지원금",icon:"₩",summary:"생활비와 다음 활동을 함께 준비해요",min:19,max:34,seoul:true,employment:"미취업자",household:true,topics:["living_cost","employment"]},
