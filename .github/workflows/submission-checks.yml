@@ -2,7 +2,7 @@ name: Submission checks
 
 on:
   push:
-    branches: [main, feature/intake-api]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -36,3 +36,19 @@ jobs:
         run: |
           .\.venv\Scripts\python.exe -m compileall -q api.py app.py src scripts tests
           .\.venv\Scripts\python.exe scripts/build_submission_demo.py --output "$env:RUNNER_TEMP/submission-demo"
+      - name: Install isolated browser test dependency
+        run: |
+          npm install --no-save --package-lock=false @playwright/test
+          npx playwright install chromium
+      - name: Browser journeys and submission captures
+        env:
+          TEST_PYTHON: .venv/Scripts/python.exe
+          TEST_DEMO_DIR: ${{ runner.temp }}/submission-demo
+        run: npx playwright test --config tests/submission_browser.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: submission-browser-captures
+          path: browser-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

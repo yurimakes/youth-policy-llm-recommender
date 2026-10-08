@@ -48,7 +48,7 @@
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/build_submission_demo.py --output submission-demo
-.\.venv\Scripts\python.exe -m http.server 8080 --bind 127.0.0.1 --directory submission-demo
+.\.venv\Scripts\python.exe scripts/serve_submission_demo.py --directory submission-demo --port 8080
 ```
 
 http://127.0.0.1:8080 을 엽니다. Node는 화면 실행에는 필요하지 않으며 개발 테스트에는 `node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs`를 사용합니다.

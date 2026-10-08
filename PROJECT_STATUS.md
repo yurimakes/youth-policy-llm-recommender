@@ -5,7 +5,7 @@
 - main: 1차 고도화 PR #2 병합 완료 (`d0d86f2`)
 - 원본: `v0.1-mvp` → `23f33e7`, 변경 없음
 - 공개 제출 체험: https://youth-support-demo-20261008.cyr3918.chatgpt.site
-- 현재 단계: 확정 UI와 공개 목데이터 체험 배포 완료. 최신 전체 Windows 회귀·브라우저 수동 시연 확인 후 main 병합.
+- 현재 단계: 확정 UI와 공개 목데이터 체험 배포 완료. 2b9eaab의 Windows 전체 회귀 통과. 추가 브라우저 자동 시연 확인 후 main 병합.
 
 ## 현재 구현과 경계
 
@@ -30,7 +30,8 @@
 | compileall / JS syntax | 성공 | api.py, app.py, src, scripts, tests와 모듈 구문 |
 | 공개 정적 빌드·배포 | 배포 succeeded, audience public | 로그인 없는 공개 URL, 실제 서버 공개 운영 검증 아님 |
 | 공식 참고 페이지 | 2026-10-08 확인, 6개 기록 | 청년수당·월세의 해당 모집 종료 표시; 나머지 기관·예약 확인 필요 |
-| 최신 전체 pytest·HTTP·브라우저 | 대기 | 현재 환경에 pytest/FastAPI/httpx와 로컬 브라우저 런타임 없음 |
+| Windows 전체 pytest·HTTP | 230 passed, 82 subtests passed, warning 1 | 2b9eaab, GitHub Actions Windows Python 3.10. 실제 TestClient 경로 포함 |
+| 브라우저 화면·캡처 | 자동 시연 실행 준비 | Chromium 6개 경로와 실제 FastAPI 합성 정책 연동, 복사·PDF·캡처 확인 |
 
 실행 명령:
 
@@ -66,3 +67,8 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 시연·실행·구현 범위는 `docs/submission/2026-10-08-demo.md`, 계획 현황은 `docs/planning/submission-mvp-2026-10-08.md`를 따른다. 제출 시각 확정 후 2~3시간 전 기능 동결, 제출처 요구 캡처·파일과 링크 확인, 최신 전체 회귀·핵심 실제 연동 확인 후 PR #3 main 병합과 제출 커밋 고정을 진행한다. 그 전에는 공개 체험 링크를 제공하되 실제 운영 서비스 완성으로 설명하지 않는다.
 
 정책 20~30개 전체 확정, PostgreSQL, LangGraph·신규 RAG, 모델 연결, 개인정보 처리 설계, 기술 평가·실사용 검증은 후속이다.
+
+
+## Windows 자동 회귀 확보 (2b9eaab)
+
+[Submission checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37706147803)에서 Windows Python 3.10 전체 pytest **230 passed, 82 subtests passed, 경고 1개**, JavaScript 15개와 정적 빌드의 성공을 확인했다. 경고는 기존 Starlette TestClient의 httpx 관련 안내다. 이후 모바일 헤더 정렬과 MIME을 고정한 정적 미리보기 서버, 브라우저 회귀/캡처 도구를 추가하므로 최신 head의 결과는 별도로 확인한다.

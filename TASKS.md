@@ -20,7 +20,8 @@
 
 ## 제출 전 최종 확인
 
-- [ ] 최신 전체 Windows pytest·HTTP 회귀 (현재 개발 환경 HTTP 스킵 15개)
+- [x] 2b9eaab Windows 전체 pytest·HTTP: 230 passed, 82 subtests passed, warning 1
+- [ ] 브라우저 도구·헤더 보완 후 최신 head 전체 회귀
 - [ ] 새 UI 브라우저에서 기본·건너뛰기·상세 거절·답변 수정·후보 없음/오류 시연
 - [ ] 실제 로컬 API에서 변경 UI 연동 재확인, 클립보드·PDF 인쇄 수동 확인
 - [ ] 제출 요구 캡처·파일과 제출 시각 확인, 마감 2~3시간 전 기능 동결
