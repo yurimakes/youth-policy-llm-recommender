@@ -1,0 +1,60 @@
+{
+  "checked_on": "2026-10-08",
+  "scope": "공식 웹페이지의 제도 소개와 해당 공고의 기간을 확인한 참고 목록. 가상 체험 정책과 연결하거나 전체 자격을 판정하지 않습니다.",
+  "policies": [
+    {
+      "reference_id": "REF-SEOUL-ALLOWANCE-2026-FIRST",
+      "name": "2026 서울 청년수당 · 1차 공고",
+      "url": "https://youth.seoul.go.kr/infoData/sprtInfo/view.do?key=2309130006&sprtInfoId=67991",
+      "source": "서울특별시 청년몽땅정보통",
+      "summary": "미취업 청년의 진로 탐색과 활동을 돕는 사업. 연령·거주·졸업·취업 상태와 제한 조건을 공고에서 확인해야 합니다.",
+      "period_note": "이 1차 공고의 신청 기간은 2026-03-06~03-13으로 종료됐습니다. 추가 모집 여부는 별도 공고를 확인하세요.",
+      "availability": "referenced_notice_closed"
+    },
+    {
+      "reference_id": "REF-SEOUL-RENT-2026",
+      "name": "2026 서울시 청년월세지원",
+      "url": "https://www.seoul.go.kr/news/news_notice.do?nttNo=457234&tr_code=snews",
+      "source": "서울특별시 주택정책과",
+      "summary": "청년의 주거비 부담을 줄이기 위한 공고. 신청 유형·거주·연령·소득·임차 조건과 중복 지원 제한을 확인해야 합니다.",
+      "period_note": "이 공고의 신청 기간은 2026-05-06~05-19로 종료됐습니다. 현재 신청 가능한 공고로 표시하지 않습니다.",
+      "availability": "referenced_notice_closed"
+    },
+    {
+      "reference_id": "REF-WORK24-NATIONAL-EMPLOYMENT",
+      "name": "국민취업지원제도",
+      "url": "https://m.work24.go.kr/ua/z/z/1300/selectEmssRqutIntro.do",
+      "source": "고용24",
+      "summary": "참여 요건에 따라 취업 지원 서비스와 유형별 지원을 안내합니다. 나이·가구 소득·재산·취업 경험과 예외를 담당 기관에 확인하세요.",
+      "period_note": "제도 소개 페이지입니다. 실제 접수 가능 여부와 참여 유형은 고용24 또는 담당 고용센터에 확인하세요.",
+      "availability": "agency_check_required"
+    },
+    {
+      "reference_id": "REF-WORK24-TRAINING-CARD",
+      "name": "국민내일배움카드",
+      "url": "https://www.work24.go.kr/hr/h/a/1100/selectIssuGudn.do",
+      "source": "고용24",
+      "summary": "직업 훈련을 위한 카드 발급 안내입니다. 지원 제외 대상과 본인 부담, 원하는 훈련 과정의 조건을 별도로 확인하세요.",
+      "period_note": "카드 발급 안내와 훈련 과정의 모집 일정은 다릅니다. 실제 발급 가능 여부와 과정별 기간을 확인하세요.",
+      "availability": "agency_check_required"
+    },
+    {
+      "reference_id": "REF-WORK24-YOUTH-CHALLENGE",
+      "name": "청년도전지원사업",
+      "url": "https://www.work24.go.kr/wk/g/b/1100/busiIntro.do",
+      "source": "고용24",
+      "summary": "구직 단념 청년 등의 활동과 취업 준비를 돕는 프로그램입니다. 취업·교육·훈련 참여 이력과 별도 대상 기준을 운영기관에서 확인해야 합니다.",
+      "period_note": "전국 사업 소개 페이지입니다. 지역별 운영기관의 모집 일정과 참여 조건을 따로 확인하세요.",
+      "availability": "local_operator_check_required"
+    },
+    {
+      "reference_id": "REF-SEOUL-CENTER-COUNSELING",
+      "name": "서울청년센터 청년정책 종합상담",
+      "url": "https://youth.seoul.go.kr/crm/front/index.do",
+      "source": "서울특별시 청년몽땅정보통",
+      "summary": "청년지원매니저와 정책·프로그램 정보를 찾는 상담입니다. 참여 대상, 회원 가입과 예약 가능 시간을 센터에서 확인하세요.",
+      "period_note": "센터별 예약 가능 여부를 확인해야 합니다. 자동 예약이나 전문 상담을 제공하는 데모가 아닙니다.",
+      "availability": "booking_check_required"
+    }
+  ]
+}

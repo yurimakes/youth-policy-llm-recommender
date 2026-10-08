@@ -10,7 +10,9 @@ The latest plan authorizes React/TypeScript, FastAPI, PostgreSQL and later LangG
 
 ## Team ownership
 
-The user authorized the assistant to implement the submission demo UI because the teammate's 2–3 screens had not started (2026-10-07). Provide three connected views under `demo/`: start, questions and results, reusing the question view for optional detail. Serve the lightweight HTML/CSS/JavaScript demo from the existing FastAPI process. React/TypeScript remains the later frontend direction; do not claim that this demo implements it. Keep backend rules authoritative and do not send messages to teammates.
+The user's approved `청년정책_화면흐름보드_v1.zip` supersedes the initial three-view scope (2026-10-08). Implement situation, interest, basic questions, directions, optional detail, updated results, a memory-only basket, preparation and deterministic consultation drafts under `demo/`. Keep the lightweight HTML/CSS/JavaScript demo served by local FastAPI. React/TypeScript remains the later frontend direction.
+
+The user authorized a public submission demo with mock data. The static deployment explicitly labels synthetic policies/conditions; it is not a hosted Python API or a real eligibility service. Keep `mock.mjs` independent from the real API's rules and fields. Actual policy references are a separate dated catalogue, not evidence for the synthetic candidates. Never infer official requirements or current availability from mock data. No external model calls, user-answer persistence, automatic submission or messaging. Print-to-PDF is a browser action, not an AI document service. Preserve the approved blue/gray visual design.
 
 ## Product rules
 
