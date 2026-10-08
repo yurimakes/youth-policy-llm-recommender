@@ -30,6 +30,8 @@ jobs:
           .\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-api.txt
       - name: Full Python regression including real HTTP routes
         run: .\.venv\Scripts\python.exe -m pytest -q
+      - name: Offline snapshot to SQLite and real API replay
+        run: .\.venv\Scripts\python.exe scripts/replay_policy_api.py --output .policy-evidence/replay.json
       - name: Client and synthetic demo scenarios
         run: node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs
       - name: Compile and build static demo
@@ -45,6 +47,13 @@ jobs:
           TEST_PYTHON: .venv/Scripts/python.exe
           TEST_DEMO_DIR: ${{ runner.temp }}/demo-build
         run: npx playwright test --config tests/demo_browser.config.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: policy-validation-evidence
+          path: .policy-evidence/replay.json
+          if-no-files-found: ignore
+          retention-days: 30
       - uses: actions/upload-artifact@v4
         if: always()
         with:
