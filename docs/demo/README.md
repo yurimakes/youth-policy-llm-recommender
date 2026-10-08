@@ -26,38 +26,12 @@
 
 체험 상황 설정은 다음 진행 요청부터 반영된다. 초기 화면에서 ‘후보 없음’을 선택하면 질문이 줄어들고 바로 빈 결과로 갈 수 있다. 오류 설정 후 요청이 실패하면 설정을 ‘기본 흐름’으로 바꾸고 ‘다시 시도하기’를 누른다.
 
-## 로컬 실제 API 모드
+## 로컬 실행
 
-기존 SQLite 데이터가 필요하다. 실행 중인 서버는 Ctrl+C로 종료한 후 최신 코드로 다시 시작한다.
+[개발자 실행 안내](../getting-started/README.md)에서 환경 준비와 실행 명령어를 확인한다.
 
-```powershell
-git switch main
-git pull --ff-only origin main
-.\.venv\Scripts\python.exe -m pip install -r requirements-api.txt
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m uvicorn api:app --host 127.0.0.1 --port 8000
-```
-
-http://127.0.0.1:8000/demo 에서 실제 API 응답으로 같은 화면을 사용한다. 실제 API는 기존 나이·지역·취업 상태와 선호 계약만 받는다. 가상 데모 전용 가구 질문을 실제 API에 추가하지 않았다. 지역은 실제 5자리 코드를 입력할 수 있고 답변 수정에서도 직접 입력을 지원한다.
-
-다른 PowerShell 창에서 실제 서버·DB를 확인한다.
-
-```powershell
-.\.venv\Scripts\python.exe scripts/check_intake_api.py --require-detail
-```
-
-## 동일한 공개 체험을 로컬에서 보기
-
-```powershell
-.\.venv\Scripts\python.exe scripts/build_demo.py --output demo-build
-.\.venv\Scripts\python.exe scripts/serve_demo.py --directory demo-build --port 8080
-```
-
-http://127.0.0.1:8080 에서 목데이터 모드가 열린다. 생성 폴더는 Git에서 제외한다. Node가 있으면 다음 테스트를 실행한다.
-
-```powershell
-node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs
-```
+- [가상 데모](../getting-started/README.md#가상-데모-실행): DB·API 키 없이 공개 체험과 같은 화면을 실행한다.
+- [실제 정책 데모·API](../getting-started/README.md#로컬-데모와-api): 정책 SQLite를 준비한 뒤 FastAPI로 실행한다. 실제 API는 나이·지역·취업 상태와 선호를 받고, 가상 데모 전용 가구 질문은 포함하지 않는다. 지역은 실제 5자리 코드를 직접 입력하거나 수정할 수 있다.
 
 ## 데이터와 문서
 

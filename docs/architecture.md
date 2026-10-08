@@ -38,4 +38,4 @@ Intake API와 데모는 외부 LLM 호출, 영구 답변 저장, 자동 신청·
 
 ## 기존 Streamlit 경로
 
-`app.py`는 정책 수집·정규화·SQLite 적재 모듈과 조건 평가를 사용한다. `retrieval.py`의 OpenAI 임베딩·FAISS 검색과 `llm_service.py`의 설명 생성은 외부 API를 호출한다. 이 경로는 정적 데모 및 Intake API와 별개다. [원본 MVP 안내](mvp/overview.md), [실행 방법](../README.md#기존-streamlit-mvp-실행)을 참고한다.
+`app.py`는 정책 수집·정규화·SQLite 적재 모듈과 조건 평가를 사용한다. `retrieval.py`의 OpenAI 임베딩·FAISS 검색과 `llm_service.py`의 설명 생성은 외부 API를 호출한다. 이 경로는 정적 데모 및 Intake API와 별개다. [원본 MVP 안내](mvp/overview.md), [실행 방법](getting-started/README.md#기존-streamlit-mvp-실행)을 참고한다.
