@@ -1,0 +1,16 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "start_mode": {
+      "default": "situation",
+      "enum": [
+        "situation",
+        "goal"
+      ],
+      "title": "Start Mode",
+      "type": "string"
+    }
+  },
+  "title": "StartRequest",
+  "type": "object"
+}
