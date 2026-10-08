@@ -1,0 +1,433 @@
+{
+  "$defs": {
+    "CandidateSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "policy_id": {
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "policy_name": {
+          "title": "Policy Name",
+          "type": "string"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Summary"
+        },
+        "benefit_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Benefit Text"
+        },
+        "status": {
+          "$ref": "#/$defs/ConditionStatus"
+        },
+        "status_label": {
+          "title": "Status Label",
+          "type": "string"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/CheckSchema"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "next_actions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Next Actions",
+          "type": "array"
+        },
+        "source_name": {
+          "title": "Source Name",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source Url"
+        },
+        "last_verified_at": {
+          "format": "date-time",
+          "title": "Last Verified At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_id",
+        "policy_name",
+        "summary",
+        "benefit_text",
+        "status",
+        "status_label",
+        "checks",
+        "next_actions",
+        "source_name",
+        "source_url",
+        "last_verified_at"
+      ],
+      "title": "CandidateSchema",
+      "type": "object"
+    },
+    "CheckSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/ConditionStatus"
+        },
+        "status_label": {
+          "title": "Status Label",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "status",
+        "status_label",
+        "reason"
+      ],
+      "title": "CheckSchema",
+      "type": "object"
+    },
+    "ChoiceSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "title": "ChoiceSchema",
+      "type": "object"
+    },
+    "ConditionStatus": {
+      "enum": [
+        "confirmed",
+        "not_met",
+        "check_required",
+        "input_missing"
+      ],
+      "title": "ConditionStatus",
+      "type": "string"
+    },
+    "ProfileSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Age"
+        },
+        "region_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{5}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region Code"
+        },
+        "employment_status": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Employment Status"
+        }
+      },
+      "title": "ProfileSchema",
+      "type": "object"
+    },
+    "QuestionSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "prompt": {
+          "title": "Prompt",
+          "type": "string"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "input_type": {
+          "enum": [
+            "card",
+            "integer",
+            "selection",
+            "region_code"
+          ],
+          "title": "Input Type",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/ChoiceSchema"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "allow_skip": {
+          "title": "Allow Skip",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key",
+        "prompt",
+        "purpose",
+        "input_type",
+        "options",
+        "allow_skip"
+      ],
+      "title": "QuestionSchema",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "start",
+        "interest",
+        "basic",
+        "results",
+        "detail",
+        "preparation"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "StateSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "start_mode": {
+          "enum": [
+            "situation",
+            "goal"
+          ],
+          "title": "Start Mode",
+          "type": "string"
+        },
+        "stage": {
+          "$ref": "#/$defs/Stage"
+        },
+        "cards": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Cards",
+          "type": "object"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSchema"
+        },
+        "preferences": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Preferences",
+          "type": "object"
+        },
+        "answered": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Answered",
+          "type": "array"
+        },
+        "skipped": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Skipped",
+          "type": "array"
+        },
+        "interested_policy_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interested Policy Id"
+        },
+        "detail_choice": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detail Choice"
+        },
+        "detail_paused": {
+          "title": "Detail Paused",
+          "type": "boolean"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_mode",
+        "stage",
+        "cards",
+        "profile",
+        "preferences",
+        "answered",
+        "skipped",
+        "interested_policy_id",
+        "detail_choice",
+        "detail_paused",
+        "revision"
+      ],
+      "title": "StateSchema",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "api_version": {
+      "const": "1",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/StateSchema"
+    },
+    "next_question": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/QuestionSchema"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/CandidateSchema"
+      },
+      "title": "Candidates",
+      "type": "array"
+    },
+    "data_status": {
+      "enum": [
+        "ready",
+        "empty",
+        "not_loaded"
+      ],
+      "title": "Data Status",
+      "type": "string"
+    },
+    "detail_offer_available": {
+      "title": "Detail Offer Available",
+      "type": "boolean"
+    },
+    "selected_policy_excluded": {
+      "title": "Selected Policy Excluded",
+      "type": "boolean"
+    },
+    "can_show_results": {
+      "title": "Can Show Results",
+      "type": "boolean"
+    },
+    "notice": {
+      "title": "Notice",
+      "type": "string"
+    }
+  },
+  "required": [
+    "api_version",
+    "state",
+    "next_question",
+    "candidates",
+    "data_status",
+    "detail_offer_available",
+    "selected_policy_excluded",
+    "can_show_results",
+    "notice"
+  ],
+  "title": "IntakeResponse",
+  "type": "object"
+}

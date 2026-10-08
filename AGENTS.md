@@ -4,9 +4,15 @@
 
 Follow the user's current instructions, `PROJECT_SPEC.md`, this file, then repository conventions. The current product is **지원장바구니: 청년정책 AI 에이전트**. Read `PROJECT_STATUS.md` before claiming a feature is implemented.
 
-The original Streamlit/SQLite MVP is preserved by `v0.1-mvp` at `23f33e7bc8e51d3e26812faeb479aae7f83ee596`. Never rewrite this tag or old history. Continue on `docs/service-redesign` until the user chooses integration. Keep the old collector, models, tests and `app.py` working while developing reusable modules under `src/youth_policy/`.
+The original Streamlit/SQLite MVP is preserved by `v0.1-mvp` at `23f33e7bc8e51d3e26812faeb479aae7f83ee596`. Never rewrite this tag or old history. Develop follow-up work on feature branches from the merged main branch; record the active branch in PROJECT_STATUS. Keep the old collector, models, tests and `app.py` working while developing reusable modules under `src/youth_policy/`.
 
 The latest plan authorizes React/TypeScript, FastAPI, PostgreSQL and later LangGraph and retrieval work. They are planned components, not proof of working integrations. Introduce each component with an explicit purpose and relevant verification. Keep deterministic business logic independent of UI, database and LLM providers.
+
+## Team ownership
+
+The user's approved `청년정책_화면흐름보드_v1.zip` supersedes the initial three-view scope (2026-10-08). Implement situation, interest, basic questions, directions, optional detail, updated results, a memory-only basket, preparation and deterministic consultation drafts under `demo/`. Keep the lightweight HTML/CSS/JavaScript demo served by local FastAPI. React/TypeScript remains the later frontend direction.
+
+The user authorized a public submission demo with mock data. The static deployment explicitly labels synthetic policies/conditions; it is not a hosted Python API or a real eligibility service. Keep `mock.mjs` independent from the real API's rules and fields. Actual policy references are a separate dated catalogue, not evidence for the synthetic candidates. Never infer official requirements or current availability from mock data. No external model calls, user-answer persistence, automatic submission or messaging. Print-to-PDF is a browser action, not an AI document service. Preserve the approved blue/gray visual design.
 
 ## Product rules
 
