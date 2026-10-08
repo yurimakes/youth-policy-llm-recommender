@@ -22,13 +22,16 @@
 
 - 원본: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp), `23f33e7` 보존
 - 1차 고도화: [PR #2](https://github.com/yurimakes/youth-policy-llm-recommender/pull/2) main 병합 완료
-- 후속: `feature/intake-api`, [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3)
+- API·공개 데모 작업세트: [PR #3](https://github.com/yurimakes/youth-policy-llm-recommender/pull/3) main 병합 완료 (`2e120f3`)
+- 검증·제출 코드 기준: `97cd09a`, 공개 체험 버전 3
 - 기획: [팀 공유본](docs/planning/service-redesign-2026-10.md), [확정 UI·배포 결정](docs/decisions/2026-10-approved-ui-and-public-demo.md)
 - 계약·진행: [PROJECT_SPEC](PROJECT_SPEC.md), [PROJECT_STATUS](PROJECT_STATUS.md), [TASKS](TASKS.md)
 
-현재 개발 환경의 JavaScript 테스트 15개, Python 공개 빌드 테스트 2개와 compileall을 실행했습니다. 관련 Python 진행·계약 테스트는 91개 통과이며 HTTP 테스트는 의존성 부재로 스킵됐습니다. 공개 배포 성공과 실제 브라우저 수동 시연·최신 Windows 전체 pytest는 구분합니다. 최신 결과와 남은 확인은 PROJECT_STATUS에서 관리합니다.
+검증한 `97cd09a`는 Windows Python 3.10의 전체 pytest **230 passed, 82 subtests passed, 기존 경고 1개**입니다. JavaScript 15개, Chromium 브라우저 시연 6개, compileall과 정적 빌드도 통과했습니다. 실제 FastAPI와 격리된 합성 정책을 이용한 UI 연결, 모름·건너뛰기·상세·수정·오류 복구, 상담 복사·PDF 출력과 모바일 가로 넘침을 확인했습니다.
 
-기존 API 커밋 `1862bbe`에서 사용자의 Windows 전체 pytest 224 passed, 67 subtests passed와 실제 DB 20건의 서버 점검 PASS 6을 확인했습니다. `f22e949` 화면 추가 후 Windows의 모듈 MIME 실패 2개는 `2216f84`에서 명시적 JavaScript 타입으로 수정했습니다. 사용자는 기존 `/demo` 화면 표시를 확인했으나 최신 확정 UI의 전체 회귀 결과는 아직 전달되지 않았습니다. 과거 수치를 최신 코드의 통과로 표시하지 않습니다.
+[검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655) · [화면 PNG 6개·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167) (캡처 보관: 2026-10-15까지)
+
+기존 사용자 DB 20건의 실제 서버 확인은 `1862bbe`의 이전 실행 기록이며 현재 브라우저의 합성 정책 검증과 구분합니다. 공개 체험은 배포 성공과 검증 코드 일치를 확인했으며 운영 데이터 전체의 최신성·실사용 효과 검증은 후속입니다. 자세한 단계별 기록은 PROJECT_STATUS에 있습니다.
 
 ## 로컬 데모와 API
 
