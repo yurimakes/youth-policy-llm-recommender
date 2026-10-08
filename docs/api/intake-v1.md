@@ -4,7 +4,7 @@
 
 사용자가 확정한 화면 보드에 따라 질문·결과·장바구니 준비·상담 문서 초안까지 제출용 UI를 연결했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
 
-API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `1862bbe`의 Windows 전체 pytest에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건·기본 후보 5건에서 상세 중단·복귀를 포함한 점검 **6개 모두 통과(실패·스킵·점검 경고 0개)**를 확인했다. 이 검증은 UI 추가 전 API 결과다. 새 데모의 Windows 전체 회귀·실제 FastAPI 화면 제공·브라우저 조작과 공고 최신성은 별도 확인이 필요하다.
+API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `1862bbe`의 Windows 전체 pytest에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건·기본 후보 5건에서 상세 중단·복귀를 포함한 점검 **6개 모두 통과(실패·스킵·점검 경고 0개)**를 확인했다. 이 검증은 UI 추가 전 API 결과다. 최신 97cd09a의 Windows 전체 pytest 230 passed·82 subtests passed와 Chromium 시연 6개를 확인했다. 현재 브라우저 테스트는 실제 FastAPI에 합성 정책을 연결한 결과이며, 실제 데이터 전체의 최신성 검증과 구분한다.
 
 이 API는 외부 AI 호출 없이 규칙 기반으로 동작한다. 실제 API의 관련도 순위, PostgreSQL, LangGraph와 RAG는 후속이다. 공개 정적 목데이터 체험은 실제 API와 별개이며 문서 초안은 클라이언트에서 입력·확인사항을 조합한다. 현재 후보는 적재한 정책의 조건 평가 결과이며 개인별 최적 추천 순위가 아니다.
 
@@ -185,3 +185,6 @@ API 패키지가 없으면 HTTP 테스트는 명시적으로 skip된다. 스킵�
 공개 제출 주소와 시연 방법은 `docs/submission/2026-10-08-demo.md`에서 관리한다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 별도 검토한 페이지이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
 
 정적 파일은 style.css, app.mjs, client.mjs, mock.mjs, official-policies.json의 다섯 파일만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
+
+
+2026-10-08 최종 코드 97cd09a는 Windows 전체 pytest 230 passed·82 subtests passed·경고 1개와 Chromium 자동 시연 6개를 통과했다. 실제 FastAPI에 격리된 합성 정책을 연결해 브라우저의 모듈 제공·지역 코드 입력/수정·공식 링크·준비/상담 흐름을 확인했다. 사용자 DB 20건의 과거 서버 검증과 구분하며 실제 데이터 전체의 최신성을 확인한 결과는 아니다. PR #3은 main에 병합됐다.

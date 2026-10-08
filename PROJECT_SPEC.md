@@ -4,7 +4,8 @@
 - 상세 기획 원문: [팀 공유본](docs/planning/service-redesign-2026-10.md)
 - 원본 MVP: [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp)
 - 1차 기획·핵심 로직: PR #2로 main 병합 완료
-- 현재 개발 브랜치: `feature/intake-api`
+- 현재 기준: `main`, API·확정 UI·공개 목데이터 체험 PR #3 병합 완료
+- 검증한 제출 코드: `97cd09a`
 
 ## 제품 목적과 이용자
 
@@ -81,4 +82,4 @@
 
 `scripts/check_intake_api.py`는 실행 중인 loopback HTTP 서버에 합성 답변을 보내 health/readiness·실행 OpenAPI·상황/목표 경로·건너뛰기·답변 수정·상세 거절·중단/복귀·준비 단계 전환을 확인한다. 사용자 상태와 원문 응답을 저장하지 않는다. 상세 중단·복귀는 기본 경로의 건너뛰기를 지우지 않고 별도의 새 합성 진행에서 질문이 필요한 후보를 찾는다. 실제 데이터에 현재 후보나 유용한 상세 질문이 없으면 관련 확인은 스킵으로 구분한다. 준비 단계 전환은 문서 생성 구현을 뜻하지 않는다.
 
-커밋 `1862bbe`의 Windows 전체 pytest는 224 passed, 67 subtests passed, 경고 1개로 확인했다. 실제 Uvicorn 서버와 로컬 정책 DB 20건에서 상세 중단·복귀를 포함한 점검 6개가 모두 통과했다. 실패·스킵·점검 경고는 0개다. 이 기록은 UI 추가 전 API 결과다. 최신 화면의 Windows 전체 회귀·브라우저 수동 시연은 별도 검증사항이다. 공식 참고자료 6개의 페이지 확인과 공개 목데이터 배포는 PROJECT_STATUS에 별도로 기록한다.
+커밋 `1862bbe`의 Windows 전체 pytest는 224 passed, 67 subtests passed, 경고 1개로 확인했다. 실제 Uvicorn 서버와 로컬 정책 DB 20건에서 상세 중단·복귀를 포함한 점검 6개가 모두 통과했다. 실패·스킵·점검 경고는 0개다. 이 기록은 UI 추가 전 API 결과다. 최신 코드 97cd09a의 Windows 전체 회귀 230 passed·82 subtests passed와 Chromium 자동 시연 6개를 확인했다. 사람의 수동 시연과 모바일 실기기 확인은 별도다. 공식 참고자료 6개의 페이지 확인과 공개 목데이터 배포는 PROJECT_STATUS에 별도로 기록한다.

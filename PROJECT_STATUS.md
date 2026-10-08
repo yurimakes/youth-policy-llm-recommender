@@ -1,11 +1,12 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
-- 개발 브랜치: `feature/intake-api`, PR #3 draft
+- 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
+- 검증·제출 코드 기준: `97cd09a` (공개 체험 버전 3)
 - main: 1차 고도화 PR #2 병합 완료 (`d0d86f2`)
 - 원본: `v0.1-mvp` → `23f33e7`, 변경 없음
 - 공개 제출 체험: https://youth-support-demo-20261008.cyr3918.chatgpt.site
-- 현재 단계: 확정 UI와 공개 목데이터 체험 배포 완료. 2b9eaab의 Windows 전체 회귀 통과. 추가 브라우저 자동 시연 확인 후 main 병합.
+- 현재 단계: 확정 UI·공개 목데이터 배포·Windows 전체 회귀·Chromium 핵심 시연 완료. 제출용 코드 작업세트를 main에 병합했다.
 
 ## 현재 구현과 경계
 
@@ -13,7 +14,7 @@
 |---|---|---|
 | 진행·조건 | Python 카드·질문·상세·수정, 조건 4상태, 명확한 제외, 날짜 재평가 | 복합 소득·학력·예외는 기관 확인 |
 | 실제 API | stateless FastAPI, SQLite 읽기 전용, 상태·전환·스키마 검증 | 공개 Python 서버 운영·인증·영구 저장 미구현 |
-| 확정 UI | 상황·관심·기초·방향·상세 제안·상세·갱신·준비·상담 요약 | 최신 브라우저 수동 시연 대기, React 구현 아님 |
+| 확정 UI | 상황·관심·기초·방향·상세 제안·상세·갱신·준비·상담 요약 | Chromium 자동 시연 완료. 사람의 디자인 검토·모바일 실기기 확인과 React 구현은 별도 |
 | 공개 체험 | 정적 목데이터 6개, 상단·후보·문서에 가상 표시 | 실제 정책 자격 판정·실제 DB 연동 없음 |
 | 준비·문서 | 메모리 장바구니, 사용자 완료 체크, 요약·체크리스트·발급 안내·문의 초안, 복사·인쇄 PDF | 기관 확인·자동 발급·AI 생성·자동 연락 없음 |
 | 공식 참고 | 실제 제도 6개의 공식 페이지, ID·URL·확인일·기간 안내 | 가상 후보와 연결 안 함. 전체 조건의 정규화·실제 DB 선별 미완료 |
@@ -30,8 +31,8 @@
 | compileall / JS syntax | 성공 | api.py, app.py, src, scripts, tests와 모듈 구문 |
 | 공개 정적 빌드·배포 | 배포 succeeded, audience public | 로그인 없는 공개 URL, 실제 서버 공개 운영 검증 아님 |
 | 공식 참고 페이지 | 2026-10-08 확인, 6개 기록 | 청년수당·월세의 해당 모집 종료 표시; 나머지 기관·예약 확인 필요 |
-| Windows 전체 pytest·HTTP | 230 passed, 82 subtests passed, warning 1 | 2b9eaab, GitHub Actions Windows Python 3.10. 실제 TestClient 경로 포함 |
-| 브라우저 화면·캡처 | 자동 시연 실행 준비 | Chromium 6개 경로와 실제 FastAPI 합성 정책 연동, 복사·PDF·캡처 확인 |
+| Windows 전체 pytest·HTTP | 230 passed, 82 subtests passed, warning 1 | 최신 코드 97cd09a, GitHub Actions Windows Python 3.10. 실제 TestClient 경로 포함 |
+| 브라우저 화면·캡처 | 6 passed (11.7s) | Chromium의 5개 핵심 시나리오 + 실제 FastAPI 합성 정책 연결, 복사·PDF·모바일 가로 넘침 확인 |
 
 실행 명령:
 
@@ -44,9 +45,9 @@ PYTHONPATH="$CODEX_PRIMARY_RUNTIME_ROOT/dependencies/python/lib/python3.12/site-
 .venv/bin/python scripts/build_submission_demo.py --output <정적 출력 폴더>
 ```
 
-자동 검증에서는 모름·건너뛰기, 상세 거절·중단·복귀, 명시적 취업·나이 수정에 따른 제외와 모름으로 복원, 선호와 자격 분리, 후보 없음·데이터 오류 후 이전 답변 유지와 재시도를 확인했다. 실제 브라우저 클릭·레이아웃·클립보드·PDF 인쇄의 수동 실행 결과는 아니다. 정적 HTML에는 연결된 자산이 존재하고 실제 API HTML은 API 모드를 유지한다.
+자동 검증에서는 모름·건너뛰기, 상세 거절·중단·복귀, 명시적 취업·나이 수정에 따른 제외와 모름으로 복원, 선호와 자격 분리, 후보 없음·데이터 오류 후 이전 답변 유지와 재시도를 확인했다. 첫 로컬 단위 검증은 실제 브라우저 결과가 아니며, 이후 확보한 Chromium 자동 시연 결과는 아래 최종 기록에 구분한다. 사람의 수동 시연과 모바일 실기기 검증은 아니다. 정적 HTML에는 연결된 자산이 존재하고 실제 API HTML은 API 모드를 유지한다.
 
-Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하고 HTTP 사례를 추가했다. Windows Python 3.10의 전체 pytest와 Node·정적 빌드를 수행하는 `Submission checks` 워크플로를 추가한다. 설정 존재와 성공한 실행은 구분하며, 실행 결과가 확보될 때 기록을 갱신한다.
+Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하고 HTTP 사례를 추가했다. Windows Python 3.10 전체 pytest, Node, 정적 빌드와 Chromium 시연을 수행하는 `Submission checks` 워크플로를 운영한다. 성공한 실행과 단순 설정을 구분해 기록한다.
 
 ## 이전 사용자 실행 기록
 
@@ -64,7 +65,7 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 
 ## 제출과 병합
 
-시연·실행·구현 범위는 `docs/submission/2026-10-08-demo.md`, 계획 현황은 `docs/planning/submission-mvp-2026-10-08.md`를 따른다. 제출 시각 확정 후 2~3시간 전 기능 동결, 제출처 요구 캡처·파일과 링크 확인, 최신 전체 회귀·핵심 실제 연동 확인 후 PR #3 main 병합과 제출 커밋 고정을 진행한다. 그 전에는 공개 체험 링크를 제공하되 실제 운영 서비스 완성으로 설명하지 않는다.
+시연·실행·구현 범위는 `docs/submission/2026-10-08-demo.md`, 계획 현황은 `docs/planning/submission-mvp-2026-10-08.md`를 따른다. 제출 시각 확정 후 2~3시간 전 기능 동결, 제출처 요구 캡처·파일과 링크 확인, 최신 전체 회귀와 합성 정책을 이용한 실제 FastAPI·브라우저 연동 확인 후 PR #3을 main에 병합했다. 검증 코드 97cd09a와 공개 버전 3을 제출 기준으로 기록한다. 이 기준 이후 문서 기록만 갱신하며 실제 운영 서비스 완성으로 설명하지 않는다.
 
 정책 20~30개 전체 확정, PostgreSQL, LangGraph·신규 RAG, 모델 연결, 개인정보 처리 설계, 기술 평가·실사용 검증은 후속이다.
 
@@ -77,3 +78,18 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 ### 첫 Chromium 시연과 문서 버튼 보완
 
 400ea8e의 Windows 전체 pytest는 다시 230 passed, 82 subtests passed로 통과했다. Chromium은 4 passed / 2 failed였다. 두 실패는 가상 체험·실제 FastAPI 모두 상담 요약 버튼의 접근성 이름에 아이콘 문자가 포함되어 제목으로 찾을 수 없는 문제였다. 문서 도구에 명시적 aria-label을 지정하고 재검증한다. 다른 4개 시나리오와 실제 API의 수동 지역 코드 수정·공식 링크 연결은 해당 버튼 전까지 정상 진행했다. 브라우저 전체 통과나 PDF 성공으로 표시하지 않는다.
+
+
+## 최종 검증·배포·병합 (97cd09a)
+
+- Windows Python 3.10 전체 pytest: **230 passed, 82 subtests passed, 경고 1개**. HTTP 테스트 스킵 없음.
+- Node 클라이언트·가상 진행: **15 passed, 실패·스킵 0**. compileall·정적 빌드 성공.
+- Chromium: **6 passed (11.7s)**. 기본 흐름과 상세 중단/복귀·준비/요약, 건너뛰기, 상세 거절, 수정 후 장바구니 제외와 모름 복원, 빈 결과/오류 후 재시도, 실제 FastAPI 합성 정책 연결과 수동 지역 코드 수정·공식 링크를 확인했다.
+- 상담 요약 클립보드 복사와 Chromium PDF 출력, 모바일 가로 넘침 없음, 화면 PNG 6개와 상담 PDF 1개 생성. 사람의 인쇄창에서 저장 위치 선택을 확인한 결과는 아니다.
+- 공개 체험 버전 3 배포 succeeded, audience public. 배포 자산이 검증한 저장소 demo 파일과 일치한다.
+- PR #3 main 병합 성공: `2e120f3701b853a7cfb0312a7fa9eeb9e7f00ce7`. 제출 코드 기준 `97cd09a46e9a09883348b6c85d9734b38f44f049`.
+- 원본 태그가 `23f33e7bc8e51d3e26812faeb479aae7f83ee596`을 가리키며 설명도 유지됨을 재확인했다.
+
+[검증 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655) · [화면 PNG·상담 PDF](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167)
+
+캡처 아티팩트는 2026-10-15까지 보관된다. 제출용 파일은 그 전에 내려받아 보관한다. 실제 정책 DB 20건은 이전 사용자 실행 기록이며 현재 Chromium의 실제 API 테스트는 격리된 합성 정책으로 수행했다. 새로운 정책 전체의 최신성·실사용 효과·공개 Python API 운영을 검증한 것으로 확대하지 않는다.
