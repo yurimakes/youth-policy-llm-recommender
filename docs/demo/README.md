@@ -77,7 +77,7 @@ GitHub Actions의 Demo checks는 Chromium에서 5개 핵심 시나리오와 실�
 
 ## 검증 코드와 생성 자료
 
-- 코드 기준: `97cd09a`, PR #3 main 병합 `2e120f3`, 공개 체험 버전 3.
-- [최종 검증](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655): Windows pytest 230 passed·82 subtests passed·경고 1개, Node 15 passed, Chromium 6 passed.
-- [화면 PNG 6개와 상담 PDF 다운로드](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37707391655/artifacts/11520561167): GitHub 로그인 후 내려받을 수 있으며 2026-10-15까지 보관한다. 공개 데모 자체에는 로그인이 필요 없다.
+- 앱·글꼴 검증 코드: `d429571`, 공개 체험 버전 4. PR #3의 기존 데모 병합 `2e120f3` 이후 글꼴을 보완했다.
+- [최종 검증](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670): Windows pytest 230 passed·86 subtests passed·경고 1개, Node 15 passed, Chromium 6 passed.
+- [화면 PNG 6개와 상담 PDF 다운로드](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37711672670/artifacts/11522440067): GitHub 로그인 후 내려받을 수 있으며 2026-10-15까지 보관한다. 공개 데모 자체에는 로그인이 필요 없다.
 - 공개 체험 링크·저장소 링크·화면 캡처로 데모를 확인할 수 있다. 실제 정책의 자격 보장·공개 Python API 운영·AI 자동 문서 생성으로 설명하지 않는다.
