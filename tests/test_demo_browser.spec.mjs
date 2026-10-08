@@ -23,12 +23,20 @@ async function basket(page){
  await expect(page.locator('#detail-dialog')).toBeVisible();
 }
 async function capture(page,name){
+ await page.evaluate(()=>document.fonts.ready);
  mkdirSync('browser-artifacts/screens',{recursive:true});
  await page.screenshot({path:`browser-artifacts/screens/${name}.png`,fullPage:true});
 }
 test('basic journey, optional detail pause/resume, basket and consultation document',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/');await expect(page.getByRole('heading',{level:1})).toContainText('요즘');
+ const typography=await page.evaluate(async()=>{
+  await document.fonts.ready;
+  return {loaded:[...document.fonts].filter(f=>f.family==='Pretendard'&&f.status==='loaded').map(f=>f.weight),
+   titleWeight:getComputedStyle(document.querySelector('h1')).fontWeight};
+ });
+ expect(typography.loaded).toEqual(expect.arrayContaining(['400','800']));
+ expect(typography.titleWeight).toBe('800');
  const title=await page.locator('#page-title').boundingBox();
  expect(Math.abs(title.x+title.width/2-195)).toBeLessThan(5);
  await capture(page,'01-situation');

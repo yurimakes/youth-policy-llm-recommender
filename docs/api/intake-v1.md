@@ -2,7 +2,7 @@
 
 ## 담당과 구현 상태
 
-사용자가 확정한 화면 보드에 따라 질문·결과·장바구니 준비·상담 문서 초안까지 제출용 UI를 연결했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
+사용자가 확정한 화면 보드에 따라 질문·결과·장바구니 준비·상담 문서 초안까지 데모 UI를 연결했다. 기존 FastAPI가 `/demo`에서 HTML/CSS/JavaScript와 API를 함께 제공한다. React/TypeScript는 후속 방향이다.
 
 API 코드는 `api.py`, `src/youth_policy/api_*.py`에 있다. 진행 계약·정책 재평가·Pydantic 스키마를 검증했고, `1862bbe`의 Windows 전체 pytest에서 **224 passed, 67 subtests passed, 경고 1개**를 확인했다. FastAPI TestClient 테스트 11개도 포함된다. 실제 Uvicorn 서버·정책 DB 20건·기본 후보 5건에서 상세 중단·복귀를 포함한 점검 **6개 모두 통과(실패·스킵·점검 경고 0개)**를 확인했다. 이 검증은 UI 추가 전 API 결과다. 최신 97cd09a의 Windows 전체 pytest 230 passed·82 subtests passed와 Chromium 시연 6개를 확인했다. 현재 브라우저 테스트는 실제 FastAPI에 합성 정책을 연결한 결과이며, 실제 데이터 전체의 최신성 검증과 구분한다.
 
@@ -29,7 +29,7 @@ API 의존성 설치, `1862bbe`의 Windows 전체 테스트, 위 Uvicorn 서버 
 수집 건수·내용은 실제 공식 API 응답에 따라 달라진다. 이 수집은 서울·전국 주거·취업 20~30개 정책 목록이 확정됐다는 뜻이 아니다.
 
 - 기본 주소: `http://127.0.0.1:8000`
-- 제출용 화면: `/demo` 또는 `/demo/` (별도 빌드 없음)
+- 데모 화면: `/demo` 또는 `/demo/` (별도 빌드 없음)
 - 실행 후 자동 문서: `/docs`
 - 실행 후 OpenAPI: `/openapi.json`
 - 정책 DB 기본 경로: 저장소 루트 기준 `data/processed/policies.sqlite3`
@@ -73,7 +73,7 @@ $env:API_CORS_ORIGINS = "http://localhost:8080"
 
 | 메서드·경로 | 입력 | 출력 |
 |---|---|---|
-| `GET /demo`, `GET /demo/` | 없음 | 제출용 HTML 화면 |
+| `GET /demo`, `GET /demo/` | 없음 | 데모 HTML 화면 |
 | `GET /demo/assets/*` | 없음 | style.css·app.mjs·client.mjs만 허용, MIME 타입 명시 |
 | `GET /health` | 없음 | 프로세스 상태, `api_version` |
 | `GET /ready` | 없음 | DB 준비 여부·정책 건수, 미준비/비어 있음은 503 |
@@ -165,7 +165,7 @@ SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다.
 
 요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. Windows에서 모듈이 text/plain으로 제공된 오류를 확인해 CSS·JavaScript MIME 타입을 서버가 직접 지정하도록 수정했다. 수정 후 Windows 전체 회귀·시각적 배치는 PROJECT_STATUS의 확인 대기 항목이다.
 
-Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs tests/test_submission_demo.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
+Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
 
 ## 검증과 계약 재생성
 
@@ -182,7 +182,7 @@ API 패키지가 없으면 HTTP 테스트는 명시적으로 skip된다. 스킵�
 
 ## 공개 가상 체험과 실제 API의 경계
 
-공개 제출 주소와 시연 방법은 `docs/submission/2026-10-08-demo.md`에서 관리한다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 별도 검토한 페이지이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
+공개 데모 주소와 시연 방법은 `docs/demo/README.md`에서 관리한다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 별도 검토한 페이지이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
 
 정적 파일은 style.css, app.mjs, client.mjs, mock.mjs, official-policies.json의 다섯 파일만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
 
