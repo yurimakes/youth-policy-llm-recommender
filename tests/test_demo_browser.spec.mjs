@@ -58,11 +58,12 @@ test('basic journey, optional detail pause/resume, basket and consultation docum
  await expect(page.locator('.document')).toContainText('만 24세');
  await expect(page.locator('.document')).toContainText('가상 예시');
  await expect(page.locator('.document')).toContainText('선호 · 자격에 사용 안 함');
+ await expect(page.locator('#toast')).toBeHidden();
+ await capture(page,'09-consultation');
  await context.grantPermissions(['clipboard-read','clipboard-write']);
  await page.getByRole('button',{name:'복사하기',exact:true}).click();
  await expect(page.locator('#toast')).toContainText('복사했어요');
  expect(await page.evaluate(()=>navigator.clipboard.readText())).toContain('만 24세');
- await capture(page,'09-consultation');
  await page.pdf({path:'browser-artifacts/screens/09-consultation.pdf',format:'A4',printBackground:true});
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
  expect(errors).toEqual([]);
