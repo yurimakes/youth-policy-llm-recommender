@@ -1,7 +1,8 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
-- 후속 작업 브랜치: `docs/clean-ui-capture` (main 기준, 상담 화면 캡처 수정)
+- 최신 병합: PR #6 (`8474753`), 상담 화면 캡처 수정 완료
+- 실행 기록 보완 브랜치: `docs/demo-runtime-notes` (main 기준)
 - 후속 변경: v0 이미지의 글자 굵기에 맞춘 Pretendard 파일 제공, 일반 데모 안내·계획·빌드·검증 경로로 정리.
 - 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
 - 이전 검증 코드 기준: `97cd09a` (공개 체험 버전 3)
@@ -61,7 +62,7 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 | 2b8b66b | 222 passed, 67 subtests passed, warning 1 | 실제 서버 점검 CLI 추가 후 회귀 |
 | 1862bbe | 224 passed, 67 subtests passed, warning 1 | 상세 중단·복귀 점검 보완 후 회귀 |
 | f22e949 | 226 passed, failed subtests 2, 73 subtests passed, warning 1 | Windows .mjs가 text/plain인 MIME 오류 |
-| 2216f84 | 사용자가 기존 /demo 화면 표시 확인 | MIME 타입 명시. 수정 후 전체 pytest 출력 미제공 |
+| 2216f84 | 227 passed, 79 subtests passed, warning 1 | 사용자 Windows 전체 pytest 통과. /demo 자산·API 전환 200 OK, Uvicorn 기동 확인 |
 
 `1862bbe` 실제 Uvicorn·로컬 정책 DB 20건에서 기본 후보 5건, 점검 PASS 6 / FAIL 0 / SKIP 0 / WARN 0을 확인했다. 이 결과와 기존 TestClient 의존성 경고 1개는 당시 기록이며 현재 변경의 전체 통과로 인용하지 않는다. 원본 Streamlit·수집·저장·검색·LLM 모듈은 유지했다.
 
@@ -120,3 +121,9 @@ README 상단에 상황 선택·지원 후보·신청 준비·상담 요약의 �
 ## 상담 화면 캡처의 복사 알림 제거
 
 복사 동작 전에 알림이 숨겨져 있는지 검사하고 상담 화면을 캡처하도록 순서를 조정했다. 기존 클립보드·PDF 기능 검증은 유지했다. [Demo checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37727689846)이 성공했으며, 새 PNG를 직접 확인해 README의 상담 화면 이미지를 교체했다. 서비스 런타임 코드는 변경하지 않았다.
+
+## 로컬 서버와 공개 데모
+
+사용자가 제공한 `2216f84`의 Windows 실행 기록은 227 passed, 79 subtests passed, 경고 1개다. 기존 의존성 경고는 테스트 실패가 아니다. 이 결과는 해당 커밋의 기록이며 최신 글꼴 버전의 230개 검증과 구분한다.
+
+로컬 Uvicorn은 실행한 PowerShell에서 `Ctrl+C`로 종료할 수 있다. 종료하면 `127.0.0.1:8000`의 로컬 API·화면만 멈추며, 독립적으로 호스팅된 공개 목데이터 데모에는 영향이 없다. 다시 로컬 실제 API를 사용할 때 최신 main을 가져와 Uvicorn을 실행한다.
