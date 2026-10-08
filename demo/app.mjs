@@ -182,7 +182,7 @@ function preparation(){
   input.addEventListener('change',()=>{const next=new Set(tasks);if(input.checked)next.add(t.key);else next.delete(t.key);completed.set(c.policy_id,next);render();});list.append(label);
  }
  $('screen').append(list,para('준비 문서','section-label'));
- const tools=create('div','doc-tools');for(const [kind,title,icon]of [['checklist','체크리스트','▣'],['guidance','발급 안내','▤'],['summary','상담 요약서','▰'],['inquiry','문의 초안','✉']]){const b=button('',()=>{documentKind=kind;page='document';render();},'');b.append(create('span','card-icon',icon),create('span','',title));tools.append(b);}$('screen').append(tools,para('완료 표시는 내가 확인한 기록이에요. 기관의 확인이나 신청 완료를 뜻하지 않아요.','muted'));
+ const tools=create('div','doc-tools');for(const [kind,title,icon]of [['checklist','체크리스트','▣'],['guidance','발급 안내','▤'],['summary','상담 요약서','▰'],['inquiry','문의 초안','✉']]){const b=button('',()=>{documentKind=kind;page='document';render();},'');b.setAttribute('aria-label',title);b.append(create('span','card-icon',icon),create('span','',title));tools.append(b);}$('screen').append(tools,para('완료 표시는 내가 확인한 기록이에요. 기관의 확인이나 신청 완료를 뜻하지 않아요.','muted'));
  const source=safeSourceUrl(c.source_url);if(source){const a=create('a','muted','공식 공고 열기');a.href=source;a.target='_blank';a.rel='noopener noreferrer';$('screen').append(a);}else $('screen').append(button('실제 공식 정책 참고자료 보기',openOfficial,'text-button blue'));
  bottom('지원 결과로 돌아가기',()=>transition({type:'show_results'},()=>{page='updated';updated=true;}));
 }

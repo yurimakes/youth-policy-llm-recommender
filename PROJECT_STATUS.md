@@ -72,3 +72,8 @@ Windows 재발 방지를 위해 모듈 3개와 JSON의 MIME을 직접 지정하�
 ## Windows 자동 회귀 확보 (2b9eaab)
 
 [Submission checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37706147803)에서 Windows Python 3.10 전체 pytest **230 passed, 82 subtests passed, 경고 1개**, JavaScript 15개와 정적 빌드의 성공을 확인했다. 경고는 기존 Starlette TestClient의 httpx 관련 안내다. 이후 모바일 헤더 정렬과 MIME을 고정한 정적 미리보기 서버, 브라우저 회귀/캡처 도구를 추가하므로 최신 head의 결과는 별도로 확인한다.
+
+
+### 첫 Chromium 시연과 문서 버튼 보완
+
+400ea8e의 Windows 전체 pytest는 다시 230 passed, 82 subtests passed로 통과했다. Chromium은 4 passed / 2 failed였다. 두 실패는 가상 체험·실제 FastAPI 모두 상담 요약 버튼의 접근성 이름에 아이콘 문자가 포함되어 제목으로 찾을 수 없는 문제였다. 문서 도구에 명시적 aria-label을 지정하고 재검증한다. 다른 4개 시나리오와 실제 API의 수동 지역 코드 수정·공식 링크 연결은 해당 버튼 전까지 정상 진행했다. 브라우저 전체 통과나 PDF 성공으로 표시하지 않는다.
