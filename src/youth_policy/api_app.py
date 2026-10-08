@@ -37,7 +37,11 @@ def create_app(
     demo_directory = Path(__file__).resolve().parents[2] / "demo"
     demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
                    "client.mjs": "text/javascript", "mock.mjs": "text/javascript",
-                   "official-policies.json": "application/json"}
+                   "official-policies.json": "application/json",
+                   "Pretendard-Regular.woff2": "font/woff2",
+                   "Pretendard-SemiBold.woff2": "font/woff2",
+                   "Pretendard-ExtraBold.woff2": "font/woff2",
+                   "Pretendard-OFL.txt": "text/plain"}
 
     @app.get("/demo/assets/{asset_name}", include_in_schema=False)
     def demo_asset(asset_name: str) -> FileResponse:
@@ -49,7 +53,7 @@ def create_app(
     @app.get("/demo", include_in_schema=False)
     @app.get("/demo/", include_in_schema=False)
     def demo() -> FileResponse:
-        """같은 origin의 API를 사용하는 제출용 데모 화면을 반환합니다."""
+        """같은 origin의 API를 사용하는 데모 화면을 반환합니다."""
         return FileResponse(demo_directory / "index.html", media_type="text/html")
 
     app.add_middleware(
