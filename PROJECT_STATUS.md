@@ -1,7 +1,7 @@
 # 지원장바구니 개발 현황
 
 - 갱신일: 2026-10-08, 한국 시간
-- 후속 작업 브랜치: `docs/readme-ui-screens` (main 기준, README 화면 소개)
+- 후속 작업 브랜치: `docs/clean-ui-capture` (main 기준, 상담 화면 캡처 수정)
 - 후속 변경: v0 이미지의 글자 굵기에 맞춘 Pretendard 파일 제공, 일반 데모 안내·계획·빌드·검증 경로로 정리.
 - 현재 기준: `main`. `feature/intake-api`의 PR #3 병합 완료 (`2e120f3`)
 - 이전 검증 코드 기준: `97cd09a` (공개 체험 버전 3)
@@ -116,3 +116,7 @@ Pretendard Regular·SemiBold·ExtraBold 원본 WOFF2와 OFL 원문을 함께 제
 ## README 서비스 화면 추가
 
 README 상단에 상황 선택·지원 후보·신청 준비·상담 요약의 실제 Chromium 화면 4장을 2열로 배치했다. 파일은 `assets/screens/`에 보관하며, 글꼴 적용 코드 `d429571`의 성공한 자동 검증에서 생성한 가상 체험 캡처를 사용한다. 4장의 화면을 직접 확인했으며 이미지 링크와 Git blob 일치를 점검했다. 서비스 코드 변경은 없다. 공개 데모 링크는 사용자가 배포한 Vercel 주소로 갱신했다. 이번 작업에서 새 브라우저 캡처·전체 회귀·Vercel 동작 검증을 수행한 것은 아니다.
+
+## 상담 화면 캡처의 복사 알림 제거
+
+복사 동작 전에 알림이 숨겨져 있는지 검사하고 상담 화면을 캡처하도록 순서를 조정했다. 기존 클립보드·PDF 기능 검증은 유지했다. [Demo checks 실행](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37727689846)이 성공했으며, 새 PNG를 직접 확인해 README의 상담 화면 이미지를 교체했다. 서비스 런타임 코드는 변경하지 않았다.
