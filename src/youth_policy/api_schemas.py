@@ -5,7 +5,7 @@ FastAPI의 구조화된 입력·응답과 OpenAPI 계약을 정의합니다.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, StringConstraints
@@ -113,6 +113,11 @@ class CandidateSchema(ContractModel):
     policy_id: str
     policy_name: str
     recommendation_reasons: list[str] = Field(default_factory=list)
+    application_start: date | None = None
+    application_end: date | None = None
+    application_method: str | None = None
+    required_documents: str | None = None
+    contact: str | None = None
     summary: str | None
     benefit_text: str | None
     status: ConditionStatus
