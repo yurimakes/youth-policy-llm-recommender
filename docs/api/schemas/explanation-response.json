@@ -1,0 +1,199 @@
+{
+  "$defs": {
+    "CheckSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/ConditionStatus"
+        },
+        "status_label": {
+          "title": "Status Label",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "status",
+        "status_label",
+        "reason"
+      ],
+      "title": "CheckSchema",
+      "type": "object"
+    },
+    "ConditionStatus": {
+      "enum": [
+        "confirmed",
+        "not_met",
+        "check_required",
+        "input_missing"
+      ],
+      "title": "ConditionStatus",
+      "type": "string"
+    },
+    "EvidenceSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "excerpt": {
+          "title": "Excerpt",
+          "type": "string"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "field",
+        "label",
+        "excerpt",
+        "truncated"
+      ],
+      "title": "EvidenceSchema",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "api_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Api Version",
+      "type": "string"
+    },
+    "policy_id": {
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "policy_name": {
+      "title": "Policy Name",
+      "type": "string"
+    },
+    "focus": {
+      "enum": [
+        "overview",
+        "preparation",
+        "conditions"
+      ],
+      "title": "Focus",
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "source_only",
+        "ai_selected"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "fallback_reason": {
+      "anyOf": [
+        {
+          "enum": [
+            "unavailable",
+            "invalid_selection",
+            "provider_error"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Fallback Reason"
+    },
+    "ai_available": {
+      "title": "Ai Available",
+      "type": "boolean"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/EvidenceSchema"
+      },
+      "maxItems": 3,
+      "title": "Items",
+      "type": "array"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/CheckSchema"
+      },
+      "title": "Checks",
+      "type": "array"
+    },
+    "recommendation_reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Recommendation Reasons",
+      "type": "array"
+    },
+    "source_name": {
+      "title": "Source Name",
+      "type": "string"
+    },
+    "source_url": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Url"
+    },
+    "last_verified_at": {
+      "format": "date-time",
+      "title": "Last Verified At",
+      "type": "string"
+    },
+    "reference_date": {
+      "format": "date",
+      "title": "Reference Date",
+      "type": "string"
+    },
+    "notice": {
+      "title": "Notice",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_id",
+    "policy_name",
+    "focus",
+    "mode",
+    "fallback_reason",
+    "ai_available",
+    "items",
+    "checks",
+    "recommendation_reasons",
+    "source_name",
+    "source_url",
+    "last_verified_at",
+    "reference_date",
+    "notice"
+  ],
+  "title": "ExplanationResponse",
+  "type": "object"
+}

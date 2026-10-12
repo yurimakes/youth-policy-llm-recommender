@@ -15,7 +15,8 @@ The original Streamlit/SQLite MVP is available at `v0.1-mvp` (`23f33e7bc8e51d3e2
 - Fixed choices and comparable conditions are handled by code. LLM output cannot override a clear exclusion or invent a policy.
 - Policy amounts, periods, documents and contacts require official sources. Preserve policy IDs, URLs and verification times.
 - The static demo uses synthetic policies and conditions. Its separate official-reference catalogue is not evidence for synthetic candidates.
-- The intake API and demo do not call external models, persist user answers, submit applications or send messages. Browser print-to-PDF is a browser action.
+- Intake progression and the synthetic demo do not call external models. The optional explanation endpoint may select recorded evidence with AI only when explicitly enabled on the server and requested by the user. Validate selected evidence IDs, keep rule decisions, and fall back to recorded excerpts on failure. Never send raw user profiles to this selector.
+- Do not persist user answers, submit applications or send messages. Browser print-to-PDF is a browser action.
 
 ## Repository and validation
 

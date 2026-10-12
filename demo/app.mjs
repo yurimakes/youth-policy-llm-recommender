@@ -10,6 +10,7 @@ const fields={...facts,application:'신청 기간',household:'가구',income:'�
 const icons={school:'▰',working:'▣',resting:'☕',unknown:'?',living_cost:'₩',low_burden:'⚑',counseling:'…',employment:'▣',housing:'⌂',learning:'▤'};
 const descriptions={unknown:'괜찮아요. 여러 방향을 함께 보여드릴게요.'};
 const options=new Map();
+const explanations=new Map();
 let selected=new Set(),knownCandidates=new Map(),completed=new Map(),activePolicy=null;
 let page='intake',updated=false,busy=false,retry=null,draft=null,history=[],documentKind='summary',toastTimer;
 const create=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
@@ -18,7 +19,7 @@ const para=(text,cls='subtitle')=>create('p',cls,text);
 const chosen=()=>session.result?.candidates.filter(c=>selected.has(c.policy_id))||[];
 function toast(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{$('toast').hidden=true;},3000);}
 function snapshot(){return session.result?{result:structuredClone(session.result),selected:[...selected],page,updated,activePolicy,detailAnswers:mock?{...session.detailAnswers}:null,detailSkipped:mock?[...session.detailSkipped]:null}:null;}
-function restore(s){session.result=s.result;selected=new Set(s.selected);page=s.page;updated=s.updated;activePolicy=s.activePolicy;if(mock){session.detailAnswers=s.detailAnswers;session.detailSkipped=new Set(s.detailSkipped);}render();}
+function restore(s){explanations.clear();session.result=s.result;selected=new Set(s.selected);page=s.page;updated=s.updated;activePolicy=s.activePolicy;if(mock){session.detailAnswers=s.detailAnswers;session.detailSkipped=new Set(s.detailSkipped);}render();}
 function disabled(value){
  $('loading').hidden=!value;$('main').setAttribute('aria-busy',String(value));
  document.querySelectorAll('button,input,select').forEach(n=>{if(value){n.dataset.wasDisabled=String(n.disabled);n.disabled=true;}else if(n.dataset.wasDisabled!==undefined){n.disabled=n.dataset.wasDisabled==='true';delete n.dataset.wasDisabled;}});
@@ -47,6 +48,7 @@ async function perform(operation,after=()=>{}){
 }
 const transition=(action,after)=>perform(()=>session.transition(action),after);
 function reconcile(){
+ explanations.clear();
  const ids=new Set(session.result.candidates.map(c=>c.policy_id));
  if(!['start','interest'].includes(session.result.state.stage))selected=new Set([...selected].filter(id=>ids.has(id)));
  session.result.candidates.forEach(c=>knownCandidates.set(c.policy_id,c));
@@ -127,6 +129,27 @@ function checkDetails(candidate){
  if(url){const a=create('a','','공식 공고 확인하기');a.href=url;a.target='_blank';a.rel='noopener noreferrer';meta.append(a);}else meta.append(create('span','',mock?' · 가상 정책의 공식 공고는 없어요.':' · 공식 공고는 제공기관에서 확인해 주세요.'));
  details.append(meta);return details;
 }
+function evidencePanel(value){
+ const panel=create('section','info-card evidence-explanation');panel.append(create('strong','',value.mode==='ai_selected'?'AI가 고른 핵심 근거':'기록된 정책 근거'));
+ value.recommendation_reasons?.forEach(reason=>panel.append(para(reason,'muted')));
+ if(value.fallback_reason)panel.append(para('AI 정리를 사용할 수 없어 기록된 근거를 보여드려요.','muted'));
+ if(!value.items.length)panel.append(para('안내할 기록이 부족해요. 공식 공고나 담당 기관에서 확인해 주세요.','muted'));
+ value.items.forEach(item=>{const part=create('div','evidence-item');part.append(create('strong','',item.label+(item.truncated?' · 일부 발췌':'')),para(item.excerpt,'muted'));panel.append(part);});
+ const pending=value.checks.filter(c=>c.status!=='confirmed').map(c=>fields[c.field]||c.field);
+ panel.append(row('남은 확인',pending.join(' · ')||'공식 최종 자격',true));
+ panel.append(para(value.source_name+' · 데이터 처리일 '+formatVerifiedAt(value.last_verified_at),'muted'));
+ const url=safeSourceUrl(value.source_url);if(url){const link=create('a','muted','이 근거의 공고 확인하기');link.href=url;link.target='_blank';link.rel='noopener noreferrer';panel.append(link);}else panel.append(para('공식 공고 URL이 없어 기관 확인이 필요해요.','muted'));
+ panel.append(para(value.notice,'muted'));return panel;
+}
+async function explainPolicy(candidate,container,focus='overview',useAI=false){
+ if(busy)return;busy=true;disabled(true);
+ try{
+  const value=await session.explain(candidate.policy_id,{focus,useAI});explanations.set(candidate.policy_id,value);
+  container.querySelector('.evidence-explanation')?.remove();const panel=evidencePanel(value);container.append(panel);
+  if(value.ai_available&&!useAI){panel.append(para('AI 정리를 누르면 선택한 정책 기록·관심·조건 확인 상태만 외부 AI에 전달해요. 나이·지역 값이나 사용자 원문 답변은 보내지 않아요.','muted'),button('AI로 핵심 근거 골라보기',()=>explainPolicy(candidate,container,focus,true),'text-button blue'));}
+ }catch{explanations.delete(candidate.policy_id);container.querySelector('.evidence-explanation')?.remove();toast('근거를 불러오지 못했어요. 답변과 후보는 유지했어요.');}
+ finally{disabled(false);busy=false;}
+}
 function policyChoice(c,{detailed=false,excluded=false}={}){
  const wrapper=create('article');const btn=create('button','policy-choice'+(selected.has(c.policy_id)?' selected':'')+(excluded?' excluded':''));btn.type='button';btn.disabled=excluded;btn.setAttribute('aria-pressed',String(selected.has(c.policy_id)));
  const top=create('div','policy-heading'),body=create('span','card-content');body.append(create('strong','',c.policy_name+(mock?' · 예시':'')),create('small','',excluded?'현재 답변과 조건에 맞지 않아 제외됐어요.':c.summary||c.benefit_text||'조건과 남은 확인사항을 살펴보세요.'));
@@ -142,7 +165,9 @@ function policyChoice(c,{detailed=false,excluded=false}={}){
   c.recommendation_reasons.forEach(reason=>explanation.append(para(reason,'muted')));
   explanation.append(para('관심과의 관련성을 설명하며, 신청 자격을 뜻하지 않아요.','muted'));wrapper.append(explanation);
  }
- if(detailed&&!excluded)wrapper.append(checkDetails(c));return wrapper;
+ if(detailed&&!excluded)wrapper.append(checkDetails(c));
+ if(!mock&&!excluded)wrapper.append(button('근거로 설명 보기',()=>explainPolicy(c,wrapper),'text-button blue'));
+ return wrapper;
 }
 async function chooseBasket(){
  const first=chosen()[0];if(!first)return;
@@ -189,6 +214,7 @@ function preparation(){
  heading('담은 지원 '+chosen().length+'개',remaining?'준비할 일이\n'+remaining+'개 남았어요':'확인한 내용을\n상담에 가져가세요',null);
  const tabs=create('div','basket-tabs');chosen().forEach(p=>tabs.append(button(p.policy_name,()=>{activePolicy=p.policy_id;render();},p.policy_id===c.policy_id?'active':'')));$('screen').append(tabs);
  if(!mock)$('screen').append(recordedPreparation(c));
+ if(!mock)$('screen').append(button('준비 정보 근거 보기',()=>explainPolicy(c,$('screen'),'preparation'),'text-button blue'));
  const list=create('div','card-list');for(const t of taskDefinitions){
   const label=create('label','task-card'+(tasks.has(t.key)?' done':''));const input=create('input');input.type='checkbox';input.checked=tasks.has(t.key);input.setAttribute('aria-label',t.title+' 완료 표시');input.style.position='absolute';input.style.opacity='0';input.style.width='1px';input.style.height='1px';
   const body=create('span','card-content');body.append(create('strong','',t.title),create('small','',tasks.has(t.key)?'내가 확인했어요.':t.description));label.append(input,create('span','card-icon',t.icon),body,create('span','radio-mark','✓'));
@@ -214,6 +240,7 @@ function makeDocument(){
  const confirmed=c.checks.filter(x=>x.status==='confirmed').map(x=>fields[x.field]||x.field),pending=c.checks.filter(x=>x.status!=='confirmed').map(x=>fields[x.field]||x.field);
  policy.append(row('개별 조건 확인',confirmed.join(' · ')||'아직 확인된 조건 없음'),row('확인 필요',pending.join(' · '),true));doc.append(policy);
  if(!mock)doc.append(recordedPreparation(c));
+ if(!mock&&explanations.has(c.policy_id))doc.append(evidencePanel(explanations.get(c.policy_id)));
  const questions=create('div','info-card');questions.append(create('strong','',documentKind==='checklist'?'다음 확인할 항목':documentKind==='guidance'?'공식 발급 경로 확인 순서':'담당 기관에 물어볼 것'));
  const lines=documentKind==='checklist'?taskDefinitions.map(t=>(tasksFor(c).has(t.key)?'확인함 · ':'미확인 · ')+t.title):documentKind==='guidance'?['정책 공고에서 제출해야 하는 서류 목록을 먼저 확인하세요.','발급 주체와 온라인·방문 발급 가능 여부를 공식 공고나 기관에 확인하세요.','주민등록등본 등 특정 서류가 필수라고 미리 단정하지 않아요.']:['현재 모집 중인지, 제 조건으로 어떤 절차를 확인하면 될까요?','확인되지 않은 '+pending.slice(0,3).join('·')+' 항목은 어떻게 확인하나요?','필요한 서류와 공식 발급 경로를 알려주실 수 있나요?'];
  const list=create('ol');lines.forEach(t=>list.append(create('li','',t)));questions.append(list);doc.append(questions);
