@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 from youth_policy.conditions import ConditionAssessment, ConditionStatus, assess_conditions
 from youth_policy.intake import IntakeState, Stage
 from youth_policy.models import PolicyRecord
+from youth_policy.relevance import assess_relevance
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,7 @@ class PolicyGuidance:
     next_actions: tuple[str, ...]
     source_url: str | None
     last_verified_at: datetime
+    recommendation_reasons: tuple[str, ...] = ()
 
 
 QUESTIONS = {
@@ -59,9 +61,12 @@ def build_guidance(
         source_url = _source_url(policy.source_url)
         actions.append("공식 공고에서 최종 자격과 준비 절차를 확인하세요." if source_url
                        else "공식 공고 URL이 없어 제공기관에서 공고를 찾아 확인해야 합니다.")
-        results.append(PolicyGuidance(policy.policy_id, policy.policy_name, assessment,
-                                      tuple(actions), source_url, policy.last_verified_at))
-    return tuple(results)
+        relevance = assess_relevance(policy, state)
+        results.append((relevance.score, PolicyGuidance(
+            policy.policy_id, policy.policy_name, assessment, tuple(actions), source_url,
+            policy.last_verified_at, relevance.reasons)))
+    # Stable ties retain provider order; interest never adds an excluded policy.
+    return tuple(guidance for _, guidance in sorted(results, key=lambda item: -item[0]))
 
 
 def next_question(

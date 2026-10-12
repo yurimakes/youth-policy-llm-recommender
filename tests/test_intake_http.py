@@ -43,6 +43,17 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(response.headers["cache-control"], "no-store")
         self.assertEqual(self.client.get("/ready").json()["policy_count"], 1)
 
+    def test_http_returns_relevance_reasons_after_card_correction(self):
+        response = self.transition(state_to_payload(basic_state()), {"type": "show_results"})
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertTrue(any("주거" in reason for reason in payload["candidates"][0]["recommendation_reasons"]))
+        corrected = self.transition(payload["state"], {"type": "choose_card", "key": "interest", "value": "counseling"})
+        self.assertEqual(corrected.status_code, 200)
+        candidate = corrected.json()["candidates"][0]
+        self.assertTrue(any("직접 연결되는 표현이 확인되지" in reason for reason in candidate["recommendation_reasons"]))
+        self.assertEqual(candidate["checks"], payload["candidates"][0]["checks"])
+
     def test_demo_page_and_local_assets_are_served_without_caching(self):
         for path, content_type in (("/demo", "text/html"), ("/demo/", "text/html"),
                                    ("/demo/assets/style.css", "text/css"),

@@ -136,6 +136,11 @@ function policyChoice(c,{detailed=false,excluded=false}={}){
   const info=create('div','condition-summary');info.append(row(confirmed.join(' · ')||'확인된 조건',confirmed.length?'개별 조건 확인됨':'입력 확인 전'),row('남은 확인',pending.slice(0,3).join(' · ')||'공식 최종 자격',true));btn.append(info);
  }
  btn.addEventListener('click',()=>{if(selected.has(c.policy_id))selected.delete(c.policy_id);else selected.add(c.policy_id);render();});wrapper.append(btn);
+ if(!excluded&&Array.isArray(c.recommendation_reasons)&&c.recommendation_reasons.length){
+  const explanation=create('div','info-card recommendation-reasons');explanation.append(create('strong','','보여드린 이유'));
+  c.recommendation_reasons.forEach(reason=>explanation.append(para(reason,'muted')));
+  explanation.append(para('관심과의 관련성을 설명하며, 신청 자격을 뜻하지 않아요.','muted'));wrapper.append(explanation);
+ }
  if(detailed&&!excluded)wrapper.append(checkDetails(c));return wrapper;
 }
 async function chooseBasket(){

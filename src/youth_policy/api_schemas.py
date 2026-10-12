@@ -112,6 +112,7 @@ class CheckSchema(ContractModel):
 class CandidateSchema(ContractModel):
     policy_id: str
     policy_name: str
+    recommendation_reasons: list[str] = Field(default_factory=list)
     summary: str | None
     benefit_text: str | None
     status: ConditionStatus
