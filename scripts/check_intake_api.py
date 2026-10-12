@@ -11,20 +11,22 @@ from typing import Sequence
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from youth_policy.api_smoke import LocalApiClient, run_smoke
+from youth_policy.api_smoke import DeployedApiClient, LocalApiClient, run_smoke
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """점검 요약만 출력하며 실제 사용자 답변·원문 응답·파일을 저장하지 않습니다."""
     parser = argparse.ArgumentParser(description="Check a running local Intake API with synthetic answers.")
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
+    parser.add_argument("--deployment", action="store_true", help="Check the explicitly supplied HTTPS service origin.")
     parser.add_argument("--timeout", type=float, default=5.0)
     parser.add_argument("--require-detail", action="store_true", help="Return exit code 2 if detail checks are skipped.")
     args = parser.parse_args(argv)
     try:
-        client = LocalApiClient(args.base_url, timeout=args.timeout)
+        client_type = DeployedApiClient if args.deployment else LocalApiClient
+        client = client_type(args.base_url, timeout=args.timeout)
     except ValueError:
-        print("Invalid local URL or timeout.", file=sys.stderr)
+        print("Invalid service origin or timeout.", file=sys.stderr)
         return 1
     checks = run_smoke(client)
     print(json.dumps({"checks": [vars(check) for check in checks],
