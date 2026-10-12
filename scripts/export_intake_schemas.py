@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from youth_policy.api_schemas import IntakeResponse, StartRequest, TransitionRequest
+from youth_policy.api_schemas import ExplanationRequest, ExplanationResponse, IntakeResponse, StartRequest, TransitionRequest
 
 
 def main() -> None:
@@ -18,6 +18,7 @@ def main() -> None:
     for name, model in (
         ("start-request.json", StartRequest), ("transition-request.json", TransitionRequest),
         ("intake-response.json", IntakeResponse),
+        ("explanation-request.json", ExplanationRequest), ("explanation-response.json", ExplanationResponse),
     ):
         (folder / name).write_text(
             json.dumps(model.model_json_schema(), ensure_ascii=False, indent=2) + "\n",
