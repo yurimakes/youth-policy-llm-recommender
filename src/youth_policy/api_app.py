@@ -16,12 +16,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
 from youth_policy.api_config import ApiSettings, korea_today, load_api_settings
-from youth_policy.api_schemas import IntakeResponse, StartRequest, TransitionRequest
+from youth_policy.api_schemas import ExplanationRequest, ExplanationResponse, IntakeResponse, StartRequest, TransitionRequest
+from youth_policy.evidence_explanation import EvidenceSelector, load_evidence_selector, select_evidence
 from youth_policy.intake import Stage, start_intake
 from youth_policy.intake_contract import (
     PayloadError, TransitionConflict, apply_action, response_payload, state_from_payload,
 )
 from youth_policy.models import PolicyRecord
+from youth_policy.conditions import STATUS_LABELS
+from youth_policy.intake_service import build_guidance
 from youth_policy.policy_repository import PolicyDataUnavailable, load_policies_readonly
 
 
@@ -29,10 +32,13 @@ def create_app(
     *, settings: ApiSettings | None = None,
     policy_provider: Callable[[], tuple[PolicyRecord, ...]] | None = None,
     date_provider: Callable[[], date] = korea_today,
+    evidence_selector: EvidenceSelector | None = None,
+    load_ai_from_environment: bool = False,
 ) -> FastAPI:
     """개발 서버를 만들며 사용자 상태를 서버에 저장하지 않습니다."""
     config = settings or load_api_settings()
     provider = policy_provider or (lambda: load_policies_readonly(config.policy_db_path))
+    selector = evidence_selector if evidence_selector is not None else (load_evidence_selector() if load_ai_from_environment else None)
     app = FastAPI(title="청년정책 AI 에이전트 — Intake API", version="0.2.0")
     demo_directory = Path(__file__).resolve().parents[2] / "demo"
     demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
@@ -118,6 +124,28 @@ def create_app(
                                    else ("ready" if records else "empty"))
         state_from_payload(payload["state"])
         return payload
+
+    @app.post("/api/v1/intake/explanation", response_model=ExplanationResponse)
+    def explanation(body: ExplanationRequest) -> dict[str, Any]:
+        """On explicit request, recheck the candidate and quote recorded evidence."""
+        state = state_from_payload(body.state.model_dump(mode="json"))
+        if state.stage not in {Stage.RESULTS, Stage.PREPARATION}:
+            raise TransitionConflict("explanations belong to current results")
+        records, today = provider(), date_provider()
+        guidance = next((p for p in build_guidance(records, state, reference_date=today)
+                         if p.policy_id == body.policy_id), None)
+        if guidance is None:
+            raise TransitionConflict("policy is not a current candidate")
+        policy = next(p for p in records if p.policy_id == body.policy_id)
+        checks = [{"field": c.field, "status": c.status.value,
+                   "status_label": STATUS_LABELS[c.status], "reason": c.reason} for c in guidance.assessment.checks]
+        selected = select_evidence(policy, state, checks, focus=body.focus, use_ai=body.use_ai, selector=selector)
+        return {"api_version": "1", "policy_id": policy.policy_id, "policy_name": policy.policy_name,
+                "focus": body.focus, **selected, "checks": checks,
+                "recommendation_reasons": list(guidance.recommendation_reasons),
+                "source_name": policy.source_name, "last_verified_at": policy.last_verified_at.isoformat(),
+                "reference_date": today.isoformat(),
+                "notice": "수집된 기록의 발췌입니다. 원문 공고의 최신성·최종 신청 자격을 확정하지 않으며, 생략된 조건은 공식 공고에서 확인하세요."}
 
     return app
 

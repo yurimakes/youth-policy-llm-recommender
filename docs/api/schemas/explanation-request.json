@@ -1,0 +1,203 @@
+{
+  "$defs": {
+    "ProfileSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "anyOf": [
+            {
+              "maximum": 120,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Age"
+        },
+        "region_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{5}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region Code"
+        },
+        "employment_status": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Employment Status"
+        }
+      },
+      "title": "ProfileSchema",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "start",
+        "interest",
+        "basic",
+        "results",
+        "detail",
+        "preparation"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "StateSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "start_mode": {
+          "enum": [
+            "situation",
+            "goal"
+          ],
+          "title": "Start Mode",
+          "type": "string"
+        },
+        "stage": {
+          "$ref": "#/$defs/Stage"
+        },
+        "cards": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Cards",
+          "type": "object"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSchema"
+        },
+        "preferences": {
+          "additionalProperties": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxProperties": 2,
+          "propertyNames": {
+            "maxLength": 128
+          },
+          "title": "Preferences",
+          "type": "object"
+        },
+        "answered": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Answered",
+          "type": "array"
+        },
+        "skipped": {
+          "items": {
+            "maxLength": 128,
+            "type": "string"
+          },
+          "maxItems": 7,
+          "title": "Skipped",
+          "type": "array"
+        },
+        "interested_policy_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interested Policy Id"
+        },
+        "detail_choice": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Detail Choice"
+        },
+        "detail_paused": {
+          "title": "Detail Paused",
+          "type": "boolean"
+        },
+        "revision": {
+          "minimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_mode",
+        "stage",
+        "cards",
+        "profile",
+        "preferences",
+        "answered",
+        "skipped",
+        "interested_policy_id",
+        "detail_choice",
+        "detail_paused",
+        "revision"
+      ],
+      "title": "StateSchema",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "state": {
+      "$ref": "#/$defs/StateSchema"
+    },
+    "policy_id": {
+      "maxLength": 128,
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "focus": {
+      "default": "overview",
+      "enum": [
+        "overview",
+        "preparation",
+        "conditions"
+      ],
+      "title": "Focus",
+      "type": "string"
+    },
+    "use_ai": {
+      "default": false,
+      "title": "Use Ai",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "state",
+    "policy_id"
+  ],
+  "title": "ExplanationRequest",
+  "type": "object"
+}

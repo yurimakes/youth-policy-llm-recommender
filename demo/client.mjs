@@ -40,6 +40,35 @@ export class IntakeSession {
     if (!this.result) throw new Error("먼저 상황이나 목표를 선택해 주세요.");
     return this.request("/api/v1/intake/transition", {state: this.result.state, action});
   }
+
+  async explain(policyId, {focus = 'overview', useAI = false} = {}) {
+    if (this.busy) throw new Error('진행 중인 요청이 끝난 뒤 다시 시도해 주세요.');
+    if (!this.result || !this.result.candidates.some(c => c.policy_id === policyId)) {
+      throw new Error('현재 결과의 지원을 선택해 주세요.');
+    }
+    this.busy = true;
+    try {
+      const response = await this.fetcher('/api/v1/intake/explanation', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({state: this.result.state, policy_id: policyId, focus, use_ai: useAI}),
+        cache: 'no-store', credentials: 'omit'
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(response.status === 409
+        ? '지원 조건이 달라졌을 수 있어요. 답변과 후보를 다시 확인해 주세요.'
+        : '근거를 불러오지 못했어요. 기존 답변은 유지했어요.');
+      if (payload.api_version !== '1' || payload.policy_id !== policyId
+          || !['source_only','ai_selected'].includes(payload.mode)
+          || typeof payload.ai_available !== 'boolean' || typeof payload.notice !== 'string'
+          || !Array.isArray(payload.checks) || !Array.isArray(payload.items) || payload.items.length > 3
+          || payload.items.some(item => typeof item.evidence_id !== 'string'
+            || typeof item.label !== 'string' || typeof item.excerpt !== 'string'
+            || typeof item.truncated !== 'boolean')) {
+        throw new Error('근거 응답을 확인할 수 없어요. 기존 답변은 유지했어요.');
+      }
+      return payload;
+    } finally { this.busy = false; }
+  }
 }
 
 export function safeSourceUrl(value) {
