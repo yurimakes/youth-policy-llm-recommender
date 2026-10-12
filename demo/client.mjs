@@ -63,3 +63,9 @@ export function formatVerifiedAt(value) {
 export function viewForStage(stage) {
   return stage === "start" ? "start" : ["results", "preparation"].includes(stage) ? "results" : "question";
 }
+
+export function basicQuestionProgress(state) {
+  const completed = new Set([...(state.answered || []), ...(state.skipped || [])]
+    .filter(key => ['age', 'region_code'].includes(key)));
+  return Math.min(100, (completed.size + 1) * 50);
+}
