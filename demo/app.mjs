@@ -1,4 +1,4 @@
-import {IntakeSession,safeSourceUrl,formatVerifiedAt} from './client.mjs';
+import {IntakeSession,safeSourceUrl,formatVerifiedAt,basicQuestionProgress} from './client.mjs';
 import {DemoSession,MOCK_POLICIES} from './mock.mjs';
 import {preparationDetails} from './preparation.mjs';
 
@@ -108,7 +108,7 @@ function intake(){
  if(!q)return;
  if(q.input_type!=='card')options.set(q.key,q.options);
  const title=s.stage==='start'?'지원 찾기':s.stage==='interest'?'지원 찾기':s.stage==='detail'?'자세히 확인하기':'기초 확인';$('page-title').textContent=title;
- $('progress').hidden=!['basic','detail'].includes(s.stage);$('progress-fill').style.width=s.stage==='basic'?(q.key==='region_code'?'50%':'100%'):'60%';
+ $('progress').hidden=!['basic','detail'].includes(s.stage);$('progress-fill').style.width=(s.stage==='basic'?basicQuestionProgress(s):60)+'%';
  const eyebrow=s.stage==='start'?'내게 맞는 지원':s.stage==='interest'?'지금 가장 가까운 것':s.stage==='detail'?'선택한 지원을 조금 더 확인해요':'필요한 정보만 하나씩';
  heading(eyebrow,q.prompt,q.purpose);
  if(s.stage==='start'){

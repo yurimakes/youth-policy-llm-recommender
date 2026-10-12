@@ -1,7 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {IntakeSession, safeSourceUrl, formatVerifiedAt, viewForStage} from "../demo/client.mjs";
+import {IntakeSession, safeSourceUrl, formatVerifiedAt, viewForStage, basicQuestionProgress} from "../demo/client.mjs";
 import './test_preparation.mjs';
+
+test('basic progress follows completed facts instead of the question key or card history',()=>{
+ assert.equal(basicQuestionProgress({answered:['situation','interest'],skipped:[]}),50);
+ for(const key of ['age','region_code']){
+  assert.equal(basicQuestionProgress({answered:[key],skipped:[]}),100);
+  assert.equal(basicQuestionProgress({answered:[],skipped:[key]}),100);
+ }
+});
 
 const payload = (stage = "start") => ({api_version: "1", state: {stage, revision: 0}, candidates: [], notice: "공식 공고 확인"});
 const response = (body, status = 200) => ({ok: status === 200, status, json: async () => body});

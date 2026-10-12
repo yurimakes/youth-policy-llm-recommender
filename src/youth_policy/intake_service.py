@@ -72,18 +72,42 @@ def build_guidance(
 def next_question(
     state: IntakeState, policies: tuple[PolicyRecord, ...], *, reference_date: date
 ) -> Question | None:
+    """Choose a relevant unanswered fact using current comparable conditions.
+
+    Different recorded condition groups are prioritized, then missing-input
+    coverage. Stable ties use the existing question order. This heuristic does
+    not predict a user's answer or claim optimal question counts.
+    """
     if state.stage not in {Stage.BASIC, Stage.DETAIL}:
         return None
     candidates = build_guidance(policies, state, reference_date=reference_date)
     if state.stage is Stage.DETAIL:
         candidates = tuple(p for p in candidates if p.policy_id == state.interested_policy_id)
-    missing = {check.field for p in candidates for check in p.assessment.checks
-               if check.status is ConditionStatus.INPUT_MISSING}
     allowed = ("age", "region_code") if state.stage is Stage.BASIC else tuple(QUESTIONS)
-    for key in allowed:
-        if key in missing and key not in state.answered and key not in state.skipped:
-            return QUESTIONS[key]
-    return None
+    records = {p.policy_id: p for p in policies}
+    missing = {key: tuple(records[p.policy_id] for p in candidates
+                          if any(c.field == key and c.status is ConditionStatus.INPUT_MISSING
+                                 for c in p.assessment.checks)) for key in allowed}
+    available = tuple(key for key in allowed if missing[key]
+                      and key not in state.answered and key not in state.skipped)
+    if not available:
+        return None
+    key = max(available, key=lambda field: (
+        len({_condition_group(record, field) for record in missing[field]}),
+        len(missing[field]),
+    ))
+    label = {"age": "연령", "region_code": "지역", "employment_status": "취업 상태"}[key]
+    scope = "선택한 지원" if state.stage is Stage.DETAIL else f"현재 후보 {len(candidates)}개 중 {len(missing[key])}개"
+    return replace(QUESTIONS[key], purpose=f"{scope}의 {label} 조건을 비교하기 위한 질문이에요. " + QUESTIONS[key].purpose)
+
+
+def _condition_group(policy: PolicyRecord, field: str) -> tuple[object, ...]:
+    """Group only conditions the existing assessment marked comparable."""
+    if field == "age":
+        return (policy.age_min, policy.age_max)
+    if field == "region_code":
+        return tuple(sorted(set(part.strip() for part in (policy.region_code or "").split(","))))
+    return (policy.employment_status,)
 
 
 def detail_is_useful(
