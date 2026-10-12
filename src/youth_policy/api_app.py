@@ -37,6 +37,7 @@ def create_app(
     demo_directory = Path(__file__).resolve().parents[2] / "demo"
     demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
                    "client.mjs": "text/javascript", "mock.mjs": "text/javascript",
+                   "preparation.mjs": "text/javascript",
                    "official-policies.json": "application/json",
                    "Pretendard-Regular.woff2": "font/woff2",
                    "Pretendard-SemiBold.woff2": "font/woff2",

@@ -60,6 +60,7 @@ class HttpTests(unittest.TestCase):
                                    ("/demo/assets/app.mjs", "javascript"),
                                    ("/demo/assets/client.mjs", "javascript"),
                                    ("/demo/assets/mock.mjs", "javascript"),
+                                   ("/demo/assets/preparation.mjs", "javascript"),
                                    ("/demo/assets/official-policies.json", "application/json"),
                                    ("/demo/assets/Pretendard-Regular.woff2", "font/woff2"),
                                    ("/demo/assets/Pretendard-SemiBold.woff2", "font/woff2"),

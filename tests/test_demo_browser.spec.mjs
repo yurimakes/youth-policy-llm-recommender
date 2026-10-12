@@ -147,5 +147,9 @@ test('real FastAPI serves modules, accepts manual region correction and retains 
  await page.getByRole('button',{name:'담은 지원 준비하기',exact:true}).click();
  await page.getByRole('button',{name:'상담 요약서',exact:true}).click();
  await expect(page.locator('.document')).toContainText('강남구');
+ await expect(page.locator('.recorded-preparation')).toContainText('2026-10-01 ~ 2026-10-31');
+ await expect(page.locator('.recorded-preparation')).toContainText('테스트용 서류 원문');
+ await expect(page.locator('.recorded-preparation')).toContainText('테스트용 접수 안내');
+ await expect(page.locator('.recorded-preparation')).toContainText('최신 접수·서류 확정 안내가 아니에요');
  expect(errors).toEqual([]);
 });
