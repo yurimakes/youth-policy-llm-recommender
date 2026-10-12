@@ -39,6 +39,47 @@ test('unknown policy explanation is rejected without a request',async()=>{
 const payload = (stage = "start") => ({api_version: "1", state: {stage, revision: 0}, candidates: [], notice: "공식 공고 확인"});
 const response = (body, status = 200) => ({ok: status === 200, status, json: async () => body});
 
+test('timeout aborts a hanging request and retry ignores its late response', async () => {
+  let finish, signal, calls = 0;
+  const previous = payload('basic'), retried = payload('results');
+  const session = new IntakeSession((path, options) => {
+    calls++;
+    if (calls === 1) { signal = options.signal; return new Promise(resolve => { finish = resolve; }); }
+    return Promise.resolve(response(retried));
+  }, {timeoutMs: 20});
+  session.result = previous;
+  await assert.rejects(session.transition({type:'show_results'}), /이전 답변은 유지/);
+  assert.equal(signal.aborted, true); assert.equal(session.busy, false);
+  assert.equal(session.result, previous); assert.equal(calls, 1);
+  await session.transition({type:'show_results'});
+  finish(response(payload('start')));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(session.result, retried); assert.equal(calls, 2);
+});
+
+test('evidence JSON decoding is bounded and preserves the prior state', async () => {
+  const previous = payload('results'); previous.candidates = [{policy_id:'TEST'}];
+  let signal;
+  const session = new IntakeSession(async (_, options) => {
+    signal = options.signal; return {ok:true, json:() => new Promise(() => {})};
+  }, {timeoutMs:20});
+  session.result = previous;
+  await assert.rejects(session.explain('TEST', {useAI:true}), /연결이 오래/);
+  assert.equal(signal.aborted, true); assert.equal(session.busy, false); assert.equal(session.result, previous);
+});
+
+test('successful request clears its deadline without aborting the transport', async () => {
+  let signal;
+  const session = new IntakeSession(async (_, options) => {signal = options.signal; return response(payload());}, {timeoutMs:20});
+  await session.start('situation');
+  await new Promise(resolve => setTimeout(resolve, 40));
+  assert.equal(signal.aborted, false); assert.equal(session.busy, false);
+});
+
+test('invalid request deadlines are rejected', () => {
+  for (const timeoutMs of [0, -1, NaN, Infinity]) assert.throws(() => new IntakeSession(async()=>{}, {timeoutMs}));
+});
+
 test("next POST sends the complete prior state and uses relative same-origin routes", async () => {
   const requests = [];
   const initial = payload();

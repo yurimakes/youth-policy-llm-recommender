@@ -2,7 +2,7 @@
 
 **상황 카드에서 필요한 질문, 지원 후보와 조건 확인, 준비·상담 행동까지 이어가는 서비스**
 
-[공개 데모](https://jiwon-basket.vercel.app/) · [데모 사용 안내](docs/demo/README.md) · [개발자 실행 안내](docs/getting-started/README.md) · [구조와 데이터 흐름](docs/architecture.md) · [API 규격](docs/api/intake-v1.md) · [개발·검증 계획](docs/development-plan.md)
+[공개 데모](https://jiwon-basket.vercel.app/) · [데모 사용 안내](docs/demo/README.md) · [개발자 실행 안내](docs/getting-started/README.md) · [구조와 데이터 흐름](docs/architecture.md) · [API 규격](docs/api/intake-v1.md) · [실제 API 배포 준비](docs/api/deployment.md) · [개발·검증 계획](docs/development-plan.md)
 
 공개 데모는 로그인 없이 열리는 **가상 정책·조건 체험**입니다. 로컬 FastAPI는 실제 정책 SQLite를 읽어 같은 화면에 응답합니다. 공개 정적 데모에서는 Python API와 실제 정책 DB를 사용하지 않습니다. 최종 자격과 현재 모집 여부는 공식 공고·기관에서 확인합니다.
 
@@ -41,6 +41,7 @@
 - 문서 복사와 브라우저 인쇄를 통한 PDF 저장
 - 실제 제도 6개의 별도 공식 참고자료: ID·URL·확인일·기간 주의사항 표시
 - 로컬 실제 API: 관심 기반 후보 정렬·필요한 질문 조정, 기록된 준비 정보와 출처 연결 설명. 선택적 AI는 서버 설정과 사용자 요청이 있을 때만 근거 항목을 고릅니다.
+- 실제 API 실행기·Docker 패키지, 읽기 전용 DB 준비 검사와 요청 10초 시간 제한·답변 유지·재시도. 공개 HTTPS 서비스 연결 검사를 지원합니다. [실행·검증 범위](docs/api/deployment.md)
 
 상황 카드에서 미취업·소득·경제난을 추정하지 않고, 선호를 자격 조건으로 사용하지 않습니다. 가상 정책의 조건과 공식 참고자료는 별개입니다. 입력·장바구니·완료 체크는 새로고침하면 초기화됩니다. 공개 가상 데모는 외부 AI를 호출하지 않습니다. 로컬 API의 선택적 AI 설명은 사용자 나이·지역 값이나 원문 답변을 모델에 보내지 않으며, 검증된 항목 ID로 기록된 발췌만 표시합니다. 자동 제출·예약·연락은 수행하지 않습니다. [설명 API와 설정](docs/api/intake-v1.md#출처를-연결한-설명)
 
