@@ -133,6 +133,9 @@ test('real FastAPI serves modules, accepts manual region correction and retains 
  await page.getByLabel('실제 거주 지역 5자리 코드',{exact:true}).fill('11680');
  await page.getByRole('button',{name:'다음',exact:true}).click();
  await expect(page.locator('.policy-choice')).toHaveCount(1);
+ await expect(page.locator('.recommendation-reasons')).toContainText('보여드린 이유');
+ await expect(page.locator('.recommendation-reasons')).toContainText('주거');
+ await expect(page.locator('.recommendation-reasons')).toContainText('신청 자격을 뜻하지 않아요');
  await page.locator('.policy-choice').click();await page.getByRole('button',{name:'1개 담기',exact:true}).click();
  await page.getByRole('button',{name:'지금 결과로 볼게요',exact:true}).click();
  await page.getByRole('button',{name:'내 답변 수정',exact:true}).click();

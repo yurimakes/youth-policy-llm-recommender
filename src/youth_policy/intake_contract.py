@@ -198,6 +198,7 @@ def response_payload(
     catalog = {p.policy_id: p for p in policies}
     candidates = [{
         "policy_id": p.policy_id, "policy_name": p.policy_name,
+        "recommendation_reasons": list(p.recommendation_reasons),
         "summary": catalog[p.policy_id].summary, "benefit_text": catalog[p.policy_id].benefit_text,
         "status": p.assessment.status.value, "status_label": STATUS_LABELS[p.assessment.status],
         "checks": [{"field": c.field, "status": c.status.value,
