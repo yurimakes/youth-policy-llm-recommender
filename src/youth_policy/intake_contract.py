@@ -199,6 +199,11 @@ def response_payload(
     candidates = [{
         "policy_id": p.policy_id, "policy_name": p.policy_name,
         "recommendation_reasons": list(p.recommendation_reasons),
+        "application_start": catalog[p.policy_id].application_start.isoformat() if catalog[p.policy_id].application_start else None,
+        "application_end": catalog[p.policy_id].application_end.isoformat() if catalog[p.policy_id].application_end else None,
+        "application_method": catalog[p.policy_id].application_method,
+        "required_documents": catalog[p.policy_id].required_documents,
+        "contact": catalog[p.policy_id].contact,
         "summary": catalog[p.policy_id].summary, "benefit_text": catalog[p.policy_id].benefit_text,
         "status": p.assessment.status.value, "status_label": STATUS_LABELS[p.assessment.status],
         "checks": [{"field": c.field, "status": c.status.value,
