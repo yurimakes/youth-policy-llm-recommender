@@ -11,6 +11,31 @@ test('basic progress follows completed facts instead of the question key or card
  }
 });
 
+test('evidence request is explicit and never replaces the intake state',async()=>{
+ const result=payload('results');result.candidates=[{policy_id:'TEST'}];
+ const evidence={api_version:'1',policy_id:'TEST',mode:'source_only',ai_available:true,notice:'공고 확인',checks:[],items:[]};
+ let body;
+ const session=new IntakeSession(async(path,options)=>{assert.equal(path,'/api/v1/intake/explanation');body=JSON.parse(options.body);return response(evidence);});
+ session.result=result;
+ assert.equal(await session.explain('TEST'),evidence);
+ assert.equal(body.use_ai,false);assert.equal(body.focus,'overview');assert.deepEqual(body.state,result.state);
+ assert.equal(session.result,result);assert.equal(session.busy,false);
+ await session.explain('TEST',{useAI:true,focus:'preparation'});assert.equal(body.use_ai,true);
+});
+
+test('failed and mismatched evidence responses preserve answers and basket input',async()=>{
+ for(const [body,status] of [[{},503],[{api_version:'1',policy_id:'OTHER',mode:'source_only',items:[]},200]]){
+  const result=payload('results');result.candidates=[{policy_id:'TEST'}];
+  const session=new IntakeSession(async()=>response(body,status));session.result=result;
+  await assert.rejects(()=>session.explain('TEST'));assert.equal(session.result,result);assert.equal(session.busy,false);
+ }
+});
+
+test('unknown policy explanation is rejected without a request',async()=>{
+ let calls=0;const session=new IntakeSession(async()=>{calls++;});session.result=payload('results');
+ await assert.rejects(()=>session.explain('OTHER'));assert.equal(calls,0);
+});
+
 const payload = (stage = "start") => ({api_version: "1", state: {stage, revision: 0}, candidates: [], notice: "공식 공고 확인"});
 const response = (body, status = 200) => ({ok: status === 200, status, json: async () => body});
 

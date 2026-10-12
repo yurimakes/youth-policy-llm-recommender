@@ -88,6 +88,13 @@ class TransitionRequest(ContractModel):
     action: ActionSchema
 
 
+class ExplanationRequest(ContractModel):
+    state: StateSchema
+    policy_id: ShortString
+    focus: Literal["overview", "preparation", "conditions"] = "overview"
+    use_ai: StrictBool = False
+
+
 class ChoiceSchema(ContractModel):
     value: str
     label: str
@@ -107,6 +114,32 @@ class CheckSchema(ContractModel):
     status: ConditionStatus
     status_label: str
     reason: str
+
+
+class EvidenceSchema(ContractModel):
+    evidence_id: str
+    field: str
+    label: str
+    excerpt: str
+    truncated: bool
+
+
+class ExplanationResponse(ContractModel):
+    api_version: Literal["1"] = "1"
+    policy_id: str
+    policy_name: str
+    focus: Literal["overview", "preparation", "conditions"]
+    mode: Literal["source_only", "ai_selected"]
+    fallback_reason: Literal["unavailable", "invalid_selection", "provider_error"] | None
+    ai_available: bool
+    items: list[EvidenceSchema] = Field(max_length=3)
+    checks: list[CheckSchema]
+    recommendation_reasons: list[str]
+    source_name: str
+    source_url: str | None
+    last_verified_at: datetime
+    reference_date: date
+    notice: str
 
 
 class CandidateSchema(ContractModel):
