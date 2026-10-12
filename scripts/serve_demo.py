@@ -17,7 +17,7 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         path = urlsplit(self.path).path
-        assets = {"style.css", "app.mjs", "client.mjs", "mock.mjs", "official-policies.json",
+        assets = {"style.css", "app.mjs", "client.mjs", "mock.mjs", "preparation.mjs", "official-policies.json",
                   "Pretendard-Regular.woff2", "Pretendard-SemiBold.woff2",
                   "Pretendard-ExtraBold.woff2", "Pretendard-OFL.txt"}
         if path not in {"/", "/index.html", "/demo", "/demo/", "/demo/index.html"} and path not in {
