@@ -11,6 +11,13 @@
           "title": "Policy Name",
           "type": "string"
         },
+        "recommendation_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommendation Reasons",
+          "type": "array"
+        },
         "summary": {
           "anyOf": [
             {
