@@ -1,6 +1,24 @@
 import {test,expect} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
 
+test('adaptive API asks region first and skips age when only uncertain data remains',async({page})=>{
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8767/demo');
+ await choose(page,'쉬고 있어요');await choose(page,'생활비 부담 줄이기');
+ await expect(page.getByLabel('실제 거주 지역',{exact:true})).toBeVisible();
+ await expect(page.locator('#screen')).toContainText('현재 후보 3개 중 2개');
+ await expect(page.getByLabel('만 나이',{exact:true})).toHaveCount(0);
+ await expect(page.locator('#progress-fill')).toHaveAttribute('style',/width: 50%/);
+ await page.getByLabel('실제 거주 지역',{exact:true}).selectOption('__manual__');
+ await page.getByLabel('실제 거주 지역 5자리 코드',{exact:true}).fill('26110');
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+ await expect(page.locator('.policy-choice')).toHaveCount(1);
+ await expect(page.locator('.policy-choice')).toContainText('추가 확인이 필요한 테스트 지원');
+ await expect(page.getByLabel('만 나이',{exact:true})).toHaveCount(0);
+ await expect(page.locator('#screen')).toContainText('최종 자격');
+ expect(errors).toEqual([]);
+});
+
 const choose=async(page,name)=>{
  const radio=page.getByRole('radio',{name,exact:true});
  await page.locator('.choice-card').filter({has:radio}).click();

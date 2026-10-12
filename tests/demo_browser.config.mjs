@@ -9,6 +9,7 @@ export default defineConfig({
  use:{baseURL:'http://127.0.0.1:8766',viewport:{width:390,height:844},trace:'retain-on-failure'},
  webServer:[
   {command:`"${python}" scripts/serve_demo.py --port 8766 --directory "${directory}"`,cwd:root,url:'http://127.0.0.1:8766',timeout:30000},
-  {command:`"${python}" tests/serve_demo_fixture.py`,cwd:root,url:'http://127.0.0.1:8765/health',timeout:30000}
+  {command:`"${python}" tests/serve_demo_fixture.py`,cwd:root,url:'http://127.0.0.1:8765/health',timeout:30000},
+  {command:`"${python}" tests/serve_adaptive_fixture.py`,cwd:root,url:'http://127.0.0.1:8767/health',timeout:30000}
  ]
 });
