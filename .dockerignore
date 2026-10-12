@@ -1,0 +1,19 @@
+# Only runtime source enters the build context; credentials and policy DB stay outside.
+**
+!Dockerfile
+!.dockerignore
+!requirements-api.txt
+!requirements-service.txt
+!api.py
+!src/
+!src/**
+!demo/
+!demo/**
+!scripts/
+!scripts/run_intake_api.py
+!scripts/check_readiness.py
+**/__pycache__/
+**/*.pyc
+**/.env*
+**/secrets.toml
+**/*.sqlite3*

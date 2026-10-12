@@ -25,6 +25,28 @@ const choose=async(page,name)=>{
  await expect(radio).toBeChecked();
  await page.getByRole('button',{name:'다음',exact:true}).click();
 };
+
+test('real API timeout keeps answered age and allows an explicit retry',async({page})=>{
+ await page.goto('http://127.0.0.1:8765/demo');
+ await choose(page,'쉬고 있어요');await choose(page,'생활비 부담 줄이기');
+ await page.getByLabel('만 나이',{exact:true}).fill('24');
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+ await page.getByLabel('실제 거주 지역',{exact:true}).selectOption('__manual__');
+ await page.getByLabel('실제 거주 지역 5자리 코드',{exact:true}).fill('11680');
+ await page.clock.install();
+ await page.route('**/api/v1/intake/transition',()=>{});
+ await page.getByRole('button',{name:'다음',exact:true}).click();
+ await expect(page.locator('#loading')).toBeVisible();
+ await page.clock.fastForward(11000);
+ await expect(page.locator('#error')).toContainText('이전 답변은 유지');
+ await expect(page.locator('#chips')).toContainText('만 24세');
+ await expect(page.getByRole('button',{name:'다시 시도하기',exact:true})).toBeEnabled();
+ await page.unroute('**/api/v1/intake/transition');
+ await page.getByRole('button',{name:'다시 시도하기',exact:true}).click();
+ await expect(page.locator('.policy-choice')).toHaveCount(1);
+ await expect(page.locator('#chips')).toContainText('만 24세');
+ await expect(page.locator('#error')).toBeHidden();
+});
 async function basic(page){
  await page.goto('/');
  await expect(page.locator('#demo-banner')).toBeVisible();

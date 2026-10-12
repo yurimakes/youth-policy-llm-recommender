@@ -1,20 +1,40 @@
 // UI 진행은 메모리에서만 유지하고 성공한 서버 응답으로만 교체한다.
 export class IntakeSession {
-  constructor(fetcher = globalThis.fetch.bind(globalThis)) {
+  constructor(fetcher = globalThis.fetch.bind(globalThis), {timeoutMs = 10000} = {}) {
+    if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new Error('요청 시간 제한을 확인해 주세요.');
     this.fetcher = fetcher;
+    this.timeoutMs = timeoutMs;
     this.result = null;
     this.busy = false;
+  }
+
+  async post(path, body) {
+    const controller = new AbortController();
+    let timer;
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new Error('연결이 오래 걸리고 있어요. 이전 답변은 유지했어요. 잠시 후 다시 시도해 주세요.'));
+      }, this.timeoutMs);
+    });
+    try {
+      // Include JSON body decoding in the deadline. Ignore a late result even if
+      // an injected transport does not honor AbortSignal.
+      return await Promise.race([deadline, (async () => {
+        const response = await this.fetcher(path, {
+          method: 'POST', headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body), cache: 'no-store', credentials: 'omit', signal: controller.signal
+        });
+        return {response, payload: await response.json()};
+      })()]);
+    } finally { clearTimeout(timer); }
   }
 
   async request(path, body) {
     if (this.busy) throw new Error("진행 중인 요청이 끝난 뒤 다시 시도해 주세요.");
     this.busy = true;
     try {
-      const response = await this.fetcher(path, {
-        method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(body), cache: "no-store", credentials: "omit"
-      });
-      const payload = await response.json();
+      const {response, payload} = await this.post(path, body);
       if (!response.ok) {
         const messages = {
           503: "정책 데이터를 불러오지 못했어요. 데이터 준비 상태를 확인한 뒤 다시 시도해 주세요.",
@@ -48,12 +68,9 @@ export class IntakeSession {
     }
     this.busy = true;
     try {
-      const response = await this.fetcher('/api/v1/intake/explanation', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({state: this.result.state, policy_id: policyId, focus, use_ai: useAI}),
-        cache: 'no-store', credentials: 'omit'
+      const {response, payload} = await this.post('/api/v1/intake/explanation', {
+        state: this.result.state, policy_id: policyId, focus, use_ai: useAI
       });
-      const payload = await response.json();
       if (!response.ok) throw new Error(response.status === 409
         ? '지원 조건이 달라졌을 수 있어요. 답변과 후보를 다시 확인해 주세요.'
         : '근거를 불러오지 못했어요. 기존 답변은 유지했어요.');
