@@ -1,5 +1,6 @@
 import {IntakeSession,safeSourceUrl,formatVerifiedAt} from './client.mjs';
 import {DemoSession,MOCK_POLICIES} from './mock.mjs';
+import {preparationDetails} from './preparation.mjs';
 
 const mock=document.body.dataset.runtime==='mock';
 const session=mock?new DemoSession():new IntakeSession();
@@ -175,12 +176,19 @@ function directions(){
 function currentPolicy(){const list=chosen();return list.find(c=>c.policy_id===activePolicy)||list[0]||null;}
 const taskDefinitions=[{key:'period',title:'신청 기간 확인하기',description:'공식 공고에서 현재 모집 여부를 확인해요.',icon:'◷'},{key:'documents',title:'필요한 서류 확인하기',description:'공고의 서류 목록과 발급 경로를 살펴봐요.',icon:'▤'},{key:'questions',title:'남은 조건 물어보기',description:'공고만으로 확인하기 어려운 항목을 정리해요.',icon:'…'}];
 function tasksFor(c){return completed.get(c.policy_id)||new Set();}
+function recordedPreparation(c){
+ const details=create('section','info-card recorded-preparation');details.append(create('strong','','정책에 기록된 준비 정보'));
+ preparationDetails(c).forEach(([label,value])=>details.append(row(label,value)));
+ details.append(para('수집된 기록이며 최신 접수·서류 확정 안내가 아니에요. 공식 공고에서 다시 확인해 주세요.','muted'));
+ details.append(para('데이터 처리일 · '+formatVerifiedAt(c.last_verified_at),'muted'));return details;
+}
 function preparation(){
  $('page-title').textContent='지원장바구니';$('progress').hidden=true;
  const c=currentPolicy();if(!c){heading('담은 지원이 없어요','지원부터\n골라볼까요?');bottom('지원 결과로 돌아가기',()=>transition({type:'show_results'},()=>{page='updated';}));return;}
  activePolicy=c.policy_id;const tasks=tasksFor(c),remaining=taskDefinitions.length-tasks.size;
  heading('담은 지원 '+chosen().length+'개',remaining?'준비할 일이\n'+remaining+'개 남았어요':'확인한 내용을\n상담에 가져가세요',null);
  const tabs=create('div','basket-tabs');chosen().forEach(p=>tabs.append(button(p.policy_name,()=>{activePolicy=p.policy_id;render();},p.policy_id===c.policy_id?'active':'')));$('screen').append(tabs);
+ if(!mock)$('screen').append(recordedPreparation(c));
  const list=create('div','card-list');for(const t of taskDefinitions){
   const label=create('label','task-card'+(tasks.has(t.key)?' done':''));const input=create('input');input.type='checkbox';input.checked=tasks.has(t.key);input.setAttribute('aria-label',t.title+' 완료 표시');input.style.position='absolute';input.style.opacity='0';input.style.width='1px';input.style.height='1px';
   const body=create('span','card-content');body.append(create('strong','',t.title),create('small','',tasks.has(t.key)?'내가 확인했어요.':t.description));label.append(input,create('span','card-icon',t.icon),body,create('span','radio-mark','✓'));
@@ -205,6 +213,7 @@ function makeDocument(){
  const policy=create('div','info-card');policy.append(create('strong','',c.policy_name+(mock?' · 가상 예시':'')));
  const confirmed=c.checks.filter(x=>x.status==='confirmed').map(x=>fields[x.field]||x.field),pending=c.checks.filter(x=>x.status!=='confirmed').map(x=>fields[x.field]||x.field);
  policy.append(row('개별 조건 확인',confirmed.join(' · ')||'아직 확인된 조건 없음'),row('확인 필요',pending.join(' · '),true));doc.append(policy);
+ if(!mock)doc.append(recordedPreparation(c));
  const questions=create('div','info-card');questions.append(create('strong','',documentKind==='checklist'?'다음 확인할 항목':documentKind==='guidance'?'공식 발급 경로 확인 순서':'담당 기관에 물어볼 것'));
  const lines=documentKind==='checklist'?taskDefinitions.map(t=>(tasksFor(c).has(t.key)?'확인함 · ':'미확인 · ')+t.title):documentKind==='guidance'?['정책 공고에서 제출해야 하는 서류 목록을 먼저 확인하세요.','발급 주체와 온라인·방문 발급 가능 여부를 공식 공고나 기관에 확인하세요.','주민등록등본 등 특정 서류가 필수라고 미리 단정하지 않아요.']:['현재 모집 중인지, 제 조건으로 어떤 절차를 확인하면 될까요?','확인되지 않은 '+pending.slice(0,3).join('·')+' 항목은 어떻게 확인하나요?','필요한 서류와 공식 발급 경로를 알려주실 수 있나요?'];
  const list=create('ol');lines.forEach(t=>list.append(create('li','',t)));questions.append(list);doc.append(questions);

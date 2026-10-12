@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {IntakeSession, safeSourceUrl, formatVerifiedAt, viewForStage} from "../demo/client.mjs";
+import './test_preparation.mjs';
 
 const payload = (stage = "start") => ({api_version: "1", state: {stage, revision: 0}, candidates: [], notice: "공식 공고 확인"});
 const response = (body, status = 200) => ({ok: status === 200, status, json: async () => body});
