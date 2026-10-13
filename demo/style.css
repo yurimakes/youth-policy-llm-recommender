@@ -5,3 +5,5 @@
 @media(max-width:500px){:root{background:white}.app-shell{margin:0;min-height:100dvh;border-radius:0;box-shadow:none}.topbar{height:61px}main{padding-top:27px}.bottom-actions{padding-bottom:max(12px,env(safe-area-inset-bottom))}footer{padding-bottom:14px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{body{background:white}.app-shell{max-width:none;margin:0;border-radius:0;box-shadow:none;min-height:0}.topbar,.bottom-actions,footer,.chips,.demo-banner,.progress,dialog,.toast,.skip-link,.inline-actions,.print-hint{display:none!important}main{padding:20px}.info-card{break-inside:avoid}h1{font-size:25px}.document-footer{display:block!important}}
+
+.connection-note{margin:0;padding:12px 24px;font-size:13px;line-height:1.6;background:#eef4ff;color:#1b64da}.install-info{margin:20px 0;padding:16px;border:1px solid #e5e8eb;border-radius:14px}.install-info button{margin-top:8px}@media print{.connection-note{display:none!important}}
