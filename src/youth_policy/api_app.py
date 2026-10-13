@@ -13,7 +13,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 from youth_policy.api_config import ApiSettings, korea_today, load_api_settings
 from youth_policy.api_schemas import ExplanationRequest, ExplanationResponse, IntakeResponse, StartRequest, TransitionRequest
@@ -49,6 +49,11 @@ def create_app(
                    "Pretendard-SemiBold.woff2": "font/woff2",
                    "Pretendard-ExtraBold.woff2": "font/woff2",
                    "Pretendard-OFL.txt": "text/plain"}
+
+    @app.get("/", include_in_schema=False)
+    def service_home() -> RedirectResponse:
+        """서비스 주소에서 같은 origin의 실제 API 화면으로 연결합니다."""
+        return RedirectResponse("/demo", status_code=307)
 
     @app.get("/demo/assets/{asset_name}", include_in_schema=False)
     def demo_asset(asset_name: str) -> FileResponse:

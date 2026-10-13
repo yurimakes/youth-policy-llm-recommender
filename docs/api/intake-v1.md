@@ -199,13 +199,13 @@ const updated = await response.json();
 
 오류 응답은 `{"error":{"code":"...","message":"..."}}` 형식이다. 제출한 원문 값·내부 파일 경로를 오류에 돌려주지 않는다. POST 본문에 임의 필드, 계좌·주민등록번호·자유 입력 필드를 추가하면 거절한다. 모든 API 응답은 `Cache-Control: no-store`다.
 
-SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다. 인증·로그인·외부 모델 호출·자동 제출·자동 연락은 없다. CORS 설정은 브라우저 origin 허용이며 사용자 인증을 대신하지 않는다. 사용자 인증이나 공개 운영에 필요한 개인정보 처리 기능을 제공하지 않는다.
+SQLite는 읽기 전용으로 열고 사용자 답변을 저장하지 않는다. 인증·로그인·자동 제출·자동 연락은 없다. 외부 모델 호출은 별도 설정과 사용자 요청이 있는 설명 endpoint에서만 가능하다. CORS 설정은 브라우저 origin 허용이며 사용자 인증을 대신하지 않는다. 사용자 인증이나 공개 운영에 필요한 개인정보 처리 기능을 제공하지 않는다.
 
 ## 내장 데모 확인
 
 시작 화면에서 상황/목표 카드를 선택하고 ‘다음’을 누른다. 질문에 답하거나 건너뛰어 결과를 열고, 답변 수정·정책 선택·선택적 상세 확인을 점검한다. 선택한 정책에 유용한 미확인 질문이 없으면 추가 질문을 제안하지 않는다. 조건별 확인사항·공식 공고와 데이터 처리 기준일, 다음 확인할 항목을 표시한다. UI의 준비 화면에서는 메모리 체크와 입력·확인사항을 모은 문서 초안을 제공한다. PDF 저장은 브라우저 인쇄 기능이다.
 
-요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. CSS·JavaScript MIME 타입은 서버가 직접 지정한다.
+요청은 순서대로 실행하며 실패하면 기존 상태를 유지한다. POST와 JSON 읽기는 10초로 제한하고, timeout 이후 늦은 응답은 반영하지 않는다. 사용자가 다시 시도해야 재요청하며 AI를 자동 반복하지 않는다. 동적 정책 문구는 `textContent`로 넣고 공식 링크는 http/https만 허용한다. CSS·JavaScript MIME 타입은 서버가 직접 지정한다. [실제 API 실행·배포 준비](deployment.md)
 
 Node가 있는 개발 환경에서는 `node --test tests/test_demo_client.mjs tests/test_mock_demo.mjs`로 클라이언트를 검증할 수 있다. Node는 데모 실행에 필요하지 않다.
 
@@ -226,4 +226,4 @@ API 패키지가 없으면 HTTP 테스트는 명시적으로 skip된다. 스킵�
 
 공개 데모 주소와 사용 방법은 [데모 안내](../demo/README.md)에서 확인할 수 있다. 정적 공개 화면은 `data-runtime="mock"`, 로컬 `/demo`는 `data-runtime="api"`다. 공개 가구·참여 시간 질문을 실제 API action으로 보내지 않는다. 양쪽 UI는 입력·장바구니를 영구 저장하지 않는다. 공식 참고 목록은 공식 페이지를 모은 목록이며 가상 후보의 근거나 현재 신청 가능 증명이 아니다.
 
-정적 파일은 `style.css`, `app.mjs`, `client.mjs`, `mock.mjs`, `official-policies.json`, Pretendard WOFF2 글꼴 3개와 `Pretendard-OFL.txt`만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.
+정적 파일은 `style.css`, `app.mjs`, `client.mjs`, `mock.mjs`, `preparation.mjs`, `official-policies.json`, Pretendard WOFF2 글꼴 3개와 `Pretendard-OFL.txt`만 허용한다. JavaScript MIME은 OS와 무관하게 text/javascript를 명시하고 JSON은 application/json으로 제공한다.

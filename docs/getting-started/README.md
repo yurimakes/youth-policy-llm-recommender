@@ -79,6 +79,8 @@ OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 
 실행 중인 서버는 Ctrl+C로 종료할 수 있습니다. 코드를 갱신한 뒤 다시 실행합니다. [API 규격](../api/intake-v1.md)과 [JSON Schema](../api/schemas/intake-response.json)에서 요청·응답과 오류를 확인할 수 있습니다.
 
+DB 준비 검사부터 시작하려면 `scripts/run_intake_api.py`를 사용합니다. 서비스 전용 의존성 `requirements-service.txt`, Docker 실행과 공개 HTTPS 연결 검사는 [실제 API 실행·배포 준비](../api/deployment.md)에 있습니다. 공개 Vercel 사이트는 계속 가상 데이터 데모입니다.
+
 ## 기존 Streamlit MVP 실행
 
 기존 MVP는 온통청년 API 수집·정규화·SQLite 적재, 조건 평가, OpenAI 임베딩·FAISS 검색, 공식 정보 기반 설명과 AI 실패 폴백을 제공합니다. 진입점은 `app.py`이며 원본 코드는 [`v0.1-mvp`](https://github.com/yurimakes/youth-policy-llm-recommender/tree/v0.1-mvp)에서 확인할 수 있습니다. [원본 MVP 안내](../mvp/overview.md)
