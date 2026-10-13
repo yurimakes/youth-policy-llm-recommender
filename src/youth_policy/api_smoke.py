@@ -44,6 +44,9 @@ class LocalApiClient:
                 or parsed.password is not None or parsed.path not in {"", "/"}
                 or parsed.query or parsed.fragment):
             raise ValueError("base URL must be an http loopback origin")
+        self._configure(base_url, timeout)
+
+    def _configure(self, base_url: str, timeout: float) -> None:
         if not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("timeout must be finite and positive")
         self.base_url = base_url.rstrip("/")
@@ -74,6 +77,23 @@ class LocalApiClient:
     def transition(self, response: dict[str, Any], action: dict[str, Any]) -> dict[str, Any]:
         """직전 응답의 상태 전체를 다음 POST에 전달합니다."""
         return self.request("/api/v1/intake/transition", {"state": response["state"], "action": action})
+
+
+class DeployedApiClient(LocalApiClient):
+    """명시적으로 지정한 HTTPS origin만 점검하며 프록시·리다이렉트를 사용하지 않습니다."""
+
+    def __init__(self, base_url: str, *, timeout: float = 5.0) -> None:
+        parsed = urlsplit(base_url)
+        try:
+            parsed.port
+        except ValueError as exc:
+            raise ValueError("invalid deployment origin") from exc
+        if (parsed.scheme != "https" or not parsed.hostname or parsed.username is not None
+                or parsed.password is not None or parsed.path not in {"", "/"}
+                or parsed.query or parsed.fragment or "\\" in base_url
+                or any(c.isspace() for c in base_url)):
+            raise ValueError("deployment URL must be an exact https origin")
+        self._configure(base_url, timeout)
 
 
 def _require(condition: bool, message: str) -> None:

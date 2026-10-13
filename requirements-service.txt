@@ -1,0 +1,3 @@
+# Intake service only; the Streamlit / embedding environment stays separate.
+-r requirements-api.txt
+openai==2.44.0
