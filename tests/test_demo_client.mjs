@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {IntakeSession, safeSourceUrl, formatVerifiedAt, viewForStage, basicQuestionProgress} from "../demo/client.mjs";
 import './test_preparation.mjs';
+import './test_pwa.mjs';
 
 test('basic progress follows completed facts instead of the question key or card history',()=>{
  assert.equal(basicQuestionProgress({answered:['situation','interest'],skipped:[]}),50);

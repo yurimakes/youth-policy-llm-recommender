@@ -67,6 +67,51 @@ async function capture(page,name){
  mkdirSync('browser-artifacts/screens',{recursive:true});
  await page.screenshot({path:`browser-artifacts/screens/${name}.png`,fullPage:true});
 }
+
+for(const mode of ['static','api']){
+ test(`PWA ${mode} caches only connection notice and recovers from offline navigation`,async({page,context})=>{
+  await page.goto(mode==='api'?'http://127.0.0.1:8765/demo/':'/demo/');
+  await page.evaluate(()=>navigator.serviceWorker.ready);
+  await expect.poll(()=>page.evaluate(()=>Boolean(navigator.serviceWorker.controller))).toBe(true);
+  const manifest=await page.evaluate(async()=>await (await fetch('/manifest.webmanifest')).json());
+  expect(manifest.start_url).toBe('/demo/');expect(manifest.display).toBe('standalone');
+  expect(manifest.icons.map(icon=>icon.sizes)).toEqual(['192x192','512x512']);
+  await choose(page,'쉬고 있어요');await choose(page,'생활비 부담 줄이기');
+  if(mode==='static')await choose(page,'네, 서울에 살아요');
+  await page.getByLabel('만 나이',{exact:true}).fill('24');
+  await page.getByRole('button',{name:'다음',exact:true}).click();
+  await expect(page.locator('#chips')).toContainText('만 24세');
+  await context.setOffline(true);
+  await expect(page.locator('#connection-note')).toContainText('현재 답변은 이 화면에 유지');
+  await expect(page.locator('#chips')).toContainText('만 24세');
+  const stored=await page.evaluate(async()=>{
+   const result=[];for(const key of await caches.keys())for(const request of await (await caches.open(key)).keys())result.push(new URL(request.url).pathname);
+   return {cache:result,local:localStorage.length,session:sessionStorage.length};
+  });
+  expect(stored).toEqual({cache:['/offline.html'],local:0,session:0});
+  await page.reload();
+  await expect(page.getByRole('heading',{level:1})).toContainText('인터넷 연결');
+  await expect(page.locator('body')).toHaveAttribute('data-offline-page','jiwon-basket');
+  await expect(page.locator('body')).not.toContainText('만 24세');
+  await context.setOffline(false);
+  await page.getByRole('link',{name:'연결 후 다시 열기',exact:true}).click();
+  await expect(page.getByRole('heading',{level:1})).toContainText('요즘');
+  await expect(page.locator('#chips')).not.toContainText('만 24세');
+ });
+}
+
+test('installation prompt requires a click and iPhone instructions remain available',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'이용 안내',exact:true}).click();
+ await expect(page.locator('#install-guide')).toContainText('Safari 공유 메뉴');
+ await page.evaluate(()=>{
+  window.__installCalls=0;const event=new Event('beforeinstallprompt',{cancelable:true});
+  event.prompt=async()=>window.__installCalls++;event.userChoice=Promise.resolve({outcome:'dismissed'});window.dispatchEvent(event);
+ });
+ expect(await page.evaluate(()=>window.__installCalls)).toBe(0);
+ await page.getByRole('button',{name:'홈 화면에 추가하기',exact:true}).click();
+ expect(await page.evaluate(()=>window.__installCalls)).toBe(1);
+ await expect(page.getByRole('button',{name:'홈 화면에 추가하기',exact:true})).toBeHidden();
+});
 test('basic journey, optional detail pause/resume, basket and consultation document',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/');await expect(page.getByRole('heading',{level:1})).toContainText('요즘');

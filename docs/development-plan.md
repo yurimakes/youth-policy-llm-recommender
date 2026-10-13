@@ -14,7 +14,7 @@
 | 정책·조건 | 온통청년 수집·정규화·SQLite, 조건 평가, 로컬 Intake API | 지역·분야별 데이터 범위와 공식 근거, 복합 조건 회귀 검증 |
 | 장바구니·문서 | 메모리 장바구니, 준비 체크, 입력을 조합한 상담 초안·복사·브라우저 PDF | 공식 정책 근거를 연결한 체크리스트·발급 안내·상담 문서 |
 | AI | 기존 Streamlit MVP의 OpenAI 임베딩·FAISS 검색·설명, 로컬 API의 선택적 근거 항목 선택·검증·폴백 | 실제 모델·정책 자료 평가, 새 Intake 흐름의 질문 개인화, 공식 공고 문단 검색·문서 품질 검증 |
-| 배포 | Vercel 가상 데이터 정적 데모, 실제 API 실행기·Docker 패키지·readiness·요청 시간 제한·HTTPS 연결 검사 도구 | 컨테이너·공개 HTTPS의 실제 배포와 정책 최신성·운영 검증. [배포 준비와 검증 범위](api/deployment.md) |
+| 배포 | Vercel 가상 데이터 정적 데모, 실제 API 실행기·Docker 패키지·readiness·요청 시간 제한·HTTPS 연결 검사 도구, 설치용 manifest·오프라인 연결 안내 | 컨테이너·공개 HTTPS의 실제 배포와 정책 최신성·운영 검증. [배포 준비와 검증 범위](api/deployment.md) |
 
 G1의 구현 근거는 원본 MVP 태그와 현재 기반 코드 [`ff93923`](https://github.com/yurimakes/youth-policy-llm-recommender/commit/ff9392378137279e04287ac36d2a4c69d47f66db)다. [기반 코드 자동 검증](https://github.com/yurimakes/youth-policy-llm-recommender/actions/runs/37776582043)에서 Python·JavaScript·정적 빌드·브라우저 흐름 검사가 통과했다. 기존 수집·규칙·검색·설명 모듈과 데모·로컬 API가 G2 이후 개발의 출발점이다.
 
