@@ -13,14 +13,17 @@ class DemoHandler(SimpleHTTPRequestHandler):
 
     extensions_map = {".mjs": "text/javascript", ".html": "text/html; charset=utf-8",
                       ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
-                      ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8"}
+                      ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+                      ".webmanifest": "application/manifest+json", ".js": "text/javascript", ".png": "image/png"}
 
     def do_GET(self) -> None:
         path = urlsplit(self.path).path
-        assets = {"style.css", "app.mjs", "client.mjs", "mock.mjs", "preparation.mjs", "official-policies.json",
+        assets = {"style.css", "app.mjs", "client.mjs", "mock.mjs", "preparation.mjs", "pwa.mjs",
+                  "app-icon-192.png", "app-icon-512.png", "apple-touch-icon.png", "official-policies.json",
                   "Pretendard-Regular.woff2", "Pretendard-SemiBold.woff2",
                   "Pretendard-ExtraBold.woff2", "Pretendard-OFL.txt"}
-        if path not in {"/", "/index.html", "/demo", "/demo/", "/demo/index.html"} and path not in {
+        if path not in {"/", "/index.html", "/demo", "/demo/", "/demo/index.html",
+                        "/manifest.webmanifest", "/sw.js", "/offline.html"} and path not in {
             "/demo/assets/" + name for name in assets
         }:
             self.send_error(404)

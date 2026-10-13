@@ -55,6 +55,8 @@ class DemoBuildTests(unittest.TestCase):
             build(output)
             names = {str(p.relative_to(output)).replace("\\", "/") for p in output.rglob("*") if p.is_file()}
             self.assertEqual(names, {"index.html", "demo/index.html", "demo/assets/style.css",
+                                     "manifest.webmanifest", "sw.js", "offline.html", "demo/assets/pwa.mjs",
+                                     "demo/assets/app-icon-192.png", "demo/assets/app-icon-512.png", "demo/assets/apple-touch-icon.png",
                                      "demo/assets/app.mjs", "demo/assets/client.mjs", "demo/assets/mock.mjs", "demo/assets/preparation.mjs",
                                      "demo/assets/official-policies.json", "demo/assets/Pretendard-Regular.woff2",
                                      "demo/assets/Pretendard-SemiBold.woff2", "demo/assets/Pretendard-ExtraBold.woff2",
