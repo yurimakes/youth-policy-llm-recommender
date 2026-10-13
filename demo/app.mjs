@@ -1,6 +1,7 @@
 import {IntakeSession,safeSourceUrl,formatVerifiedAt,basicQuestionProgress} from './client.mjs';
 import {DemoSession,MOCK_POLICIES} from './mock.mjs';
 import {preparationDetails} from './preparation.mjs';
+import {setupPwa} from './pwa.mjs';
 
 const mock=document.body.dataset.runtime==='mock';
 const session=mock?new DemoSession():new IntakeSession();
@@ -291,4 +292,5 @@ $('edit-form').addEventListener('submit',async e=>{e.preventDefault();const key=
 $('detail-dialog').addEventListener('cancel',e=>{e.preventDefault();transition({type:'choose_detail',accept:false},()=>{$('detail-dialog').close();page='updated';});});
 $('scenario').addEventListener('change',()=>{if(mock)session.scenario=$('scenario').value;});
 $('demo-banner').hidden=!mock;$('demo-controls').hidden=!mock;
+setupPwa();
 start();

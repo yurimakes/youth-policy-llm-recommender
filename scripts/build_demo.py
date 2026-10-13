@@ -10,9 +10,12 @@ def build(destination: Path) -> None:
     source = Path(__file__).resolve().parents[1] / "demo"
     assets = destination / "demo" / "assets"
     assets.mkdir(parents=True, exist_ok=True)
-    for name in ("style.css", "app.mjs", "client.mjs", "mock.mjs", "preparation.mjs", "official-policies.json", "Pretendard-Regular.woff2",
+    for name in ("style.css", "app.mjs", "client.mjs", "mock.mjs", "preparation.mjs", "pwa.mjs",
+                 "app-icon-192.png", "app-icon-512.png", "apple-touch-icon.png", "official-policies.json", "Pretendard-Regular.woff2",
                  "Pretendard-SemiBold.woff2", "Pretendard-ExtraBold.woff2", "Pretendard-OFL.txt"):
         shutil.copyfile(source / name, assets / name)
+    for name in ("manifest.webmanifest", "sw.js", "offline.html"):
+        shutil.copyfile(source / name, destination / name)
     html = (source / "index.html").read_text(encoding="utf-8").replace('data-runtime="api"', 'data-runtime="mock"')
     (destination / "index.html").write_text(html, encoding="utf-8")
     (destination / "demo" / "index.html").write_text(html, encoding="utf-8")

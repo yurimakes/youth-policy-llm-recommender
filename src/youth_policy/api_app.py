@@ -44,6 +44,9 @@ def create_app(
     demo_assets = {"style.css": "text/css", "app.mjs": "text/javascript",
                    "client.mjs": "text/javascript", "mock.mjs": "text/javascript",
                    "preparation.mjs": "text/javascript",
+                   "pwa.mjs": "text/javascript",
+                   "app-icon-192.png": "image/png", "app-icon-512.png": "image/png",
+                   "apple-touch-icon.png": "image/png",
                    "official-policies.json": "application/json",
                    "Pretendard-Regular.woff2": "font/woff2",
                    "Pretendard-SemiBold.woff2": "font/woff2",
@@ -54,6 +57,18 @@ def create_app(
     def service_home() -> RedirectResponse:
         """서비스 주소에서 같은 origin의 실제 API 화면으로 연결합니다."""
         return RedirectResponse("/demo", status_code=307)
+
+    @app.get("/manifest.webmanifest", include_in_schema=False)
+    def manifest() -> FileResponse:
+        return FileResponse(demo_directory / "manifest.webmanifest", media_type="application/manifest+json")
+
+    @app.get("/sw.js", include_in_schema=False)
+    def service_worker() -> FileResponse:
+        return FileResponse(demo_directory / "sw.js", media_type="text/javascript")
+
+    @app.get("/offline.html", include_in_schema=False)
+    def offline_notice() -> FileResponse:
+        return FileResponse(demo_directory / "offline.html", media_type="text/html")
 
     @app.get("/demo/assets/{asset_name}", include_in_schema=False)
     def demo_asset(asset_name: str) -> FileResponse:
