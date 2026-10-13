@@ -1,5 +1,7 @@
 # 데이터·API 구현 검증
 
+[정책 DB 갱신·배포·복구](catalogue-release.md)
+
 [서비스 소개](../../README.md) · [개발자 실행 안내](../getting-started/README.md) · [API 규격](../api/intake-v1.md)
 
 기존 정책 파서·SQLite 저장소·조건 평가·FastAPI가 연결되는 경로를 재현한다. **기존 예제 snapshot 10개 정책을 고정 날짜로 재생하는 검증**이며, 현재 모집 정책 확보 실적이나 실제 사용자 평가 결과가 아니다. 공개 Vercel 데모는 계속 가상 체험 모드다.

@@ -61,6 +61,8 @@ OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 
 위 설정은 최대 2페이지를 수집합니다. 수집 건수와 내용은 공식 API 응답에 따라 달라지며 CLI의 `fetched_policies`와 `stored_policies`에서 확인합니다. 보존한 snapshot은 `scripts/load_ontong_snapshot.py`의 `--input`, `--db` 옵션으로 재적재할 수 있습니다.
 
+기존 DB를 갱신할 때는 수집기에서 운영 DB를 직접 지정하기보다 [격리된 후보 준비·검사·교체·복구](../validation/catalogue-release.md)를 사용합니다.
+
 ## 로컬 데모와 API
 
 실제 정책 데이터가 준비된 저장소 루트에서 실행합니다.
